@@ -1,7 +1,5 @@
 # Commander Counter
 
-&#x20;
-
 *A lightweight life & game‑state tracker for Magic: The Gathering™ Commander nights. Built with ****React Native**** + ****TypeScript****.*
 
 ## Prerequisites
@@ -88,10 +86,6 @@ Local sanity check:
 ```bash
 yarn lint && yarn typecheck && yarn test
 ```
-
-## Roadmap
-
-*
 
 Feel free to open an issue or PR for anything you’d like to tackle.
 
