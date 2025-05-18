@@ -46,9 +46,9 @@ yarn android        # builds & runs on Android emulator or device
 ├── ios/                # native iOS project
 ├── src/
 │   ├── components/     # reusable UI pieces
-│   ├── screens/        # feature screens
+│   ├── store/          # zustand store
 │   ├── hooks/          # shared hooks
-│   └── theme/          # theming & design‑system tokens
+│   └── styles/         # theming & design‑system tokens
 └── app.json            # RN config
 ```
 
