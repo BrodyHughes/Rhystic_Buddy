@@ -1,0 +1,13 @@
+# Compiled / generated
+node_modules
+ios
+android
+build
+coverage
+.idea
+.vscode
+.DS_Store
+
+# Don’t re‑format JSON lockfiles
+package-lock.json
+yarn.lock

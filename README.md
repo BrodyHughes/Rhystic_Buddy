@@ -1,29 +1,24 @@
-# Commander Counter
+# commander-counter
 
-*A lightweight life & game‑state tracker for Magic: The Gathering™ Commander nights. Built with ****React Native**** + ****TypeScript****.*
-
-## Prerequisites
-
-| Tool             | Minimum version | Install guide                                                   |
-| ---------------- | --------------- | --------------------------------------------------------------- |
-| Node.js          | 18 LTS          | [nodejs.org](https://nodejs.org)                                |
-| Yarn             | 1.x (classic)   | `corepack enable` then `corepack prepare yarn@stable —activate` |
-| Xcode            | 15              | [Apple Dev](https://developer.apple.com/xcode/)                 |
-| Android Studio   | Hedgehog        | [Android Studio](https://developer.android.com/studio)          |
-| Watchman (macOS) | –               | `brew install watchman`                                         |
-| CocoaPods (iOS)  | 1.14            | `sudo gem install cocoapods`                                    |
-
-> **Expo?** We’re using the React Native CLI for fine‑grained native control. Expo users are welcome but may need extra configuration.
-
-## Quick Start
-
-```bash
-# 1. Clone & install
-git clone https://github.com/BrodyHughes/commander-counter.git
+```sh
+git clone git@github.com:BrodyHughes/commander-counter.git
 cd commander-counter
 yarn install
+```
 
-# 2. Start Metro (in a new terminal)
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+
+# Getting Started
+
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+
+## Step 1: Start Metro
+
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
+
+To start the Metro dev server, run the following command from the root of your React Native project:
+
+```sh
 yarn start
 ```
 
