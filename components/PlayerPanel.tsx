@@ -16,32 +16,37 @@ interface Props {
 }
 
 export default function PlayerPanel({index}: Props) {
-  const {life, delta} = useLifeStore((s: {players: any[]}) => s.players[index]);
+  const {life, delta, id, theme} = useLifeStore(
+    (s: {players: any[]}) => s.players[index],
+  );
+  const isEven = id % 2 === 0;
   const changeLife = useLifeStore((s: {changeLife: any}) => s.changeLife);
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => changeLife(index, +1)}>
-        <Text style={styles.btnText}>＋</Text>
-      </TouchableOpacity>
-
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.bg,
+          transform: [{rotate: !isEven ? '180deg' : '0deg'}],
+        },
+      ]}>
       <View style={styles.lifeBlock}>
         <Text style={styles.life}>{life}</Text>
         {delta !== 0 && (
-          <Text
-            style={[
-              styles.delta,
-              {color: delta > 0 ? palette.success : palette.danger},
-            ]}>
+          // eslint-disable-next-line react-native/no-inline-styles
+          <Text style={[styles.delta, {color: delta > 0 ? '#000' : '#000'}]}>
             {delta > 0 ? `+${delta}` : delta}
           </Text>
         )}
       </View>
-
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, styles.increment]}
+        onPress={() => changeLife(index, +1)}>
+        <Text style={styles.btnText}>＋</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.decrement]}
         onPress={() => changeLife(index, -1)}>
         <Text style={styles.btnText}>－</Text>
       </TouchableOpacity>
@@ -51,23 +56,50 @@ export default function PlayerPanel({index}: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    width: '50%', // ← half the screen width
-    height: '50%', // ← half the screen height
+    width: '50%',
+    height: '49%',
+    flexDirection: 'column',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: palette.surface,
+    backgroundColor: '#efefef',
     padding: spacing.md,
+    borderRadius: radius.md,
+    margin: spacing.xs,
   },
-  lifeBlock: {alignItems: 'center', marginVertical: spacing.sm},
+  lifeBlock: {
+    alignItems: 'center',
+    marginVertical: spacing.sm,
+    // backgroundColor: 'red',
+    transform: [{rotate: '90deg'}],
+  },
   life: {...typography.heading1},
-  delta: {...typography.caption, marginTop: 2},
+  delta: {
+    ...typography.caption,
+    marginTop: 2,
+    position: 'absolute',
+    bottom: -12,
+    left: '53%',
+    transform: [{translateX: -67}],
+  },
   button: {
-    backgroundColor: palette.primary,
-    width: 56,
-    height: 56,
-    borderRadius: radius.pill,
+    // backgroundColor: palette.primary,
+    borderRadius: 0,
+    position: 'absolute',
+    width: '60%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
-  btnText: {color: '#fff', fontSize: 32, fontWeight: '600'},
+  increment: {
+    right: 0,
+  },
+  decrement: {
+    left: 0,
+  },
+  btnText: {
+    color: palette.textPrimary,
+    transform: [{rotate: '90deg'}],
+  },
 });
