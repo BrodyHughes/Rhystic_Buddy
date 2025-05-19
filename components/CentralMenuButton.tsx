@@ -11,10 +11,17 @@
 
 import React, {useState} from 'react';
 import {Modal, View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {palette, radius} from '../styles/global';
+import {radius} from '../styles/global';
+import {useLifeStore} from '../store/useLifeStore';
 
 export default function CentralMenuButton() {
   const [open, setOpen] = useState(false);
+
+  const handleReset = () => {
+    useLifeStore.setState(({players}) => ({
+      players: players.map(p => ({...p, life: 40, delta: 0})),
+    }));
+  };
 
   return (
     <>
@@ -31,9 +38,18 @@ export default function CentralMenuButton() {
           style={styles.backdrop}
           onPress={() => setOpen(false)}>
           <View style={styles.menu}>
-            <Text style={styles.menuItem}>⚙️ Settings (placeholder)</Text>
-            <Text style={styles.menuItem}>➕ Add Player (todo)</Text>
-            <Text style={styles.menuItem}>❌ Close</Text>
+            <Text style={styles.menuTitle}>Settings</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+              <Text>Players (todo)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
+              <Text>Reset Life</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={(styles.menuItem, styles.closeButton)}
+              onPress={() => setOpen(false)}>
+              <Text style={styles.closeButtonText}>x</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -41,21 +57,22 @@ export default function CentralMenuButton() {
   );
 }
 
-const FAB_SIZE = 64;
+const FAB_SIZE = 50;
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
-    top: '55%',
-    left: '50%',
+    top: '58%',
+    left: '49%',
     marginLeft: -FAB_SIZE / 2,
     marginTop: -FAB_SIZE / 2,
     width: FAB_SIZE,
     height: FAB_SIZE,
     borderRadius: radius.pill,
-    backgroundColor: palette.secondary,
+    backgroundColor: '#b0b0b0',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
+    transform: [{rotate: '90deg'}],
   },
   fabText: {color: '#fff', fontSize: 28, fontWeight: '700'},
   backdrop: {
@@ -68,7 +85,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: radius.md,
     padding: 24,
-    minWidth: 220,
+    minWidth: '50%',
   },
   menuItem: {fontSize: 18, marginVertical: 6},
+  closeButton: {
+    borderRadius: radius.pill,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: 30,
+    width: 30,
+    padding: 0,
+    margin: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontFamily: 'monospace',
+    fontSize: 20,
+    fontWeight: '400',
+  },
+  menuTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
 });

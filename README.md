@@ -36,7 +36,7 @@ yarn ios            # builds & runs in iOS Simulator
 yarn android        # builds & runs on Android emulator or device
 ```
 
-*Pro‑tip*: press R twice to reload on Android, or ⌘ R in the iOS Simulator.
+_Pro‑tip_: press R twice to reload on Android, or ⌘ R in the iOS Simulator.
 
 ## Project Structure
 
@@ -84,12 +84,11 @@ Feel free to open an issue or PR for anything you’d like to tackle.
 
 ## Troubleshooting
 
-* **Metro stuck on “Loading dependency graph”** – run `npx react-native-clean-project` then `yarn start --reset-cache`.
-* **iOS build fails with Ruby gems** – `brew install ruby` then `sudo gem install cocoapods bundler`.
-* More tips in the official [React Native Troubleshooting guide](https://reactnative.dev/docs/troubleshooting).
-
+- **Metro stuck on “Loading dependency graph”** – run `npx react-native-clean-project` then `yarn start --reset-cache`.
+- **iOS build fails with Ruby gems** – `brew install ruby` then `sudo gem install cocoapods bundler`.
+- More tips in the official [React Native Troubleshooting guide](https://reactnative.dev/docs/troubleshooting).
 
 ## Acknowledgements
 
-* [React Native](https://reactnative.dev) & the awesome OSS community
-* Iconography by [lucide.dev](https://lucide.dev)
+- [React Native](https://reactnative.dev) & the awesome OSS community
+- Iconography by [lucide.dev](https://lucide.dev)
