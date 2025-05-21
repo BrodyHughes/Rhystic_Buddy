@@ -1,90 +1,132 @@
-/**
- * This is the player panel that will be used to display the player's life.
- *
- * TODO:
- * - add poison counter
- * - add commander damage
- * - add other counters
- */
-
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useWindowDimensions,
+  Platform,
+} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {BlurView} from '@react-native-community/blur';
+
 import {useLifeStore} from '../store/useLifeStore';
-import {palette, typography, spacing, radius} from '../styles/global';
+import {typography, spacing, radius} from '../styles/global';
+import {GAP} from '../App';
+
 interface Props {
   index: number;
+  cols: number;
+  rows: number;
+  isEven: boolean;
 }
 
-export default function PlayerPanel({index}: Props) {
-  const {life, delta, id, theme} = useLifeStore(
-    (s: {players: any[]}) => s.players[index],
-  );
-  const isEven = id % 2 === 0;
-  const changeLife = useLifeStore((s: {changeLife: any}) => s.changeLife);
+export default function PlayerPanel({index, cols, rows, isEven}: Props) {
+  const {width: W, height: H} = useWindowDimensions();
+  const {top, bottom} = useSafeAreaInsets();
+
+  const {life, delta} = useLifeStore(s => s.players[index]);
+  const changeLife = useLifeStore(s => s.changeLife);
+  const totalPlayers = useLifeStore(s => s.players.length);
+
+  /* rotation logic */
+  const rot = isEven ? '0deg' : '180deg';
+  const rot2 = isEven ? '90deg' : '270deg';
+  const appliedRot = totalPlayers === 2 ? rot2 : rot;
+
+  /* size minus gaps & insets */
+  const usableW = W - 2 * GAP - GAP * (cols - 1);
+  const usableH = H - top - bottom - 2 * GAP - GAP * (rows - 1);
+  const panelW = usableW / cols;
+  const panelH = usableH / rows;
+
+  /* blur amount: lighter for dark mode, tweak as desired */
+  const blurAmount = 20;
 
   return (
     <View
       style={[
-        styles.container,
-        {
-          backgroundColor: theme.bg,
-          transform: [{rotate: !isEven ? '180deg' : '0deg'}],
-        },
+        styles.wrapper,
+        {width: panelW, height: panelH, transform: [{rotate: appliedRot}]},
       ]}>
-      <View style={styles.lifeBlock}>
-        <Text style={styles.life}>{life}</Text>
-        {delta !== 0 && (
-          // eslint-disable-next-line react-native/no-inline-styles
-          <Text style={[styles.delta, {color: delta > 0 ? '#000' : '#000'}]}>
-            {delta > 0 ? `+${delta}` : delta}
-          </Text>
-        )}
+      {/** Frosted glass layer */}
+      {Platform.OS === 'android' && Platform.Version < 31 ? (
+        // Older Android: fallback to translucent overlay
+        <View style={styles.fallbackGlass} />
+      ) : (
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType="light"
+          blurAmount={blurAmount}
+          reducedTransparencyFallbackColor="rgba(255,255,255,0.15)"
+        />
+      )}
+
+      {/** Inner content */}
+      <View style={styles.content}>
+        <View style={styles.lifeBlock}>
+          <Text style={styles.life}>{life}</Text>
+          {delta !== 0 && (
+            <Text style={styles.delta}>{delta > 0 ? `+${delta}` : delta}</Text>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.button, styles.inc]}
+          onPress={() => changeLife(index, +1)}>
+          <Text style={styles.btnText}>＋</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.dec]}
+          onPress={() => changeLife(index, -1)}>
+          <Text style={styles.btnText}>－</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={[styles.button, styles.increment]}
-        onPress={() => changeLife(index, +1)}>
-        <Text style={styles.btnText}>＋</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.decrement]}
-        onPress={() => changeLife(index, -1)}>
-        <Text style={styles.btnText}>－</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
+/* ── Styles ────────────────────────────────────────────── */
+
 const styles = StyleSheet.create({
-  container: {
-    width: '50%',
-    height: '49%',
-    flexDirection: 'column',
+  wrapper: {
+    borderRadius: radius.lg,
+    overflow: 'hidden', // clip blur to panel bounds
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)', // subtle inner stroke
+    elevation: 5, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOpacity: 0.15,
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 8,
+  },
+  fallbackGlass: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#efefef',
-    padding: spacing.md,
-    borderRadius: radius.md,
-    margin: spacing.xs,
   },
   lifeBlock: {
     alignItems: 'center',
     marginVertical: spacing.sm,
-    // backgroundColor: 'red',
     transform: [{rotate: '90deg'}],
   },
-  life: {...typography.heading1},
+  life: {...typography.heading1, color: '#fff'},
   delta: {
     ...typography.caption,
+    color: '#fff',
     marginTop: 2,
     position: 'absolute',
-    bottom: -12,
-    left: '53%',
+    bottom: 13,
+    right: -20,
     transform: [{translateX: -67}],
   },
+  /* ± buttons */
   button: {
-    // backgroundColor: palette.primary,
-    borderRadius: 0,
     position: 'absolute',
     width: '60%',
     height: '100%',
@@ -92,14 +134,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
-  increment: {
-    right: 0,
-  },
-  decrement: {
-    left: 0,
-  },
+  inc: {right: 0},
+  dec: {left: 0},
   btnText: {
-    color: palette.textPrimary,
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#fff',
     transform: [{rotate: '90deg'}],
   },
 });
