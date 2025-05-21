@@ -1,5 +1,12 @@
 /**
- * Central floating menu button + settings sheet (glassy style)
+ * Okay this menu sucks rn but i think the functionality is there.
+ * I like the look of Moxfield's menu so may look at making something similar in the future.
+ * Lets just keep adding the functionality we need for now.
+ * TODO:
+ * [ ] add a 'who goes first' randomizer here actually probably
+ * [ ] add a 'choose your background' thing with scryfall api
+ * [ ] themes????
+ * [ ] light / dark mode???
  */
 
 import React, {useState} from 'react';

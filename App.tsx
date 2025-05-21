@@ -1,3 +1,11 @@
+/* it all starts here, baby!!
+ *
+ * ...kinda. everything is rendered at the root in index.js
+ * but this is the main entry point into the app.
+ * the idea is to render the player panels then a
+ * menu on top and make it all from there.
+ */
+
 import React from 'react';
 import {SafeAreaView, View, StatusBar, StyleSheet} from 'react-native';
 import PlayerPanel from './components/PlayerPanel';
@@ -5,7 +13,7 @@ import CentralMenuButton from './components/CentralMenuButton';
 import {useLifeStore} from './store/useLifeStore';
 
 export const GAP = 10;
-export const SURFACE = '#777777'; // slightly darker grey for contrast
+export const SURFACE = '#777777'; // idk man don't worry about the styling rn
 
 export default function App() {
   const players = useLifeStore(s => s.players);
@@ -33,6 +41,10 @@ export default function App() {
   );
 }
 
+/* ── Styles ────────────────────────────────────────────── */
+
+// simple and keeps it all on page.
+// also should move styling outside components at some point lol
 const styles = StyleSheet.create({
   screen: {flex: 1, backgroundColor: SURFACE},
   grid: {
