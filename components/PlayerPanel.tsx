@@ -1,3 +1,11 @@
+/* idk about the styling for this tbh but the functionality is in place atm
+ * TODO:
+ * [ ] make it look nice
+ * [ ] fix the '+' and '-' they are rotating wrong sometimes
+ * [ ] add a long press on the cards to bring up an individual menu
+ * for commander damage etc
+ * [ ] add a 'who goes first' randomizer
+ */
 import React from 'react';
 import {
   View,
@@ -29,7 +37,7 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
   const changeLife = useLifeStore(s => s.changeLife);
   const totalPlayers = useLifeStore(s => s.players.length);
 
-  /* rotation logic */
+  /* lets nest some ternaries! */
   const rot = isEven ? '0deg' : '180deg';
   const rot2 = isEven ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;

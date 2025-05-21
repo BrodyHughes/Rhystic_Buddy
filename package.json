@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "-+-": "",
+    "how to run these?": "run `yarn + the command you want to run`",
+    "+-+": "",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
