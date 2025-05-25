@@ -35,7 +35,7 @@ export const radius = {
 
 export const typography = {
   heading1: {
-    fontSize: 32,
+    fontSize: 76,
     fontWeight: '700' as const,
     color: palette.textPrimary,
   },
@@ -50,7 +50,7 @@ export const typography = {
     color: palette.textSecondary,
   },
   caption: {
-    fontSize: 12,
+    fontSize: 24,
     fontWeight: '400' as const,
     color: palette.textSecondary,
   },

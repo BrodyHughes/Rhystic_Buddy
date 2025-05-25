@@ -17,33 +17,37 @@ import {
   Text,
   StyleSheet,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
-import {BlurView} from '@react-native-community/blur';
 
 import {radius} from '../styles/global';
 import {useLifeStore} from '../store/useLifeStore';
 import PlayerPicker from './playerPicker';
+import {useCommanderDamageStore} from '../store/useCommanderDamageStore';
+import {SURFACE} from '../consts/consts';
+import {useCounterStore} from '../store/useCounterStore';
 
 export default function CentralMenuButton() {
   const [open, setOpen] = useState(false);
   const {width: W, height: H} = useWindowDimensions();
 
-  const handleReset = () =>
+  const handleReset = () => {
     useLifeStore.setState(({players}) => ({
       players: players.map(p => ({...p, life: 40, delta: 0})),
+      life: 40,
+      delta: 0,
     }));
+    useCommanderDamageStore.setState({damage: {}});
+    useCounterStore.setState({counters: {}});
+  };
 
   return (
     <>
-      {/* FAB */}
       <TouchableOpacity
         style={[styles.fab, {top: H / 2, left: W / 2}]}
         onPress={() => setOpen(true)}>
-        <Text style={styles.fabText}>☰</Text>
+        <Text style={styles.fabText}>×</Text>
       </TouchableOpacity>
 
-      {/* Modal menu */}
       <Modal
         transparent
         visible={open}
@@ -54,32 +58,16 @@ export default function CentralMenuButton() {
           style={styles.backdrop}
           activeOpacity={1}
           onPress={() => setOpen(false)}>
-          {/* Glass panel */}
           <View style={styles.menuWrapper}>
-            {Platform.OS === 'android' && Platform.Version < 31 ? (
-              <View style={styles.fallbackGlass} />
-            ) : (
-              <BlurView
-                style={StyleSheet.absoluteFill}
-                blurType="light"
-                blurAmount={20}
-                reducedTransparencyFallbackColor="rgba(255,255,255,0.12)"
-              />
-            )}
-
-            {/* Actual content */}
             <View style={styles.menuContent}>
               <Text style={styles.menuTitle}>Settings</Text>
 
-              {/* Players selector */}
               <PlayerPicker />
 
-              {/* Reset life */}
               <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
-                <Text style={styles.menuItemText}>Reset Life</Text>
+                <Text style={styles.menuItemText}>Reset Game</Text>
               </TouchableOpacity>
 
-              {/* Close */}
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setOpen(false)}>
@@ -95,7 +83,7 @@ export default function CentralMenuButton() {
 
 /* ── styles ────────────────────────────────────────────── */
 
-const FAB_SIZE = 50;
+const FAB_SIZE = 70;
 
 const styles = StyleSheet.create({
   fab: {
@@ -105,45 +93,32 @@ const styles = StyleSheet.create({
     width: FAB_SIZE,
     height: FAB_SIZE,
     borderRadius: FAB_SIZE / 2,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: SURFACE,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 3},
-    shadowRadius: 6,
-    transform: [{rotate: '90deg'}],
+    borderWidth: 9,
+    borderColor: 'rgb(32, 32, 32)',
   },
-  fabText: {color: '#fff', fontSize: 28, fontWeight: '700'},
-
+  fabText: {color: '#fff', fontSize: 28, fontWeight: '700', marginBottom: 2},
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(41, 41, 44, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-
-  /* glass card outer wrapper */
   menuWrapper: {
     width: '80%',
     borderRadius: radius.lg,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowOffset: {width: 0, height: 4},
     shadowRadius: 12,
     elevation: 10,
-  },
-  fallbackGlass: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: SURFACE,
   },
 
-  /* inner content padding */
   menuContent: {
     padding: 24,
   },
