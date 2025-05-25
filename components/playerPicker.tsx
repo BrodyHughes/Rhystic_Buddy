@@ -14,13 +14,19 @@ export default function PlayerPicker() {
     const num = Number(draft);
     if (num >= 2 && num <= 6) {
       setTotalPlayers(num as PlayerCount);
+      if (num === 2) {
+        setTotalPlayers(num as PlayerCount);
+        useLifeStore.setState(({players}) => ({
+          players: players.map(p => ({...p, life: 20, delta: 0})),
+          life: 20,
+          delta: 0,
+        }));
+      }
     } else {
       // revert to store value on invalid entry
       setDraft(totalPlayers.toString());
     }
   };
-
-  /* sync local draft when the store changes elsewhere */
   React.useEffect(() => setDraft(totalPlayers.toString()), [totalPlayers]);
 
   return (

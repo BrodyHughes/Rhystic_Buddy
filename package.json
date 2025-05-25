@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@react-native-community/blur": "^4.4.1",
+    "immer": "^10.1.1",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-gesture-handler": "^2.25.0",
