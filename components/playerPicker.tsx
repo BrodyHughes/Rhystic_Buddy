@@ -49,7 +49,7 @@ export default function PlayerPicker() {
 
 const styles = StyleSheet.create({
   container: {flexDirection: 'row', alignItems: 'center'},
-  label: {marginRight: 8, fontSize: 16, color: '#fff'},
+  label: {marginRight: 8, fontSize: 18, color: '#fff'},
   input: {
     borderWidth: 1,
     borderColor: 'gray',

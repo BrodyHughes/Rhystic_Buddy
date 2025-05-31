@@ -19,6 +19,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 
 import {useLifeStore} from '../store/useLifeStore';
+import {useTurnStore} from '../store/useTurnStore';
 import {typography, spacing, radius} from '../styles/global';
 import PlayerPanelMenu from './PlayerPanelMenu';
 import {GAP, SURFACE} from '../consts/consts';
@@ -43,6 +44,7 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
   const {life, delta} = useLifeStore(s => s.players[index]);
   const changeLife = useLifeStore(s => s.changeLife);
   const totalPlayers = useLifeStore(s => s.players.length);
+  const currentTurn = useTurnStore(s => s.current);
 
   const [view, setView] = useState<PanelView>(PanelView.PANEL);
 
@@ -84,6 +86,7 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
           styles.shadowWrap,
           {width: panelW, height: panelH, transform: [{rotate: appliedRot}]},
         ]}>
+        {currentTurn === index && <View style={styles.turnOrderOverlay} />}
         <View style={styles.roundedClip}>
           {view !== PanelView.PANEL && (
             <PlayerPanelMenu
@@ -130,6 +133,17 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: {width: 0, height: 0},
     elevation: 4,
+  },
+  turnOrderOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
+    overflow: 'hidden',
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
   roundedClip: {
     flex: 1,
