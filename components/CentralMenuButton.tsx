@@ -25,6 +25,8 @@ import PlayerPicker from './playerPicker';
 import {useCommanderDamageStore} from '../store/useCommanderDamageStore';
 import {SURFACE} from '../consts/consts';
 import {useCounterStore} from '../store/useCounterStore';
+import {useTurnStore} from '../store/useTurnStore';
+import {fetchItems} from '../helpers/scryfallFetch';
 
 export default function CentralMenuButton() {
   const [open, setOpen] = useState(false);
@@ -40,6 +42,36 @@ export default function CentralMenuButton() {
     useCounterStore.setState({counters: {}});
   };
 
+  const handleTurnOrder = () => {
+    setOpen(false);
+
+    const total = useLifeStore.getState().players.length;
+    const order = Array.from({length: total}, (_, i) => i).sort(
+      () => Math.random() - 0.5,
+    );
+
+    const loops = 3;
+    const flashDelay = 100;
+    let tick = 0;
+
+    const spin = setInterval(() => {
+      useTurnStore.getState().set(order[tick % total]);
+      tick++;
+
+      if (tick === total * loops + 1) {
+        clearInterval(spin);
+
+        setTimeout(() => {
+          useTurnStore.getState().reset();
+        }, 2000);
+      }
+    }, flashDelay);
+  };
+
+  const handleFetch = () => {
+    fetchItems();
+  };
+
   return (
     <>
       <TouchableOpacity
@@ -53,7 +85,6 @@ export default function CentralMenuButton() {
         visible={open}
         animationType="fade"
         onRequestClose={() => setOpen(false)}>
-        {/* Dark overlay */}
         <TouchableOpacity
           style={styles.backdrop}
           activeOpacity={1}
@@ -63,9 +94,16 @@ export default function CentralMenuButton() {
               <Text style={styles.menuTitle}>Settings</Text>
 
               <PlayerPicker />
-
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleTurnOrder}>
+                <Text style={styles.menuItemText}>Turn Order</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
                 <Text style={styles.menuItemText}>Reset Game</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={handleFetch}>
+                <Text style={styles.menuItemText}>Fetch API</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
