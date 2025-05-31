@@ -1,4 +1,4 @@
-import {StyleSheet, Platform} from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 /**
  * Design tokens
@@ -59,7 +59,7 @@ export const typography = {
 export const shadows = Platform.select({
   ios: {
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },

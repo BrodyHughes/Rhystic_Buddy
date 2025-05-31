@@ -1,15 +1,16 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-import {useLifeStore} from '../store/useLifeStore';
-import CommanderDamageButtons from './CommanderDamageButtons';
+import { View, StyleSheet } from 'react-native';
+import { useLifeStore } from '@/store/useLifeStore';
+import CommanderDamageButtons from '@/components/CommanderDamageButtons';
 
 interface Props {
   defenderId: number;
+  isEven: boolean;
 }
 
-export default function CommanderDamageMenu({defenderId}: Props) {
-  const totalPlayers = useLifeStore(s => s.totalPlayers);
-  const sources = Array.from({length: totalPlayers}, (_, i) => i);
+export default function CommanderDamageMenu({ defenderId, isEven }: Props) {
+  const totalPlayers = useLifeStore((s) => s.totalPlayers);
+  const sources = Array.from({ length: totalPlayers }, (_, i) => i);
 
   const rows = totalPlayers <= 4 ? 2 : 3;
   const cols = Math.ceil(totalPlayers / rows);
@@ -19,9 +20,10 @@ export default function CommanderDamageMenu({defenderId}: Props) {
 
   return (
     <View style={styles.overlay}>
-      <View style={styles.grid}>
-        {sources.map(src => (
+      <View style={[styles.grid, { transform: [{ rotate: isEven ? '0deg' : '180deg' }] }]}>
+        {sources.map((src) => (
           <CommanderDamageButtons
+            isEven={isEven}
             key={src}
             defenderId={defenderId}
             sourceId={src}

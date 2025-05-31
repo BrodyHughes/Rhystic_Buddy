@@ -1,13 +1,14 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {useCommanderDamageStore} from '../store/useCommanderDamageStore';
-import {SURFACE} from '../consts/consts';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
+import { SURFACE } from '@/consts/consts';
 
 interface Props {
   defenderId: number;
   sourceId: number;
   cellW: number;
   cellH: number;
+  isEven: boolean;
 }
 
 export default function CommanderDamageButtons({
@@ -15,9 +16,10 @@ export default function CommanderDamageButtons({
   sourceId,
   cellW,
   cellH,
+  isEven,
 }: Props) {
-  const damage = useCommanderDamageStore(s => s.get(defenderId, sourceId));
-  const change = useCommanderDamageStore(s => s.change);
+  const damage = useCommanderDamageStore((s) => s.get(defenderId, sourceId));
+  const change = useCommanderDamageStore((s) => s.change);
 
   const inc = () => change(defenderId, sourceId, +1);
   const dec = () => damage > 0 && change(defenderId, sourceId, -1);
@@ -29,8 +31,10 @@ export default function CommanderDamageButtons({
         // height is cellW - 4 to account for margin
         // margin is set in styles.square
         styles.square,
-        {width: `${cellH - 2}%`, height: `${cellW - 4}%`},
-      ]}>
+        { width: `${cellH - 2}%`, height: `${cellW - 4}%` },
+        { transform: [{ rotate: isEven ? '0deg' : '180deg' }] },
+      ]}
+    >
       <Text style={styles.total}>{damage}</Text>
 
       <View style={styles.btnRow}>
@@ -75,5 +79,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: SURFACE,
   },
-  btnTxt: {color: '#fff', fontSize: 18, fontWeight: '700'},
+  btnTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

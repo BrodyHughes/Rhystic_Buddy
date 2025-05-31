@@ -9,46 +9,37 @@
  * [ ] light / dark mode???
  */
 
-import React, {useState} from 'react';
-import {
-  Modal,
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  useWindowDimensions,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Modal, View, TouchableOpacity, Text, StyleSheet, useWindowDimensions } from 'react-native';
 
-import {radius} from '../styles/global';
-import {useLifeStore} from '../store/useLifeStore';
-import PlayerPicker from './playerPicker';
-import {useCommanderDamageStore} from '../store/useCommanderDamageStore';
-import {SURFACE} from '../consts/consts';
-import {useCounterStore} from '../store/useCounterStore';
-import {useTurnStore} from '../store/useTurnStore';
-import {fetchItems} from '../helpers/scryfallFetch';
+import { radius } from '@/styles/global';
+import { useLifeStore } from '@/store/useLifeStore';
+import PlayerPicker from '@/components/playerPicker';
+import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
+import { SURFACE } from '@/consts/consts';
+import { useCounterStore } from '@/store/useCounterStore';
+import { useTurnStore } from '@/store/useTurnStore';
+import { fetchItems } from '@/helpers/scryfallFetch';
 
-export default function CentralMenuButton() {
+export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
-  const {width: W, height: H} = useWindowDimensions();
+  const { width: W, height: H } = useWindowDimensions();
 
   const handleReset = () => {
-    useLifeStore.setState(({players}) => ({
-      players: players.map(p => ({...p, life: 40, delta: 0})),
+    useLifeStore.setState(({ players }) => ({
+      players: players.map((p) => ({ ...p, life: 40, delta: 0 })),
       life: 40,
       delta: 0,
     }));
-    useCommanderDamageStore.setState({damage: {}});
-    useCounterStore.setState({counters: {}});
+    useCommanderDamageStore.setState({ damage: {} });
+    useCounterStore.setState({ counters: {} });
   };
 
   const handleTurnOrder = () => {
     setOpen(false);
 
     const total = useLifeStore.getState().players.length;
-    const order = Array.from({length: total}, (_, i) => i).sort(
-      () => Math.random() - 0.5,
-    );
+    const order = Array.from({ length: total }, (_, i) => i).sort(() => Math.random() - 0.5);
 
     const loops = 3;
     const flashDelay = 100;
@@ -75,28 +66,20 @@ export default function CentralMenuButton() {
   return (
     <>
       <TouchableOpacity
-        style={[styles.fab, {top: H / 2, left: W / 2}]}
-        onPress={() => setOpen(true)}>
+        style={[styles.fab, { top: H / 2, left: W / 2 }]}
+        onPress={() => setOpen(true)}
+      >
         <Text style={styles.fabText}>×</Text>
       </TouchableOpacity>
 
-      <Modal
-        transparent
-        visible={open}
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}>
-        <TouchableOpacity
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={() => setOpen(false)}>
+      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.menuWrapper}>
             <View style={styles.menuContent}>
               <Text style={styles.menuTitle}>Settings</Text>
 
               <PlayerPicker />
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleTurnOrder}>
+              <TouchableOpacity style={styles.menuItem} onPress={handleTurnOrder}>
                 <Text style={styles.menuItemText}>Turn Order</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
@@ -106,9 +89,7 @@ export default function CentralMenuButton() {
                 <Text style={styles.menuItemText}>Fetch API</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setOpen(false)}>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setOpen(false)}>
                 <Text style={styles.closeButtonText}>×</Text>
               </TouchableOpacity>
             </View>
@@ -117,7 +98,7 @@ export default function CentralMenuButton() {
       </Modal>
     </>
   );
-}
+});
 
 /* ── styles ────────────────────────────────────────────── */
 
@@ -137,7 +118,7 @@ const styles = StyleSheet.create({
     borderWidth: 9,
     borderColor: 'rgb(32, 32, 32)',
   },
-  fabText: {color: '#fff', fontSize: 28, fontWeight: '700', marginBottom: 2},
+  fabText: { color: '#fff', fontSize: 28, fontWeight: '700', marginBottom: 2 },
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(41, 41, 44, 0.8)',
@@ -151,7 +132,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 0.15,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
     elevation: 10,
     backgroundColor: SURFACE,
@@ -168,8 +149,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  menuItem: {marginTop: 16},
-  menuItemText: {fontSize: 18, color: '#fff'},
+  menuItem: { marginTop: 16 },
+  menuItemText: { fontSize: 18, color: '#fff' },
 
   closeButton: {
     position: 'absolute',
@@ -182,5 +163,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButtonText: {fontSize: 18, color: '#fff'},
+  closeButtonText: { fontSize: 18, color: '#fff' },
 });

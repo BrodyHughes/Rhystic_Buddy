@@ -1,11 +1,11 @@
 // idk how we want to do this long term but this works for now.
-import React, {useState} from 'react';
-import {StyleSheet, Text, TextInput, View} from 'react-native';
-import {PlayerCount, useLifeStore} from '../store/useLifeStore';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { PlayerCount, useLifeStore } from '@/store/useLifeStore';
 
 export default function PlayerPicker() {
-  const totalPlayers = useLifeStore(s => s.totalPlayers);
-  const setTotalPlayers = useLifeStore(s => s.setTotalPlayers);
+  const totalPlayers = useLifeStore((s) => s.totalPlayers);
+  const setTotalPlayers = useLifeStore((s) => s.setTotalPlayers);
 
   /* keep editable text locally so the user can type freely */
   const [draft, setDraft] = useState(totalPlayers.toString());
@@ -16,8 +16,8 @@ export default function PlayerPicker() {
       setTotalPlayers(num as PlayerCount);
       if (num === 2) {
         setTotalPlayers(num as PlayerCount);
-        useLifeStore.setState(({players}) => ({
-          players: players.map(p => ({...p, life: 20, delta: 0})),
+        useLifeStore.setState(({ players }) => ({
+          players: players.map((p) => ({ ...p, life: 20, delta: 0 })),
           life: 20,
           delta: 0,
         }));
@@ -48,8 +48,8 @@ export default function PlayerPicker() {
 /* ── Styles ────────────────────────────────────────────── */
 
 const styles = StyleSheet.create({
-  container: {flexDirection: 'row', alignItems: 'center'},
-  label: {marginRight: 8, fontSize: 18, color: '#fff'},
+  container: { flexDirection: 'row', alignItems: 'center' },
+  label: { marginRight: 8, fontSize: 18, color: '#fff' },
   input: {
     borderWidth: 1,
     borderColor: 'gray',

@@ -6,24 +6,20 @@
  * for commander damage etc
  * [ ] add a 'who goes first' randomizer
  */
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  useWindowDimensions,
-} from 'react-native';
-import {runOnJS} from 'react-native-reanimated';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { runOnJS } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import {useLifeStore} from '../store/useLifeStore';
-import {useTurnStore} from '../store/useTurnStore';
-import {typography, spacing, radius} from '../styles/global';
-import PlayerPanelMenu from './PlayerPanelMenu';
-import {GAP, SURFACE} from '../consts/consts';
+import { useLifeStore, PlayerState } from '@/store/useLifeStore';
+import { useTurnStore } from '@/store/useTurnStore';
+import { typography, spacing, radius } from '@/styles/global';
+import PlayerPanelMenu from '@/components/PlayerPanelMenu';
+import { GAP } from '@/consts/consts';
+
 interface Props {
+  player: PlayerState;
   index: number;
   cols: number;
   rows: number;
@@ -36,20 +32,20 @@ enum PanelView {
   MENU2 = 'menu2',
 }
 
-export default function PlayerPanel({index, cols, rows, isEven}: Props) {
-  const {width: W, height: H} = useWindowDimensions();
-  const {top, bottom} = useSafeAreaInsets();
-  const green = 'rgb(100, 200, 100)';
-  const red = 'rgb(200, 100, 100)';
-  const {life, delta} = useLifeStore(s => s.players[index]);
-  const changeLife = useLifeStore(s => s.changeLife);
-  const totalPlayers = useLifeStore(s => s.players.length);
-  const currentTurn = useTurnStore(s => s.current);
+function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
+  const { width: W, height: H } = useWindowDimensions();
+  const { top, bottom } = useSafeAreaInsets();
+  const green = 'rgb(255, 255, 255)';
+  const red = 'rgb(255, 255, 255)';
+  const { life, delta } = player;
+  const changeLife = useLifeStore((s) => s.changeLife);
+  const totalPlayers = useLifeStore((s) => s.players.length);
+  const currentTurn = useTurnStore((s) => s.current);
 
   const [view, setView] = useState<PanelView>(PanelView.PANEL);
 
   const cycleView = (direction: 'left' | 'right') => {
-    setView(currentView => {
+    setView((currentView) => {
       const views = [PanelView.PANEL, PanelView.MENU1, PanelView.MENU2];
       let currentIndex = views.indexOf(currentView);
       if (direction === 'left') {
@@ -61,8 +57,8 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
     });
   };
 
-  const swipeGesture = Gesture.Pan().onEnd(e => {
-    const {translationX} = e;
+  const swipeGesture = Gesture.Pan().onEnd((e) => {
+    const { translationX } = e;
 
     if (translationX > 50) runOnJS(cycleView)('right');
     else if (translationX < -50) runOnJS(cycleView)('left');
@@ -84,8 +80,9 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
       <View
         style={[
           styles.shadowWrap,
-          {width: panelW, height: panelH, transform: [{rotate: appliedRot}]},
-        ]}>
+          { width: panelW, height: panelH, transform: [{ rotate: appliedRot }] },
+        ]}
+      >
         {currentTurn === index && <View style={styles.turnOrderOverlay} />}
         <View style={styles.roundedClip}>
           {view !== PanelView.PANEL && (
@@ -94,26 +91,27 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
               menuVisible={view !== PanelView.PANEL}
               menuType={view}
               index={index}
+              isEven={isEven}
             />
           )}
           <View style={styles.content}>
             <View style={styles.lifeBlock}>
               <Text style={styles.life}>{life}</Text>
               {delta !== 0 && (
-                <Text style={[styles.delta, {color: delta > 0 ? green : red}]}>
+                <Text style={[styles.delta, { color: delta > 0 ? green : red }]}>
                   {delta > 0 ? `+${delta}` : delta}
                 </Text>
               )}
             </View>
 
             <TouchableOpacity
-              activeOpacity={0.8}
+              activeOpacity={0.1}
               style={[styles.button, styles.inc]}
               onPress={() => changeLife(index, +1)}
             />
 
             <TouchableOpacity
-              activeOpacity={0.8}
+              activeOpacity={0.1}
               style={[styles.button, styles.dec]}
               onPress={() => changeLife(index, -1)}
             />
@@ -124,6 +122,8 @@ export default function PlayerPanel({index, cols, rows, isEven}: Props) {
   );
 }
 
+export default React.memo(PlayerPanelComponent);
+
 /* ── Styles ────────────────────────────────────────────── */
 
 const styles = StyleSheet.create({
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.4,
     shadowRadius: 10,
-    shadowOffset: {width: 0, height: 0},
+    shadowOffset: { width: 0, height: 0 },
     elevation: 4,
   },
   turnOrderOverlay: {
@@ -155,16 +155,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: SURFACE,
+    backgroundColor: 'rgb(111, 111, 117)',
   },
   lifeBlock: {
     alignItems: 'center',
     marginVertical: spacing.sm,
-    transform: [{rotate: '90deg'}],
+    transform: [{ rotate: '90deg' }],
     zIndex: 1,
     pointerEvents: 'box-none',
   },
-  life: {...typography.heading1, color: '#fff'},
+  life: { ...typography.heading1, color: '#fff' },
   delta: {
     ...typography.caption,
     color: '#fff',
@@ -172,22 +172,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 30,
     right: -100,
-    transform: [{translateX: -67}],
+    transform: [{ translateX: -67 }],
   },
   button: {
     position: 'absolute',
-    width: '100%',
-    height: '50%',
+    width: '50%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: SURFACE,
+    backgroundColor: 'rgba(99, 99, 103, 1)',
   },
-  inc: {bottom: 0},
-  dec: {top: 0},
+  inc: { right: 0 },
+  dec: { left: 0 },
   btnText: {
     fontSize: 32,
     fontWeight: '600',
     color: '#fff',
-    transform: [{rotate: '90deg'}],
+    transform: [{ rotate: '90deg' }],
   },
 });
