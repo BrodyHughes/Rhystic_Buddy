@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {useCounterStore} from '../store/useCounterStore';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useCounterStore } from '@/store/useCounterStore';
 
 type CounterKey = 'storm' | 'poison' | 'mana';
 
@@ -11,39 +11,26 @@ interface Props {
   cellH: number;
 }
 
-export default function CountersMenuButtons({
-  defenderId,
-  counter,
-  cellW,
-  cellH,
-}: Props) {
+export default function CountersMenuButtons({ defenderId, counter, cellW, cellH }: Props) {
   /* current value */
-  const value = useCounterStore(s => {
+  const value = useCounterStore((s) => {
     const row = s.get(defenderId);
-    return counter === 'storm'
-      ? row.storm
-      : counter === 'poison'
-        ? row.poison
-        : row.mana;
+    return counter === 'storm' ? row.storm : counter === 'poison' ? row.poison : row.mana;
   });
 
   /* increment / decrement handlers */
   const inc = useCounterStore(
     counter === 'storm'
-      ? s => s.incStorm
+      ? (s) => s.incStorm
       : counter === 'poison'
-        ? s => s.incPoison
-        : s => s.incMana,
+        ? (s) => s.incPoison
+        : (s) => s.incMana,
   );
 
   const dec = () => inc(defenderId, -1);
 
   return (
-    <View
-      style={[
-        styles.square,
-        {width: `${cellW - 2}%`, height: `${cellH - 4}%`},
-      ]}>
+    <View style={[styles.square, { width: `${cellW - 2}%`, height: `${cellH - 4}%` }]}>
       <Text style={styles.total}>{value}</Text>
 
       <View style={styles.btnRow}>
@@ -53,7 +40,8 @@ export default function CountersMenuButtons({
         <TouchableOpacity
           style={styles.btn}
           onPress={() => inc(defenderId, +1)}
-          activeOpacity={0.8}>
+          activeOpacity={0.8}
+        >
           <Text style={styles.btnTxt}>+</Text>
         </TouchableOpacity>
       </View>
@@ -77,8 +65,8 @@ const styles = StyleSheet.create({
     padding: 4,
     margin: -40,
   },
-  iconTxt: {color: '#fff', fontSize: 18, fontWeight: '700'},
-  total: {color: '#fff', fontSize: 32, fontWeight: '700'},
+  iconTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  total: { color: '#fff', fontSize: 32, fontWeight: '700' },
 
   btnRow: {
     position: 'absolute',
@@ -95,5 +83,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(180, 180, 180, 0.4)',
   },
-  btnTxt: {color: '#fff', fontSize: 18, fontWeight: '700'},
+  btnTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

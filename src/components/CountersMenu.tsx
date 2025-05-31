@@ -1,18 +1,18 @@
 import React from 'react';
-import {View, StyleSheet, Text} from 'react-native';
-import CountersMenuButtons from './CountersMenuButtons';
+import { View, StyleSheet, Text } from 'react-native';
+import CountersMenuButtons from '@/components/CountersMenuButtons';
 
 interface Props {
   defenderId: number;
 }
 
 const COUNTERS = [
-  {key: 'storm', label: '⚡'}, // ⚡ or any icon font / image you prefer
-  {key: 'poison', label: '☠'},
-  {key: 'mana', label: '🌊'},
+  { key: 'storm', label: '⚡' }, // ⚡ or any icon font / image you prefer
+  { key: 'poison', label: '☠' },
+  { key: 'mana', label: '🌊' },
 ] as const;
 
-export default function CountersMenu({defenderId}: Props) {
+export default function CountersMenu({ defenderId }: Props) {
   /* 2 rows (icon + square) × 3 columns */
   const rows = 2,
     cols = 3;
@@ -22,23 +22,19 @@ export default function CountersMenu({defenderId}: Props) {
   return (
     <View style={styles.overlay}>
       <View style={[styles.grid]}>
-        {COUNTERS.map(({key, label}) => (
+        {COUNTERS.map(({ key, label }) => (
           <View
             key={key}
             style={[
               styles.column,
-              {width: `${cellW}%`, height: `${cellH}%`}, // two cells tall
-            ]}>
+              { width: `${cellW}%`, height: `${cellH}%` }, // two cells tall
+            ]}
+          >
             <View style={styles.iconWrap}>
               <Text style={styles.iconTxt}>{label}</Text>
             </View>
 
-            <CountersMenuButtons
-              defenderId={defenderId}
-              counter={key}
-              cellW={100}
-              cellH={100}
-            />
+            <CountersMenuButtons defenderId={defenderId} counter={key} cellW={100} cellH={100} />
           </View>
         ))}
       </View>
@@ -77,5 +73,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconTxt: {color: '#fff', fontSize: 18, fontWeight: '700'},
+  iconTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

@@ -7,33 +7,33 @@
  */
 
 import React from 'react';
-import {SafeAreaView, View, StatusBar, StyleSheet} from 'react-native';
-import PlayerPanel from './components/PlayerPanel';
-import CentralMenuButton from './components/CentralMenuButton';
-import {useLifeStore} from './store/useLifeStore';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {BACKGROUND, GAP} from './consts/consts';
+import { SafeAreaView, View, StatusBar, StyleSheet } from 'react-native';
+import PlayerPanel from '@/components/PlayerPanel';
+import CentralMenuButton from '@/components/CentralMenuButton';
+import { useLifeStore } from '@/store/useLifeStore';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BACKGROUND, GAP } from '@/consts/consts';
 
 export default function App() {
-  const players = useLifeStore(s => s.players);
-  const totalPlayers = players.length;
-
-  const rows = totalPlayers <= 4 ? 2 : 3;
-  const cols = Math.ceil(totalPlayers / rows);
+  const players = useLifeStore((s) => s.players);
+  const totalPlayersCount = players.length;
+  const cols = totalPlayersCount <= 4 ? 2 : totalPlayersCount <= 6 ? 2 : 3;
+  const rows = totalPlayersCount > 0 ? Math.ceil(totalPlayersCount / cols) : 1;
 
   return (
     // eslint-disable-next-line react-native/no-inline-styles
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.screen}>
         <StatusBar barStyle="light-content" />
         <View style={styles.grid}>
-          {players.map((_, i) => (
+          {players.map((player, playerIndexNumber) => (
             <PlayerPanel
-              key={i}
-              index={i}
+              key={player.id}
+              player={player}
+              index={playerIndexNumber}
               cols={cols}
               rows={rows}
-              isEven={i % 2 === 0}
+              isEven={playerIndexNumber % 2 === 0}
             />
           ))}
         </View>
@@ -48,7 +48,7 @@ export default function App() {
 // simple and keeps it all on page.
 // also should move styling outside components at some point lol
 const styles = StyleSheet.create({
-  screen: {flex: 1, backgroundColor: BACKGROUND},
+  screen: { flex: 1, backgroundColor: BACKGROUND },
   grid: {
     flex: 1,
     flexDirection: 'row',

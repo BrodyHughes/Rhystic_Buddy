@@ -1,40 +1,43 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-import CommanderDamageMenu from './CommanderDamageMenu';
-import CountersMenu from './CountersMenu';
-import {BACKGROUND} from '../consts/consts';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import CommanderDamageMenu from '@/components/CommanderDamageMenu';
+import CountersMenu from '@/components/CountersMenu';
+import { BACKGROUND } from '@/consts/consts';
 
 type Props = {
   menuVisible: boolean;
   menuType: string | null;
   index: number;
+  isEven: boolean;
 };
 
-export default function PlayerPanelMenu({menuVisible, menuType, index}: Props) {
+export default function PlayerPanelMenu({ menuVisible, menuType, index, isEven }: Props) {
   /* hold the panel’s run‑time size */
-  const [dims, setDims] = useState<{w: number; h: number} | null>(null);
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   if (!menuVisible) return null;
 
   return (
     <View
       style={styles.overlay}
-      onLayout={e => {
-        const {width, height} = e.nativeEvent.layout;
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
         if (!dims || dims.w !== width || dims.h !== height) {
-          setDims({w: width, h: height});
+          setDims({ w: width, h: height });
         }
-      }}>
+      }}
+    >
       <View
         style={[
           styles.content,
           dims && {
             width: dims.h,
             height: dims.w,
-            transform: [{rotate: '90deg'}],
+            transform: [{ rotate: '90deg' }],
           },
-        ]}>
-        {menuType === 'menu1' && <CommanderDamageMenu defenderId={index} />}
+        ]}
+      >
+        {menuType === 'menu1' && <CommanderDamageMenu isEven={isEven} defenderId={index} />}
         {menuType === 'menu2' && <CountersMenu defenderId={index} />}
       </View>
     </View>
@@ -63,5 +66,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {color: '#fff', fontSize: 24, fontWeight: '700', marginBottom: 20},
+  text: { color: '#fff', fontSize: 24, fontWeight: '700', marginBottom: 20 },
 });
