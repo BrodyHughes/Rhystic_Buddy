@@ -66,12 +66,12 @@ _Pro‑tip_: press R twice to reload on Android, or ⌘ R in the iOS Simulator
 
 Follow these steps to get a pull request merged:
 
-1. **Fork** the repo & create a feature branch:
+1. If you're an outside contributor, fork the repo & create a feature branch. If you are an intenral contributor, then just open a PR:
    `git checkout -b feat/<scope>`
-2. Commit using [Conventional Commits](https://www.conventionalcommits.org).
+2. Commit using descriptive commits.
 3. **Push** and open a PR against `main`.
-4. Our **Blacksmith CI** pipeline will run lint, type‑check, tests and build.
-5. Request a review from @brody or another maintainer.
+4. Our **Blacksmith CI** pipeline will run lint, type‑check, tests and build (CI not setup yet).
+5. Request a review from @BrodyHughes or another maintainer.
 6. Squash‑merge once CI is green ✅.
 
 Local sanity check:
