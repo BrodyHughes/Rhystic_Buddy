@@ -16,10 +16,9 @@ import { radius } from '@/styles/global';
 import { useLifeStore } from '@/store/useLifeStore';
 import PlayerPicker from '@/components/playerPicker';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { SURFACE } from '@/consts/consts';
+import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER, TEXT } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
 import { useTurnStore } from '@/store/useTurnStore';
-import { fetchItems } from '@/helpers/scryfallFetch';
 
 export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
@@ -38,18 +37,27 @@ export default React.memo(function CentralMenuButton() {
   const handleTurnOrder = () => {
     setOpen(false);
 
-    const total = useLifeStore.getState().players.length;
-    const order = Array.from({ length: total }, (_, i) => i).sort(() => Math.random() - 0.5);
+    const playersArray = Array.from(
+      { length: useLifeStore.getState().players.length },
+      (_, i) => i,
+    );
+
+    // Fisher-Yates (Knuth) Shuffle
+    for (let i = playersArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
+    }
+    const order = playersArray;
 
     const loops = 3;
     const flashDelay = 100;
     let tick = 0;
 
     const spin = setInterval(() => {
-      useTurnStore.getState().set(order[tick % total]);
+      useTurnStore.getState().set(order[tick % order.length]);
       tick++;
 
-      if (tick === total * loops + 1) {
+      if (tick === order.length * loops + 1) {
         clearInterval(spin);
 
         setTimeout(() => {
@@ -57,10 +65,6 @@ export default React.memo(function CentralMenuButton() {
         }, 2000);
       }
     }, flashDelay);
-  };
-
-  const handleFetch = () => {
-    fetchItems();
   };
 
   return (
@@ -84,9 +88,6 @@ export default React.memo(function CentralMenuButton() {
               </TouchableOpacity>
               <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
                 <Text style={styles.menuItemText}>Reset Game</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={handleFetch}>
-                <Text style={styles.menuItemText}>Fetch API</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.closeButton} onPress={() => setOpen(false)}>
@@ -112,16 +113,16 @@ const styles = StyleSheet.create({
     width: FAB_SIZE,
     height: FAB_SIZE,
     borderRadius: FAB_SIZE / 2,
-    backgroundColor: SURFACE,
+    backgroundColor: BACKGROUND,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 9,
-    borderColor: 'rgb(32, 32, 32)',
+    borderColor: BORDER,
   },
-  fabText: { color: '#fff', fontSize: 28, fontWeight: '700', marginBottom: 2 },
+  fabText: { color: TEXT, fontSize: 28, fontWeight: '700', marginBottom: 2 },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(41, 41, 44, 0.8)',
+    backgroundColor: BACKGROUND_TRANSPARENT,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -135,22 +136,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
     elevation: 10,
-    backgroundColor: SURFACE,
+    backgroundColor: BACKGROUND,
   },
 
   menuContent: {
     padding: 24,
+    borderWidth: 10,
+    borderColor: BORDER,
   },
 
   menuTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#fff',
+    color: TEXT,
     marginBottom: 16,
   },
 
   menuItem: { marginTop: 16 },
-  menuItemText: { fontSize: 18, color: '#fff' },
+  menuItemText: { fontSize: 18, color: TEXT },
 
   closeButton: {
     position: 'absolute',
@@ -159,9 +162,8 @@ const styles = StyleSheet.create({
     height: 28,
     width: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButtonText: { fontSize: 18, color: '#fff' },
+  closeButtonText: { fontSize: 22, fontWeight: '700', color: TEXT },
 });

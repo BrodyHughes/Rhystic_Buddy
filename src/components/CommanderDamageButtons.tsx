@@ -8,7 +8,7 @@ interface Props {
   sourceId: number;
   cellW: number;
   cellH: number;
-  isEven: boolean;
+  isEvenPlayerIndexNumber: boolean;
 }
 
 export default function CommanderDamageButtons({
@@ -16,7 +16,7 @@ export default function CommanderDamageButtons({
   sourceId,
   cellW,
   cellH,
-  isEven,
+  isEvenPlayerIndexNumber,
 }: Props) {
   const damage = useCommanderDamageStore((s) => s.get(defenderId, sourceId));
   const change = useCommanderDamageStore((s) => s.change);
@@ -32,7 +32,7 @@ export default function CommanderDamageButtons({
         // margin is set in styles.square
         styles.square,
         { width: `${cellH - 2}%`, height: `${cellW - 4}%` },
-        { transform: [{ rotate: isEven ? '0deg' : '180deg' }] },
+        { transform: [{ rotate: isEvenPlayerIndexNumber ? '0deg' : '180deg' }] },
       ]}
     >
       <Text style={styles.total}>{damage}</Text>

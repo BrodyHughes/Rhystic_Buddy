@@ -5,10 +5,10 @@ import CommanderDamageButtons from '@/components/CommanderDamageButtons';
 
 interface Props {
   defenderId: number;
-  isEven: boolean;
+  isEvenPlayerIndexNumber: boolean;
 }
 
-export default function CommanderDamageMenu({ defenderId, isEven }: Props) {
+export default function CommanderDamageMenu({ defenderId, isEvenPlayerIndexNumber }: Props) {
   const totalPlayers = useLifeStore((s) => s.totalPlayers);
   const sources = Array.from({ length: totalPlayers }, (_, i) => i);
 
@@ -20,10 +20,15 @@ export default function CommanderDamageMenu({ defenderId, isEven }: Props) {
 
   return (
     <View style={styles.overlay}>
-      <View style={[styles.grid, { transform: [{ rotate: isEven ? '0deg' : '180deg' }] }]}>
+      <View
+        style={[
+          styles.grid,
+          { transform: [{ rotate: isEvenPlayerIndexNumber ? '0deg' : '180deg' }] },
+        ]}
+      >
         {sources.map((src) => (
           <CommanderDamageButtons
-            isEven={isEven}
+            isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             key={src}
             defenderId={defenderId}
             sourceId={src}
