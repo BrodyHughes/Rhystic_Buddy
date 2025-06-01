@@ -3,15 +3,21 @@ import { View, StyleSheet } from 'react-native';
 import CommanderDamageMenu from '@/components/CommanderDamageMenu';
 import CountersMenu from '@/components/CountersMenu';
 import { BACKGROUND } from '@/consts/consts';
+import PlayerPanelPlayerSettings from './PlayerPanelPlayerSettings';
 
 type Props = {
   menuVisible: boolean;
   menuType: string | null;
   index: number;
-  isEven: boolean;
+  isEvenPlayerIndexNumber: boolean;
 };
 
-export default function PlayerPanelMenu({ menuVisible, menuType, index, isEven }: Props) {
+export default function PlayerPanelMenu({
+  menuVisible,
+  menuType,
+  index,
+  isEvenPlayerIndexNumber,
+}: Props) {
   /* hold the panel’s run‑time size */
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
@@ -37,8 +43,16 @@ export default function PlayerPanelMenu({ menuVisible, menuType, index, isEven }
           },
         ]}
       >
-        {menuType === 'menu1' && <CommanderDamageMenu isEven={isEven} defenderId={index} />}
-        {menuType === 'menu2' && <CountersMenu defenderId={index} />}
+        {menuType === 'commanderDamage' && (
+          <CommanderDamageMenu
+            isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
+            defenderId={index}
+          />
+        )}
+        {menuType === 'counters' && <CountersMenu defenderId={index} />}
+        {menuType === 'settings' && (
+          <PlayerPanelPlayerSettings isEvenPlayerIndexNumber={isEvenPlayerIndexNumber} />
+        )}
       </View>
     </View>
   );

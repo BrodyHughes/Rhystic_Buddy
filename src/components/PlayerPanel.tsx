@@ -6,7 +6,7 @@
  * for commander damage etc
  * [ ] add a 'who goes first' randomizer
  */
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,23 +16,24 @@ import { useLifeStore, PlayerState } from '@/store/useLifeStore';
 import { useTurnStore } from '@/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import PlayerPanelMenu from '@/components/PlayerPanelMenu';
-import { GAP } from '@/consts/consts';
+import { GAP, BACKGROUND, TEXT, BORDER } from '@/consts/consts';
 
 interface Props {
   player: PlayerState;
   index: number;
   cols: number;
   rows: number;
-  isEven: boolean;
+  isEvenPlayerIndexNumber: boolean;
 }
 
 enum PanelView {
   PANEL = 'panel',
-  MENU1 = 'menu1',
-  MENU2 = 'menu2',
+  COMMANDER_DAMAGE = 'commanderDamage',
+  COUNTERS = 'counters',
+  SETTINGS = 'settings',
 }
 
-function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
+function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumber }: Props) {
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const green = 'rgb(255, 255, 255)';
@@ -41,12 +42,18 @@ function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
   const changeLife = useLifeStore((s) => s.changeLife);
   const totalPlayers = useLifeStore((s) => s.players.length);
   const currentTurn = useTurnStore((s) => s.current);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [view, setView] = useState<PanelView>(PanelView.PANEL);
 
   const cycleView = (direction: 'left' | 'right') => {
     setView((currentView) => {
-      const views = [PanelView.PANEL, PanelView.MENU1, PanelView.MENU2];
+      const views = [
+        PanelView.PANEL,
+        PanelView.COMMANDER_DAMAGE,
+        PanelView.COUNTERS,
+        PanelView.SETTINGS,
+      ];
       let currentIndex = views.indexOf(currentView);
       if (direction === 'left') {
         currentIndex = (currentIndex + 1) % views.length;
@@ -57,6 +64,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
     });
   };
 
+  // swipe gestuers to handle menu navigation
   const swipeGesture = Gesture.Pan().onEnd((e) => {
     const { translationX } = e;
 
@@ -64,19 +72,55 @@ function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
     else if (translationX < -50) runOnJS(cycleView)('left');
   });
 
+  // flipped swipe gesture to handle menu navigation on the other side
+  const flippedSwipeGesture = Gesture.Pan().onEnd((e) => {
+    const { translationX } = e;
+
+    if (translationX > 50) runOnJS(cycleView)('left');
+    else if (translationX < -50) runOnJS(cycleView)('right');
+  });
+
   /* lets nest some ternaries! */
-  const rot = isEven ? '0deg' : '180deg';
-  const rot2 = isEven ? '90deg' : '270deg';
+  const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
+  const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
 
   /* size minus gaps & insets */
-  const usableW = W - 2 * GAP - GAP * (cols - 1);
-  const usableH = H - top - bottom - 2 * GAP - GAP * (rows - 1);
+  const usableW = W - 3 * GAP;
+  const usableH = H - top - bottom - 3 * GAP;
   const panelW = usableW / cols;
   const panelH = usableH / rows;
 
+  const changeLifeByAmount = (amount: number) => {
+    changeLife(index, amount);
+  };
+
+  const handleContinuousChange = (direction: 'inc' | 'dec') => {
+    const amount = direction === 'inc' ? 5 : -5;
+    runOnJS(changeLifeByAmount)(amount);
+  };
+
+  const handleLongPressStart = (direction: 'inc' | 'dec') => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    // Initial change
+    handleContinuousChange(direction);
+    // Start interval for continuous change
+    intervalRef.current = setInterval(() => {
+      handleContinuousChange(direction);
+    }, 400);
+  };
+
+  const handlePressOut = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
   return (
-    <GestureDetector gesture={swipeGesture}>
+    <GestureDetector gesture={isEvenPlayerIndexNumber ? swipeGesture : flippedSwipeGesture}>
       <View
         style={[
           styles.shadowWrap,
@@ -87,11 +131,11 @@ function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
         <View style={styles.roundedClip}>
           {view !== PanelView.PANEL && (
             <PlayerPanelMenu
-              // @ts-ignore. error is fine. uncomment to see it if u want to debug but its okay.
+              // @ts-ignore. error is fine. uncomment to see it if u want to debug.
               menuVisible={view !== PanelView.PANEL}
               menuType={view}
               index={index}
-              isEven={isEven}
+              isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             />
           )}
           <View style={styles.content}>
@@ -107,13 +151,19 @@ function PlayerPanelComponent({ player, index, cols, rows, isEven }: Props) {
             <TouchableOpacity
               activeOpacity={0.1}
               style={[styles.button, styles.inc]}
-              onPress={() => changeLife(index, +1)}
+              onPress={() => changeLifeByAmount(1)}
+              onLongPress={() => handleLongPressStart('inc')}
+              onPressOut={handlePressOut}
+              delayLongPress={1000}
             />
 
             <TouchableOpacity
               activeOpacity={0.1}
               style={[styles.button, styles.dec]}
-              onPress={() => changeLife(index, -1)}
+              onPress={() => changeLifeByAmount(-1)}
+              onLongPress={() => handleLongPressStart('dec')}
+              onPressOut={handlePressOut}
+              delayLongPress={1000}
             />
           </View>
         </View>
@@ -149,30 +199,28 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: radius.md,
     overflow: 'hidden',
+    borderWidth: 10,
+    borderColor: BORDER,
   },
 
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgb(111, 111, 117)',
+    backgroundColor: BACKGROUND,
   },
   lifeBlock: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.sm,
+    justifyContent: 'center',
     transform: [{ rotate: '90deg' }],
     zIndex: 1,
-    pointerEvents: 'box-none',
+    pointerEvents: 'none',
   },
-  life: { ...typography.heading1, color: '#fff' },
+  life: { ...typography.heading1, color: TEXT, marginRight: spacing.xs },
   delta: {
     ...typography.caption,
-    color: '#fff',
-    marginTop: 2,
-    position: 'absolute',
-    bottom: 30,
-    right: -100,
-    transform: [{ translateX: -67 }],
+    color: TEXT,
   },
   button: {
     position: 'absolute',
@@ -180,14 +228,14 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(99, 99, 103, 1)',
+    backgroundColor: BACKGROUND,
   },
   inc: { right: 0 },
   dec: { left: 0 },
   btnText: {
     fontSize: 32,
     fontWeight: '600',
-    color: '#fff',
+    color: TEXT,
     transform: [{ rotate: '90deg' }],
   },
 });
