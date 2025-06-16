@@ -18,6 +18,14 @@ import { typography, spacing, radius } from '@/styles/global';
 import PlayerPanelMenu from '@/components/PlayerPanelMenu';
 import { GAP, BACKGROUND, TEXT, BORDER } from '@/consts/consts';
 
+import { fetchCardByName } from '@/helpers/scryfallFetch.ts';
+import PlayerPanelPlayerSettings from './PlayerPanelPlayerSettings';
+
+
+
+
+
+
 interface Props {
   player: PlayerState;
   index: number;
@@ -45,6 +53,26 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [view, setView] = useState<PanelView>(PanelView.PANEL);
+
+  const [cardName, setCardName] = useState('');
+  const [cardImageUrl, setCardImageUrl] = useState<string | undefined>(undefined);
+
+  const handleCardSearch = async () => {
+    if (!cardName.trim()) return;
+
+    try {
+      const imageUrl = await fetchCardByName(cardName);
+      if (imageUrl) {
+        setCardImageUrl(imageUrl);
+      } else {
+        setCardImageUrl(undefined);
+        // optionally show a "not found" message here
+      }
+    } catch (error) {
+      console.error('Error fetching card:', error);
+    }
+  };
+
 
   const cycleView = (direction: 'left' | 'right') => {
     setView((currentView) => {
