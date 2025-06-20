@@ -1,21 +1,26 @@
 // https://api.scryfall.com
 import { ScryfallApiResponse } from '@/types/scryfall';
 
-export async function fetchItems(): Promise<ScryfallApiResponse | undefined> {
+export async function fetchCardByName(cardName: string): Promise<string | undefined> {
   try {
-    const res = await fetch('https://api.scryfall.com/cards/search?q=e%3Aeld&unique=prints', {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-    });
+    const res = await fetch(
+        `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(cardName)}`,
+        {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+        }
+    );
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const data: ScryfallApiResponse = await res.json();
-    console.log('items →', data);
-    return data;
+    const data = await res.json();
+    const imageUrl = data.image_uris?.art_crop || data.card_faces?.[0]?.image_uris?.art_crop;
+
+    return imageUrl;
   } catch (err) {
-    console.error('fetchItems failed:', err);
+    console.error('fetchCardByName failed:', err);
   }
 }
 
-fetchItems();
+
+

@@ -5,40 +5,70 @@
  * [ ] add a 'choose your background' button that lets you set background to the art
  * [ ] figure out where tf to put this menu
  */
-import { fetchItems } from '@/helpers/scryfallFetch';
+import { fetchCardByName } from '@/helpers/scryfallFetch';
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { ScryfallApiResponse } from '@/types/scryfall';
+import { ImageBackground, TextInput } from 'react-native';
 
 interface Props {
   isEvenPlayerIndexNumber: boolean;
 }
 
 export default function PlayerPanelPlayerSettings({ isEvenPlayerIndexNumber }: Props) {
-  const [data, setData] = useState<ScryfallApiResponse | null>(null);
+  
+  const [cardImageUrl, setCardImageUrl] = useState<string | undefined>(undefined);
+  const [cardName, setCardName] = useState('');
   const handleFetch = async () => {
-    const items = await fetchItems();
-    if (items) {
-      setData(items);
-    }
+    const image = await fetchCardByName(cardName);
+      if (!image) {
+        Alert.alert('Card not found. Try another name.');
+          return;
+      }
+      setCardImageUrl(image);
   };
 
+
   return (
-    <View style={styles.overlay}>
-      <View
-        style={[
-          styles.grid,
-          { transform: [{ rotate: isEvenPlayerIndexNumber ? '0deg' : '180deg' }] },
-        ]}
+      <ImageBackground
+          source={cardImageUrl ? { uri: cardImageUrl } : undefined}
+          resizeMode="cover"
+          style={styles.overlay}
+          imageStyle={{ opacity: 0.15 }} // optional: faint background
       >
-        <TouchableOpacity style={styles.menuItem} onPress={handleFetch}>
-          <Text style={styles.menuItemText}>Fetch API</Text>
-        </TouchableOpacity>
-        {/* eslint-disable-next-line react-native/no-inline-styles */}
-        {data && <Text style={{ color: 'white' }}>{data.data[0].name}</Text>}
-      </View>
-    </View>
+        <View
+            style={[
+              styles.grid,
+              { transform: [{ rotate: isEvenPlayerIndexNumber ? '0deg' : '180deg' }] },
+            ]}
+        >
+          <TextInput
+              placeholder="Search card by name"
+              value={cardName}
+              onChangeText={setCardName}
+              onSubmitEditing={handleFetch}
+              style={{
+                height: 40,
+                borderColor: 'gray',
+                borderWidth: 1,
+                margin: 10,
+                paddingHorizontal: 8,
+                backgroundColor: 'white',
+                borderRadius: 5,
+              }}
+              returnKeyType="search"
+          />
+          <TouchableOpacity style={styles.menuItem} onPress={handleFetch}>
+            <Text style={styles.menuItemText}>Set Background</Text>
+          </TouchableOpacity>
+
+
+
+          {/* ... your TouchableOpacity, TextInput, etc. go here */}
+        </View>
+      </ImageBackground>
   );
+ 
 }
 
 const styles = StyleSheet.create({
