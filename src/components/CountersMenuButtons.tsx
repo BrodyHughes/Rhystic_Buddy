@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/store/useCounterStore';
+import { BORDER_COLOR } from '@/consts/consts';
 
 type CounterKey = 'storm' | 'poison' | 'mana';
 
@@ -51,7 +52,7 @@ export default function CountersMenuButtons({ defenderId, counter, cellW, cellH 
 
 const styles = StyleSheet.create({
   square: {
-    backgroundColor: 'rgb(96,96,96)',
+    backgroundColor: BORDER_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(180, 180, 180, 0.4)',
+    backgroundColor: BORDER_COLOR,
   },
   btnTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

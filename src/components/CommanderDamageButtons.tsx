@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { SURFACE } from '@/consts/consts';
+import { BORDER_COLOR } from '@/consts/consts';
 
 interface Props {
   defenderId: number;
@@ -51,7 +51,7 @@ export default function CommanderDamageButtons({
 
 const styles = StyleSheet.create({
   square: {
-    backgroundColor: SURFACE,
+    backgroundColor: BORDER_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: SURFACE,
+    backgroundColor: BORDER_COLOR,
   },
   btnTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

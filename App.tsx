@@ -12,7 +12,7 @@ import PlayerPanel from '@/components/PlayerPanel';
 import CentralMenuButton from '@/components/CentralMenuButton';
 import { useLifeStore } from '@/store/useLifeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { GAP, APP_BACKGROUND } from '@/consts/consts';
+import { BACKGROUND, GAP } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function App() {
@@ -79,7 +79,7 @@ export default function App() {
 // simple and keeps it all on page.
 // also should move styling outside components at some point lol
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: APP_BACKGROUND },
+  screen: { flex: 1, backgroundColor: BACKGROUND },
   grid: {
     flex: 1,
     flexDirection: 'row',

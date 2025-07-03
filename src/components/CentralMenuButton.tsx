@@ -1,169 +1,379 @@
 /**
- * Okay this menu sucks rn but i think the functionality is there.
- * I like the look of Moxfield's menu so may look at making something similar in the future.
- * Lets just keep adding the functionality we need for now.
- * TODO:
- * [ ] add a 'who goes first' randomizer here actually probably
- * [ ] add a 'choose your background' thing with scryfall api
- * [ ] themes????
- * [ ] light / dark mode???
+ * CentralMenuButton Component
+ *
+ * This component renders a Floating Action Button (FAB) that, when pressed,
+ * transforms into a full-screen circular menu with animated items.
+ *
+ * Features:
+ * - A central pentagon-shaped button that serves as the menu trigger.
+ * - The button animates (rotates and expands) to become the menu background.
+ * - A hamburger icon on the button cross-fades into an 'X' icon when the menu is open.
+ * - Menu items are displayed as icons arranged in a circle.
+ * - All animations are powered by `react-native-reanimated` for high performance.
+ * - The pentagon's border width remains visually consistent during the animation.
+ * - The opening/closing animation uses a spring effect for a natural, bouncy feel.
  */
 
 import React, { useState } from 'react';
-import { Modal, View, TouchableOpacity, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { TouchableOpacity, StyleSheet, useWindowDimensions, View, Text } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedProps,
+  withSpring,
+  cancelAnimation,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { radius } from '@/styles/global';
-import { useLifeStore } from '@/store/useLifeStore';
-import PlayerPicker from '@/components/playerPicker';
+import { useLifeStore, PlayerCount } from '@/store/useLifeStore';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER, TEXT } from '@/consts/consts';
+import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
 import { useTurnStore } from '@/store/useTurnStore';
+import {
+  PlayersIcon,
+  TurnOrderIcon,
+  ResetIcon,
+  BackgroundIcon,
+  RulingsIcon,
+} from '@/components/centralMenu/icons';
+import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
+import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
 
+// --- Animated Components --- //
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedView = Animated.createAnimatedComponent(View);
+
+// --- Constants --- //
+const FAB_SIZE = 90;
+const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
+const PENTAGON_SIDES = 5;
+const PENTAGON_RADIUS = 45;
+const PENTAGON_CENTER = 50;
+const PENTAGON_START_ANGLE = -90;
+
+// --- Geometry Helpers --- //
+function getRegularPolygonPath(
+  sides = PENTAGON_SIDES,
+  cx = PENTAGON_CENTER,
+  cy = PENTAGON_CENTER,
+  r = PENTAGON_RADIUS,
+  startAngleDeg = PENTAGON_START_ANGLE,
+) {
+  const pts = Array.from({ length: sides }, (_, i) => {
+    const a = ((startAngleDeg + (i * 360) / sides) * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+  return `M${pts.map((p) => p.join(' ')).join(' L')} Z`;
+}
+
+function getMenuItemAngles(sides = PENTAGON_SIDES, startAngleDeg = 90) {
+  const angleIncrement = 360 / sides;
+  // This offset will shift each item from a vertex to the center of a side.
+  const angleOffset = angleIncrement / 2;
+  const angles = Array.from(
+    { length: sides },
+    (_, i) => startAngleDeg + i * angleIncrement + angleOffset,
+  );
+  // Maintain the same logical order of items around the circle.
+  return [angles[2], angles[3], angles[4], angles[1], angles[0]];
+}
+
+const PENTAGON_PATH = getRegularPolygonPath();
+const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
+
+const menuItems = [
+  { id: 'players', icon: <PlayersIcon />, label: 'Players' },
+  { id: 'turn', icon: <TurnOrderIcon />, label: 'Turn Order' },
+  { id: 'reset', icon: <ResetIcon />, label: 'Reset' },
+  { id: 'background', icon: <BackgroundIcon />, label: 'Background' },
+  { id: 'rulings', icon: <RulingsIcon />, label: 'Rulings' },
+];
+
+// --- Sub-Components --- //
+const CircularMenuItem = ({
+  index,
+  progress,
+  children,
+  onPress,
+  radius,
+  label,
+}: {
+  index: number;
+  progress: Animated.SharedValue<number>;
+  children: React.ReactNode;
+  onPress: () => void;
+  radius: number;
+  label: string;
+}) => {
+  const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
+  const angle = itemAngles[index];
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateX = progress.value * radius * Math.cos(angle);
+    const translateY = progress.value * radius * Math.sin(angle);
+    const rotation = (angle * 180) / Math.PI - 90;
+
+    return {
+      opacity: progress.value,
+      transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
+      display: progress.value === 0 ? 'none' : 'flex',
+      pointerEvents: progress.value === 1 ? 'auto' : 'none',
+    };
+  });
+
+  return (
+    <AnimatedView style={[styles.menuItemContainer, animatedStyle]}>
+      <TouchableOpacity onPress={onPress} style={styles.menuItem}>
+        {children}
+        <Text style={styles.menuItemText}>{label}</Text>
+      </TouchableOpacity>
+    </AnimatedView>
+  );
+};
+
+// --- Main Component --- //
 export default React.memo(function CentralMenuButton() {
+  // --- State --- //
   const [open, setOpen] = useState(false);
+  const [isSearchVisible, setSearchVisible] = useState(false);
+  const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
+
+  // --- Hooks --- //
+  const players = useLifeStore((state) => state.players);
+  const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const { width: W, height: H } = useWindowDimensions();
+  const { top, bottom } = useSafeAreaInsets();
+
+  // --- Memoized Values --- //
+  const menuItemRadius = W / MENU_LAYOUT_RADIUS_FACTOR;
+  const finalFabDiameter = W + menuItemRadius / 2 - 30;
+
+  // --- Animated Values --- //
+  const progress = useSharedValue(0);
+
+  // --- Animated Styles --- //
+  const fabAnimatedStyle = useAnimatedStyle(() => {
+    const size = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
+    const rotation = progress.value * 180;
+    return {
+      width: size,
+      height: size,
+      marginLeft: -size / 2,
+      marginTop: -size / 2,
+      transform: [{ rotate: `${rotation}deg` }],
+    };
+  });
+
+  const animatedStrokeProps = useAnimatedProps(() => {
+    const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
+    const scaleFactor = currentSize / FAB_SIZE;
+    return {
+      strokeWidth: 7 / scaleFactor,
+    };
+  });
+
+  const hamburgerIconStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+  }));
+
+  const xIconStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  // --- Handlers --- //
+  const handlePress = () => {
+    cancelAnimation(progress);
+    const toValue = open ? 0 : 1;
+    progress.value = withSpring(toValue, {
+      damping: 50,
+      stiffness: 200,
+      overshootClamping: true,
+    });
+    setOpen(!open);
+  };
 
   const handleReset = () => {
-    useLifeStore.setState(({ players }) => ({
+    useLifeStore.setState(() => ({
       players: players.map((p) => ({ ...p, life: 40, delta: 0 })),
-      life: 40,
-      delta: 0,
     }));
     useCommanderDamageStore.setState({ damage: {} });
     useCounterStore.setState({ counters: {} });
+    handlePress();
   };
 
   const handleTurnOrder = () => {
-    setOpen(false);
-
-    const playersArray = Array.from(
-      { length: useLifeStore.getState().players.length },
-      (_, i) => i,
-    );
-
-    // Fisher-Yates (Knuth) Shuffle
-    for (let i = playersArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
-    }
-    const order = playersArray;
-
-    const loops = 3;
-    const flashDelay = 100;
-    let tick = 0;
-
-    const spin = setInterval(() => {
-      useTurnStore.getState().set(order[tick % order.length]);
-      tick++;
-
-      if (tick === order.length * loops + 1) {
-        clearInterval(spin);
-
-        setTimeout(() => {
-          useTurnStore.getState().reset();
-        }, 2000);
+    handlePress();
+    setTimeout(() => {
+      if (players.length === 0) return;
+      const playersArray = Array.from({ length: players.length }, (_, i) => i);
+      for (let i = playersArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
       }
-    }, flashDelay);
+      const order = playersArray;
+      const loops = 3;
+      const flashDelay = 100;
+      let tick = 0;
+      const spin = setInterval(() => {
+        useTurnStore.getState().set(order[tick % order.length]);
+        tick++;
+        if (tick === order.length * loops + 1) {
+          clearInterval(spin);
+          setTimeout(() => {
+            useTurnStore.getState().reset();
+          }, 2000);
+        }
+      }, flashDelay);
+    }, 500);
   };
 
+  const handleBackgroundPress = () => {
+    handlePress();
+    setTimeout(() => setSearchVisible(true), 500);
+  };
+
+  const handlePlayersPress = () => {
+    handlePress();
+    setTimeout(() => setPlayerCountSelectorVisible(true), 500);
+  };
+
+  const handlePlayerCountSelect = (count: PlayerCount) => {
+    setTotalPlayers(count);
+    setPlayerCountSelectorVisible(false);
+  };
+
+  const getActionFor = (id: string) => {
+    const actions: { [key: string]: () => void } = {
+      reset: handleReset,
+      turn: handleTurnOrder,
+      background: handleBackgroundPress,
+      players: handlePlayersPress,
+      rulings: () => {},
+    };
+    return actions[id] || (() => {});
+  };
+
+  // --- Render --- //
   return (
-    <>
-      <TouchableOpacity
-        style={[styles.fab, { top: H / 2, left: W / 2 }]}
-        onPress={() => setOpen(true)}
+    <View style={[styles.container, { width: W, height: H }]}>
+      <AnimatedTouchable
+        style={[styles.fab, { top: H / 2 + (top - bottom) / 2, left: W / 2 }, fabAnimatedStyle]}
+        onPress={handlePress}
+        activeOpacity={1}
       >
-        <Text style={styles.fabText}>×</Text>
-      </TouchableOpacity>
+        <Svg height="100%" width="100%" viewBox="0 0 100 100">
+          <AnimatedPath
+            d={PENTAGON_PATH}
+            fill={BACKGROUND}
+            stroke={'rgb(74, 74, 78)'}
+            strokeLinejoin="round"
+            animatedProps={animatedStrokeProps}
+          />
+        </Svg>
+        <Animated.View style={[styles.iconContainer, hamburgerIconStyle]}>
+          <Svg height="30" width="30" viewBox="0 0 100 100">
+            <Path
+              d="M20,30 L80,30 M20,50 L80,50 M20,70 L80,70"
+              stroke={OFF_WHITE}
+              strokeWidth="10"
+            />
+          </Svg>
+        </Animated.View>
+        <Animated.View style={[styles.iconContainer, xIconStyle]}>
+          <Svg height="30" width="30" viewBox="0 0 100 100">
+            <Path d="M20,20 L80,80 M20,80 L80,20" stroke={OFF_WHITE} strokeWidth="10" />
+          </Svg>
+        </Animated.View>
+      </AnimatedTouchable>
 
-      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setOpen(false)}>
-          <View style={styles.menuWrapper}>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Settings</Text>
+      {!isSearchVisible && !isPlayerCountSelectorVisible && (
+        <View
+          style={[
+            styles.menuItemsWrapper,
+            {
+              paddingTop: top - bottom,
+            },
+          ]}
+        >
+          {menuItems.map((item, index) => (
+            <CircularMenuItem
+              key={item.id}
+              index={index}
+              progress={progress}
+              onPress={getActionFor(item.id)}
+              radius={menuItemRadius}
+              label={item.label}
+            >
+              {item.icon}
+            </CircularMenuItem>
+          ))}
+        </View>
+      )}
 
-              <PlayerPicker />
-              <TouchableOpacity style={styles.menuItem} onPress={handleTurnOrder}>
-                <Text style={styles.menuItemText}>Turn Order</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={handleReset}>
-                <Text style={styles.menuItemText}>Reset Game</Text>
-              </TouchableOpacity>
+      {isPlayerCountSelectorVisible && (
+        <PlayerCountSelector
+          onSelect={handlePlayerCountSelect}
+          onClose={() => setPlayerCountSelectorVisible(false)}
+        />
+      )}
 
-              <TouchableOpacity style={styles.closeButton} onPress={() => setOpen(false)}>
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    </>
+      {isSearchVisible && <BackgroundSearch onClose={() => setSearchVisible(false)} />}
+    </View>
   );
 });
 
-/* ── styles ────────────────────────────────────────────── */
-
-const FAB_SIZE = 70;
-
+// --- Styles --- //
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...StyleSheet.absoluteFillObject,
+  },
   fab: {
     position: 'absolute',
-    marginLeft: -FAB_SIZE / 2,
-    marginTop: -FAB_SIZE / 2 + 12,
     width: FAB_SIZE,
     height: FAB_SIZE,
-    borderRadius: FAB_SIZE / 2,
-    backgroundColor: BACKGROUND,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 9,
-    borderColor: BORDER,
-  },
-  fabText: { color: TEXT, fontSize: 28, fontWeight: '700', marginBottom: 2 },
-  backdrop: {
-    flex: 1,
-    backgroundColor: BACKGROUND_TRANSPARENT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  menuWrapper: {
-    width: '80%',
-    borderRadius: radius.lg,
-    overflow: 'hidden',
+    zIndex: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 10,
-    backgroundColor: BACKGROUND,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
-
-  menuContent: {
-    padding: 24,
-    borderWidth: 10,
-    borderColor: BORDER,
-  },
-
-  menuTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: TEXT,
-    marginBottom: 16,
-  },
-
-  menuItem: { marginTop: 16 },
-  menuItemText: { fontSize: 18, color: TEXT },
-
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    height: 28,
-    width: 28,
-    borderRadius: 14,
+  iconContainer: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButtonText: { fontSize: 22, fontWeight: '700', color: TEXT },
+  menuItemsWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: 12,
+  },
+  menuItemContainer: {
+    position: 'absolute',
+    zIndex: 20,
+    alignItems: 'center',
+  },
+  menuItem: {
+    padding: 12,
+    alignItems: 'center',
+  },
+  menuItemText: {
+    color: OFF_WHITE,
+    marginTop: -2,
+    fontSize: 14,
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 3,
+  },
 });

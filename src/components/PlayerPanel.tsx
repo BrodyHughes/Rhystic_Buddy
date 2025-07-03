@@ -6,26 +6,31 @@
  * for commander damage etc
  * [ ] add a 'who goes first' randomizer
  */
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
-import { runOnJS } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useRef } from 'react';
+import { View, StyleSheet, useWindowDimensions, Image } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
 
 import { useLifeStore, PlayerState } from '@/store/useLifeStore';
 import { useTurnStore } from '@/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import PlayerPanelMenu from '@/components/PlayerPanelMenu';
-import { GAP, BACKGROUND, TEXT, BORDER } from '@/consts/consts';
+import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
+import LifeView from './playerPanel/LifeView';
 
-import { fetchCardByName } from '@/helpers/scryfallFetch.ts';
-import PlayerPanelPlayerSettings from './PlayerPanelPlayerSettings';
-
-
-
-
-
-
+export enum ViewMode {
+  LIFE = 'life',
+  COMMANDER = 'commander',
+  COUNTERS = 'counters',
+}
 interface Props {
   player: PlayerState;
   index: number;
@@ -34,61 +39,34 @@ interface Props {
   isEvenPlayerIndexNumber: boolean;
 }
 
-enum PanelView {
-  PANEL = 'panel',
-  COMMANDER_DAMAGE = 'commanderDamage',
-  COUNTERS = 'counters',
-  SETTINGS = 'settings',
-}
-
 function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumber }: Props) {
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
-  const green = 'rgb(255, 255, 255)';
-  const red = 'rgb(255, 255, 255)';
-  const { life, delta } = player;
   const changeLife = useLifeStore((s) => s.changeLife);
   const totalPlayers = useLifeStore((s) => s.players.length);
   const currentTurn = useTurnStore((s) => s.current);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [view, setView] = useState<PanelView>(PanelView.PANEL);
+  const backgroundImage = usePlayerBackgroundStore((state) => state.backgrounds[player.id]);
 
-  const [cardName, setCardName] = useState('');
-  const [cardImageUrl, setCardImageUrl] = useState<string | undefined>(undefined);
-
-  const handleCardSearch = async () => {
-    if (!cardName.trim()) return;
-
-    try {
-      const imageUrl = await fetchCardByName(cardName);
-      if (imageUrl) {
-        setCardImageUrl(imageUrl);
-      } else {
-        setCardImageUrl(undefined);
-        // optionally show a "not found" message here
-      }
-    } catch (error) {
-      console.error('Error fetching card:', error);
-    }
-  };
-
+  // Use a shared value for the active view index. Start at 1 for the infinite carousel.
+  const activeViewIndex = useSharedValue(1);
 
   const cycleView = (direction: 'left' | 'right') => {
-    setView((currentView) => {
-      const views = [
-        PanelView.PANEL,
-        PanelView.COMMANDER_DAMAGE,
-        PanelView.COUNTERS,
-        PanelView.SETTINGS,
-      ];
-      let currentIndex = views.indexOf(currentView);
-      if (direction === 'left') {
-        currentIndex = (currentIndex + 1) % views.length;
-      } else {
-        currentIndex = (currentIndex - 1 + views.length) % views.length;
+    'worklet';
+
+    const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
+
+    activeViewIndex.value = withTiming(newIndex, { duration: 150 }, (isFinished) => {
+      if (isFinished) {
+        if (newIndex === 4) {
+          // Instantly jump from the cloned last item to the first real item
+          activeViewIndex.value = 1;
+        } else if (newIndex === 0) {
+          // Instantly jump from the cloned first item to the last real item
+          activeViewIndex.value = 3;
+        }
       }
-      return views[currentIndex];
     });
   };
 
@@ -96,16 +74,22 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
   const swipeGesture = Gesture.Pan().onEnd((e) => {
     const { translationX } = e;
 
-    if (translationX > 50) runOnJS(cycleView)('right');
-    else if (translationX < -50) runOnJS(cycleView)('left');
+    if (translationX > 50) {
+      cycleView('right');
+    } else if (translationX < -50) {
+      cycleView('left');
+    }
   });
 
   // flipped swipe gesture to handle menu navigation on the other side
   const flippedSwipeGesture = Gesture.Pan().onEnd((e) => {
     const { translationX } = e;
 
-    if (translationX > 50) runOnJS(cycleView)('left');
-    else if (translationX < -50) runOnJS(cycleView)('right');
+    if (translationX > 50) {
+      cycleView('left');
+    } else if (translationX < -50) {
+      cycleView('right');
+    }
   });
 
   /* lets nest some ternaries! */
@@ -118,6 +102,32 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
   const usableH = H - top - bottom - 3 * GAP;
   const panelW = usableW / cols;
   const panelH = usableH / rows;
+
+  const imageNode = backgroundImage ? (
+    <Image
+      source={{ uri: backgroundImage }}
+      style={[
+        styles.imageStyle,
+        // eslint-disable-next-line react-native/no-inline-styles
+        {
+          position: 'absolute',
+          width: panelH,
+          height: panelW,
+          top: (panelH - panelW) / 2,
+          left: (panelW - panelH) / 2,
+          transform: [{ rotate: '90deg' }],
+        },
+      ]}
+      resizeMode="cover"
+    />
+  ) : null;
+
+  const panelBackgroundColor = backgroundImage ? 'transparent' : player.backgroundColor;
+
+  // This animated style will slide the entire container of views
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -activeViewIndex.value * panelW }],
+  }));
 
   const changeLifeByAmount = (amount: number) => {
     changeLife(index, amount);
@@ -147,6 +157,15 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
     }
   };
 
+  // Define the views for the carousel
+  const views = [
+    { type: ViewMode.COUNTERS }, // Cloned
+    { type: ViewMode.LIFE },
+    { type: ViewMode.COMMANDER },
+    { type: ViewMode.COUNTERS },
+    { type: ViewMode.LIFE }, // Cloned
+  ];
+
   return (
     <GestureDetector gesture={isEvenPlayerIndexNumber ? swipeGesture : flippedSwipeGesture}>
       <View
@@ -155,45 +174,43 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
           { width: panelW, height: panelH, transform: [{ rotate: appliedRot }] },
         ]}
       >
+        {imageNode}
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0)']}
+          style={styles.shine}
+          useAngle={true}
+          angle={195}
+        />
         {currentTurn === index && <View style={styles.turnOrderOverlay} />}
         <View style={styles.roundedClip}>
-          {view !== PanelView.PANEL && (
-            <PlayerPanelMenu
-              // @ts-ignore. error is fine. uncomment to see it if u want to debug.
-              menuVisible={view !== PanelView.PANEL}
-              menuType={view}
-              index={index}
-              isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
-            />
-          )}
-          <View style={styles.content}>
-            <View style={styles.lifeBlock}>
-              <Text style={styles.life}>{life}</Text>
-              {delta !== 0 && (
-                <Text style={[styles.delta, { color: delta > 0 ? green : red }]}>
-                  {delta > 0 ? `+${delta}` : delta}
-                </Text>
-              )}
-            </View>
-
-            <TouchableOpacity
-              activeOpacity={0.1}
-              style={[styles.button, styles.inc]}
-              onPress={() => changeLifeByAmount(1)}
-              onLongPress={() => handleLongPressStart('inc')}
-              onPressOut={handlePressOut}
-              delayLongPress={1000}
-            />
-
-            <TouchableOpacity
-              activeOpacity={0.1}
-              style={[styles.button, styles.dec]}
-              onPress={() => changeLifeByAmount(-1)}
-              onLongPress={() => handleLongPressStart('dec')}
-              onPressOut={handlePressOut}
-              delayLongPress={1000}
-            />
-          </View>
+          <Animated.View style={[styles.viewsContainer, containerAnimatedStyle]}>
+            {views.map((view, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.viewPanel,
+                  styles.panelBorder,
+                  { width: panelW, backgroundColor: panelBackgroundColor },
+                ]}
+              >
+                {view.type === ViewMode.LIFE ? (
+                  <LifeView
+                    player={player}
+                    changeLifeByAmount={changeLifeByAmount}
+                    handleLongPressStart={handleLongPressStart}
+                    handlePressOut={handlePressOut}
+                  />
+                ) : (
+                  <PlayerPanelMenu
+                    menuVisible
+                    menuType={view.type}
+                    index={index}
+                    isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
+                  />
+                )}
+              </View>
+            ))}
+          </Animated.View>
         </View>
       </View>
     </GestureDetector>
@@ -212,6 +229,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 4,
   },
+  shine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: '100%',
+    zIndex: 1,
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    borderRadius: radius.sm,
+  },
+  imageStyle: {
+    opacity: 0.5,
+    borderRadius: radius.sm,
+  },
   turnOrderOverlay: {
     position: 'absolute',
     top: 0,
@@ -220,22 +252,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 100,
     overflow: 'hidden',
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: radius.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.62)',
   },
   roundedClip: {
     flex: 1,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     overflow: 'hidden',
-    borderWidth: 10,
-    borderColor: BORDER,
   },
-
   content: {
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BACKGROUND,
+    justifyContent: 'center',
+  },
+  viewsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  viewPanel: {
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   lifeBlock: {
     flexDirection: 'row',
@@ -245,10 +283,18 @@ const styles = StyleSheet.create({
     zIndex: 1,
     pointerEvents: 'none',
   },
-  life: { ...typography.heading1, color: TEXT, marginRight: spacing.xs },
+  life: {
+    ...typography.heading1,
+    color: OFF_WHITE,
+    marginRight: spacing.xs,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+    paddingHorizontal: 20,
+  },
   delta: {
     ...typography.caption,
-    color: TEXT,
+    color: OFF_WHITE,
   },
   button: {
     position: 'absolute',
@@ -256,7 +302,6 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: BACKGROUND,
   },
   inc: { right: 0 },
   dec: { left: 0 },
@@ -265,5 +310,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: TEXT,
     transform: [{ rotate: '90deg' }],
+  },
+  panelBorder: {
+    borderWidth: 7,
+    borderColor: 'rgba(223, 223, 223, 0.2)',
   },
 });

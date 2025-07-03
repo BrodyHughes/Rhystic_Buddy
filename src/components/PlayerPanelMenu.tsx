@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import CommanderDamageMenu from '@/components/CommanderDamageMenu';
 import CountersMenu from '@/components/CountersMenu';
-import { BACKGROUND } from '@/consts/consts';
-import PlayerPanelPlayerSettings from './PlayerPanelPlayerSettings';
 
 type Props = {
   menuVisible: boolean;
@@ -18,7 +16,7 @@ export default function PlayerPanelMenu({
   index,
   isEvenPlayerIndexNumber,
 }: Props) {
-  /* hold the panel’s run‑time size */
+  /* hold the panel's run-time size */
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   if (!menuVisible) return null;
@@ -43,16 +41,13 @@ export default function PlayerPanelMenu({
           },
         ]}
       >
-        {menuType === 'commanderDamage' && (
+        {menuType === 'commander' && (
           <CommanderDamageMenu
             isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             defenderId={index}
           />
         )}
         {menuType === 'counters' && <CountersMenu defenderId={index} />}
-        {menuType === 'settings' && (
-          <PlayerPanelPlayerSettings isEvenPlayerIndexNumber={isEvenPlayerIndexNumber} />
-        )}
       </View>
     </View>
   );
@@ -68,7 +63,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   content: {
-    backgroundColor: BACKGROUND,
     justifyContent: 'center',
     alignItems: 'center',
   },

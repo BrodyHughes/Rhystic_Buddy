@@ -1,14 +1,14 @@
 // https://api.scryfall.com
-import { ScryfallApiResponse } from '@/types/scryfall';
+// import { ScryfallApiResponse } from '@/types/scryfall';
 
 export async function fetchCardByName(cardName: string): Promise<string | undefined> {
   try {
     const res = await fetch(
-        `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(cardName)}`,
-        {
-          method: 'GET',
-          headers: { Accept: 'application/json' },
-        }
+      `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(cardName)}`,
+      {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      },
     );
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -21,6 +21,3 @@ export async function fetchCardByName(cardName: string): Promise<string | undefi
     console.error('fetchCardByName failed:', err);
   }
 }
-
-
-
