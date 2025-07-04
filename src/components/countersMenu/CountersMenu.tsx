@@ -1,16 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import CountersMenuButtons from '@/components/CountersMenuButtons';
-import { typography } from '@/styles/global';
+import { View, StyleSheet } from 'react-native';
+import { Bolt, Droplets, Skull } from 'lucide-react-native';
+
+import CountersMenuButtons from './CountersMenuButtons';
+import { OFF_WHITE } from '@/consts/consts';
 
 interface Props {
   defenderId: number;
 }
 
 const COUNTERS = [
-  { key: 'storm', label: '⚡' },
-  { key: 'poison', label: '☠' },
-  { key: 'mana', label: '🌊' },
+  { key: 'storm', Icon: Bolt },
+  { key: 'poison', Icon: Skull },
+  { key: 'mana', Icon: Droplets },
 ] as const;
 
 export default function CountersMenu({ defenderId }: Props) {
@@ -23,7 +25,7 @@ export default function CountersMenu({ defenderId }: Props) {
   return (
     <View style={styles.overlay}>
       <View style={[styles.grid]}>
-        {COUNTERS.map(({ key, label }) => (
+        {COUNTERS.map(({ key, Icon }) => (
           <View
             key={key}
             style={[
@@ -32,7 +34,7 @@ export default function CountersMenu({ defenderId }: Props) {
             ]}
           >
             <View style={styles.iconWrap}>
-              <Text style={styles.iconTxt}>{label}</Text>
+              <Icon color={OFF_WHITE} size={32} />
             </View>
 
             <CountersMenuButtons defenderId={defenderId} counter={key} cellW={100} cellH={100} />
@@ -73,10 +75,5 @@ const styles = StyleSheet.create({
     height: '50%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  iconTxt: {
-    fontFamily: typography.body.fontFamily,
-    color: '#fff',
-    fontSize: 18,
   },
 });

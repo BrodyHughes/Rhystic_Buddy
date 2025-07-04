@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import CommanderDamageMenu from '@/components/CommanderDamageMenu';
-import CountersMenu from '@/components/CountersMenu';
+import CommanderDamageMenu from '@/components/commanderDamage/CommanderDamageMenu';
+import CountersMenu from '@/components/countersMenu/CountersMenu';
 
 type Props = {
   menuVisible: boolean;
@@ -74,5 +74,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: { color: '#fff', fontSize: 24, fontWeight: '700', marginBottom: 20 },
+  text: { color: '#fff', fontSize: 24, fontFamily: 'Comfortaa-Bold', marginBottom: 20 },
 });

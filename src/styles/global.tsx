@@ -35,23 +35,35 @@ export const radius = {
 
 export const typography = {
   heading1: {
+    fontFamily: Platform.select({
+      ios: 'Comfortaa-Bold',
+      android: 'Comfortaa-Bold',
+    }),
     fontSize: 76,
-    fontWeight: '700' as const,
     color: palette.textPrimary,
   },
   heading2: {
+    fontFamily: Platform.select({
+      ios: 'Comfortaa-SemiBold',
+      android: 'Comfortaa-SemiBold',
+    }),
     fontSize: 24,
-    fontWeight: '600' as const,
     color: palette.textPrimary,
   },
   body: {
+    fontFamily: Platform.select({
+      ios: 'Comfortaa-Regular',
+      android: 'Comfortaa-Regular',
+    }),
     fontSize: 16,
-    fontWeight: '400' as const,
     color: palette.textSecondary,
   },
   caption: {
+    fontFamily: Platform.select({
+      ios: 'Comfortaa-Regular',
+      android: 'Comfortaa-Regular',
+    }),
     fontSize: 24,
-    fontWeight: '400' as const,
     color: palette.textSecondary,
   },
 };
@@ -109,8 +121,11 @@ export const globalStyles = StyleSheet.create({
 
   buttonText: {
     color: '#FFFFFF',
+    fontFamily: Platform.select({
+      ios: 'Comfortaa-SemiBold',
+      android: 'Comfortaa-SemiBold',
+    }),
     fontSize: 16,
-    fontWeight: '600',
   },
 
   input: {
@@ -122,25 +137,6 @@ export const globalStyles = StyleSheet.create({
     fontSize: 16,
     color: palette.textPrimary,
     ...shadows,
-  },
-});
-
-export const styles = StyleSheet.create({
-  main: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-  },
-  text: {
-    color: 'black',
-  },
-  title: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
   },
 });
 

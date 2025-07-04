@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/store/useCounterStore';
 import { BORDER_COLOR } from '@/consts/consts';
+import { typography } from '@/styles/global';
 
 type CounterKey = 'storm' | 'poison' | 'mana';
 
@@ -57,6 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     margin: 2,
+    marginTop: 10,
     overflow: 'hidden',
   },
   icon: {
@@ -66,8 +68,14 @@ const styles = StyleSheet.create({
     padding: 4,
     margin: -40,
   },
-  iconTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  total: { color: '#fff', fontSize: 32, fontWeight: '700' },
+  iconTxt: {
+    ...typography.body,
+    color: '#fff',
+  },
+  total: {
+    ...typography.heading2,
+    color: '#fff',
+  },
 
   btnRow: {
     position: 'absolute',
@@ -84,5 +92,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: BORDER_COLOR,
   },
-  btnTxt: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  btnTxt: {
+    ...typography.body,
+    color: '#fff',
+  },
 });

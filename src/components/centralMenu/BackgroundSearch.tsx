@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Comfortaa-Bold',
     color: '#fff',
     marginBottom: 20,
   },
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   selectItemText: {
     fontSize: 18,
     color: '#000',
-    fontWeight: '600',
+    fontFamily: 'Comfortaa-SemiBold',
   },
   searchInput: {
     height: 50,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: '#000',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Comfortaa-Bold',
   },
   closeButton: {
     position: 'absolute',
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#fff',
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Comfortaa-Bold',
   },
   imagePreviewContainer: {
     marginTop: 20,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   imagePreviewText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Comfortaa-Bold',
     textAlign: 'center',
   },
 });

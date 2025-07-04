@@ -28,16 +28,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLifeStore, PlayerCount } from '@/store/useLifeStore';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { BACKGROUND, OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
 import { useTurnStore } from '@/store/useTurnStore';
-import {
-  PlayersIcon,
-  TurnOrderIcon,
-  ResetIcon,
-  BackgroundIcon,
-  RulingsIcon,
-} from '@/components/centralMenu/icons';
+import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
 import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
 import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
 
@@ -85,11 +79,11 @@ const PENTAGON_PATH = getRegularPolygonPath();
 const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 
 const menuItems = [
-  { id: 'players', icon: <PlayersIcon />, label: 'Players' },
-  { id: 'turn', icon: <TurnOrderIcon />, label: 'Turn Order' },
-  { id: 'reset', icon: <ResetIcon />, label: 'Reset' },
-  { id: 'background', icon: <BackgroundIcon />, label: 'Background' },
-  { id: 'rulings', icon: <RulingsIcon />, label: 'Rulings' },
+  { id: 'players', Icon: Users, label: 'Players', color: SWAMP },
+  { id: 'turn', Icon: Dice6, label: 'Turn Order', color: PLAINS },
+  { id: 'reset', Icon: RotateCcw, label: 'Reset', color: ISLAND },
+  { id: 'background', Icon: Image, label: 'Background', color: MOUNTAIN },
+  { id: 'rulings', Icon: BookText, label: 'Rulings', color: FOREST },
 ];
 
 // --- Sub-Components --- //
@@ -307,7 +301,7 @@ export default React.memo(function CentralMenuButton() {
               radius={menuItemRadius}
               label={item.label}
             >
-              {item.icon}
+              <item.Icon color={item.color} size={60} />
             </CircularMenuItem>
           ))}
         </View>
@@ -369,11 +363,8 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     color: OFF_WHITE,
-    marginTop: -2,
-    fontSize: 14,
-    fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 3,
+    marginTop: 4,
+    fontSize: 12,
+    fontFamily: 'Comfortaa-SemiBold',
   },
 });

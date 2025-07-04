@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
 import { BORDER_COLOR } from '@/consts/consts';
-import { typography } from '@/styles/global';
 
 interface Props {
   defenderId: number;
@@ -60,9 +59,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   total: {
-    fontFamily: typography.heading2.fontFamily,
     color: '#fff',
     fontSize: 32,
+    fontFamily: 'Comfortaa-Bold',
     zIndex: 1,
     pointerEvents: 'box-none',
   },
@@ -80,9 +79,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: BORDER_COLOR,
   },
-  btnTxt: {
-    fontFamily: typography.body.fontFamily,
-    color: '#fff',
-    fontSize: 18,
-  },
+  btnTxt: { color: '#fff', fontSize: 18, fontFamily: 'Comfortaa-Bold' },
 });

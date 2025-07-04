@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   imageStyle: {
-    opacity: 0.5,
+    opacity: 0.35,
     borderRadius: radius.sm,
   },
   turnOrderOverlay: {
@@ -293,7 +293,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   delta: {
-    ...typography.caption,
+    fontFamily: typography.caption.fontFamily,
+    fontSize: typography.caption.fontSize,
     color: OFF_WHITE,
   },
   button: {
@@ -306,13 +307,23 @@ const styles = StyleSheet.create({
   inc: { right: 0 },
   dec: { left: 0 },
   btnText: {
+    fontFamily: typography.heading2.fontFamily,
     fontSize: 32,
-    fontWeight: '600',
     color: TEXT,
     transform: [{ rotate: '90deg' }],
   },
   panelBorder: {
     borderWidth: 7,
     borderColor: 'rgba(223, 223, 223, 0.2)',
+  },
+  lifeTxt: {
+    fontFamily: typography.heading1.fontFamily,
+    fontSize: 88,
+    color: OFF_WHITE,
+  },
+  btnTxt: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 28,
+    color: '#fff',
   },
 });

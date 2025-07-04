@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   dec: { left: 0 },
   btnText: {
     fontSize: 32,
-    fontWeight: '600',
+    fontFamily: 'Comfortaa-Bold',
     color: TEXT,
     transform: [{ rotate: '90deg' }],
   },
