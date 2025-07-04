@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconTxt: {
-    fontFamily: typography.body.fontFamily,
+    ...typography.body,
     color: '#fff',
     fontSize: 18,
   },

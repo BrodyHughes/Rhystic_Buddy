@@ -3,28 +3,39 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { useLifeStore } from '@/store/useLifeStore';
 import CommanderDamageButtons from './CommanderDamageButtons';
+import CommanderDamageEditor from './CommanderDamageEditor';
 import { OFF_WHITE } from '@/consts/consts';
 
 interface Props {
   defenderId: number;
   isEvenPlayerIndexNumber: boolean;
+  appliedRot: string;
 }
 
 export default function CommanderDamageMenu({ defenderId, isEvenPlayerIndexNumber }: Props) {
   const [hasMounted, setHasMounted] = useState(false);
+  const [editingSourceId, setEditingSourceId] = useState<number | null>(null);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const totalPlayers = useLifeStore((s) => s.totalPlayers);
+  const totalPlayers = useLifeStore((s) => s.players.length);
   const sources = Array.from({ length: totalPlayers }, (_, i) => i);
 
   const rows = totalPlayers <= 4 ? 2 : 3;
-  const cols = Math.ceil(totalPlayers / rows);
+  const cols = Math.ceil(sources.length / rows);
 
   const cellW = 100 / cols;
   const cellH = 100 / rows;
+
+  const handleOpenEditor = (sourceId: number) => {
+    setEditingSourceId(sourceId);
+  };
+
+  const handleCloseEditor = () => {
+    setEditingSourceId(null);
+  };
 
   return (
     <View style={styles.overlay}>
@@ -33,8 +44,8 @@ export default function CommanderDamageMenu({ defenderId, isEvenPlayerIndexNumbe
           styles.grid,
           {
             transform: [{ rotate: hasMounted && !isEvenPlayerIndexNumber ? '180deg' : '0deg' }],
-            paddingTop: isEvenPlayerIndexNumber ? 30 : 0,
-            paddingBottom: isEvenPlayerIndexNumber ? 0 : 30,
+            paddingTop: isEvenPlayerIndexNumber ? 0 : 30,
+            paddingBottom: isEvenPlayerIndexNumber ? 30 : 0,
           },
         ]}
       >
@@ -43,13 +54,13 @@ export default function CommanderDamageMenu({ defenderId, isEvenPlayerIndexNumbe
             styles.title,
             {
               transform: [{ rotate: hasMounted && !isEvenPlayerIndexNumber ? '180deg' : '0deg' }],
-              top: isEvenPlayerIndexNumber ? 5 : 0,
-              bottom: isEvenPlayerIndexNumber ? 0 : 5,
-              marginBottom: isEvenPlayerIndexNumber ? 10 : 0,
+              top: isEvenPlayerIndexNumber ? null : 0,
+              bottom: isEvenPlayerIndexNumber ? 5 : 0,
+              marginBottom: isEvenPlayerIndexNumber ? 0 : 10,
             },
           ]}
         >
-          Damage Received
+          Damage received from:
         </Text>
         {sources.map((src) => (
           <CommanderDamageButtons
@@ -59,9 +70,17 @@ export default function CommanderDamageMenu({ defenderId, isEvenPlayerIndexNumbe
             sourceId={src}
             cellW={cellW}
             cellH={cellH}
+            onPress={() => handleOpenEditor(src)}
           />
         ))}
       </View>
+      {editingSourceId !== null && (
+        <CommanderDamageEditor
+          defenderId={defenderId}
+          sourceId={editingSourceId}
+          onClose={handleCloseEditor}
+        />
+      )}
     </View>
   );
 }
@@ -76,19 +95,19 @@ const styles = StyleSheet.create({
   title: {
     color: OFF_WHITE,
     fontSize: 18,
-    fontFamily: 'Comfortaa-Bold',
+    fontFamily: 'Comfortaa-SemiBold',
     width: '100%',
+    fontWeight: '700',
     textAlign: 'center',
     position: 'absolute',
-    left: 0,
-    right: 0,
+    height: 30,
   },
   grid: {
     flexDirection: 'column',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignContent: 'center',
     width: '100%',
     height: '100%',
-    paddingHorizontal: 5,
   },
 });

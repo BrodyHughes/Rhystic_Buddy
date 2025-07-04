@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
 import { BORDER_COLOR } from '@/consts/consts';
 
@@ -9,6 +9,7 @@ interface Props {
   cellW: number;
   cellH: number;
   isEvenPlayerIndexNumber: boolean;
+  onPress: () => void;
 }
 
 export default function CommanderDamageButtons({
@@ -17,67 +18,41 @@ export default function CommanderDamageButtons({
   cellW,
   cellH,
   isEvenPlayerIndexNumber,
+  onPress,
 }: Props) {
   const damage = useCommanderDamageStore((s) => s.get(defenderId, sourceId));
-  const change = useCommanderDamageStore((s) => s.change);
-
-  const inc = () => change(defenderId, sourceId, +1);
-  const dec = () => damage > 0 && change(defenderId, sourceId, -1);
 
   return (
-    <View
+    <TouchableOpacity
       style={[
-        // width is cellH - 2 to account for margin
-        // height is cellW - 4 to account for margin
-        // margin is set in styles.square
         styles.square,
-        { width: `${cellH - 2}%`, height: `${cellW - 4}%` },
+        { width: `${cellH - 3}%`, height: `${cellW - 6}%` },
         { transform: [{ rotate: isEvenPlayerIndexNumber ? '0deg' : '180deg' }] },
       ]}
+      onPress={onPress}
+      activeOpacity={0.8}
     >
       <Text style={styles.total}>{damage}</Text>
-
-      <View style={styles.btnRow}>
-        <TouchableOpacity style={styles.btn} onPress={dec} activeOpacity={0.8}>
-          <Text style={styles.btnTxt}>‑</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={inc} activeOpacity={0.8}>
-          <Text style={styles.btnTxt}>+</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   square: {
-    backgroundColor: BORDER_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    margin: 2,
+    margin: 3,
     overflow: 'hidden',
+    borderWidth: 7,
+    borderColor: BORDER_COLOR,
+    backgroundColor: 'rgba(214, 214, 214, 0.13)',
   },
   total: {
     color: '#fff',
-    fontSize: 32,
+    fontSize: 40,
     fontFamily: 'Comfortaa-Bold',
     zIndex: 1,
     pointerEvents: 'box-none',
   },
-  btnRow: {
-    position: 'absolute',
-    flexDirection: 'row',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-  },
-  btn: {
-    width: '50%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: BORDER_COLOR,
-  },
-  btnTxt: { color: '#fff', fontSize: 18, fontFamily: 'Comfortaa-Bold' },
 });

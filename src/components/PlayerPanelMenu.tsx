@@ -8,6 +8,7 @@ type Props = {
   menuType: string | null;
   index: number;
   isEvenPlayerIndexNumber: boolean;
+  appliedRot: string;
 };
 
 export default function PlayerPanelMenu({
@@ -15,6 +16,7 @@ export default function PlayerPanelMenu({
   menuType,
   index,
   isEvenPlayerIndexNumber,
+  appliedRot,
 }: Props) {
   /* hold the panel's run-time size */
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
@@ -45,6 +47,7 @@ export default function PlayerPanelMenu({
           <CommanderDamageMenu
             isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             defenderId={index}
+            appliedRot={appliedRot}
           />
         )}
         {menuType === 'counters' && <CountersMenu defenderId={index} />}

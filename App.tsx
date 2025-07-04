@@ -9,11 +9,12 @@
 import React from 'react';
 import { SafeAreaView, View, StatusBar, StyleSheet, useWindowDimensions } from 'react-native';
 import PlayerPanel from '@/components/PlayerPanel';
-import CentralMenuButton from '@/components/CentralMenuButton';
+import CentralMenuButton from '@/components/centralMenu/CentralMenuButton';
 import { useLifeStore } from '@/store/useLifeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BACKGROUND, GAP } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import RulingsSearch from '@/components/rulings/RulingsSearch';
 
 export default function App() {
   const players = useLifeStore((s) => s.players);
@@ -70,6 +71,7 @@ export default function App() {
         </View>
         <CentralMenuButton />
       </SafeAreaView>
+      <RulingsSearch />
     </GestureHandlerRootView>
   );
 }

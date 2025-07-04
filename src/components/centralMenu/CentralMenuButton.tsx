@@ -34,6 +34,7 @@ import { useTurnStore } from '@/store/useTurnStore';
 import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
 import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
 import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
+import { useRulingsStore } from '@/store/useRulingsStore';
 
 // --- Animated Components --- //
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -94,6 +95,7 @@ const CircularMenuItem = ({
   onPress,
   radius,
   label,
+  color,
 }: {
   index: number;
   progress: Animated.SharedValue<number>;
@@ -101,6 +103,7 @@ const CircularMenuItem = ({
   onPress: () => void;
   radius: number;
   label: string;
+  color: string;
 }) => {
   const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
   const angle = itemAngles[index];
@@ -121,7 +124,7 @@ const CircularMenuItem = ({
   return (
     <AnimatedView style={[styles.menuItemContainer, animatedStyle]}>
       <TouchableOpacity onPress={onPress} style={styles.menuItem}>
-        {children}
+        <View style={[styles.iconCircle, { backgroundColor: color }]}>{children}</View>
         <Text style={styles.menuItemText}>{label}</Text>
       </TouchableOpacity>
     </AnimatedView>
@@ -182,9 +185,9 @@ export default React.memo(function CentralMenuButton() {
     cancelAnimation(progress);
     const toValue = open ? 0 : 1;
     progress.value = withSpring(toValue, {
-      damping: 50,
-      stiffness: 200,
-      overshootClamping: true,
+      damping: 11,
+      stiffness: 140,
+      mass: 0.5,
     });
     setOpen(!open);
   };
@@ -200,25 +203,28 @@ export default React.memo(function CentralMenuButton() {
 
   const handleTurnOrder = () => {
     handlePress();
+    const { startSpin, set, finishSpin } = useTurnStore.getState();
     setTimeout(() => {
       if (players.length === 0) return;
+
+      startSpin();
+
       const playersArray = Array.from({ length: players.length }, (_, i) => i);
       for (let i = playersArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
       }
       const order = playersArray;
+      const winner = order[order.length - 1];
       const loops = 3;
       const flashDelay = 100;
       let tick = 0;
       const spin = setInterval(() => {
-        useTurnStore.getState().set(order[tick % order.length]);
+        set(order[tick % order.length]);
         tick++;
         if (tick === order.length * loops + 1) {
           clearInterval(spin);
-          setTimeout(() => {
-            useTurnStore.getState().reset();
-          }, 2000);
+          finishSpin(winner);
         }
       }, flashDelay);
     }, 500);
@@ -234,10 +240,17 @@ export default React.memo(function CentralMenuButton() {
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
   };
 
+  const handleRulingsPress = () => {
+    handlePress();
+    setTimeout(() => setIsSearchVisible(true), 500);
+  };
+
   const handlePlayerCountSelect = (count: PlayerCount) => {
     setTotalPlayers(count);
     setPlayerCountSelectorVisible(false);
   };
+
+  const setIsSearchVisible = useRulingsStore((s) => s.setIsSearchVisible);
 
   const getActionFor = (id: string) => {
     const actions: { [key: string]: () => void } = {
@@ -245,7 +258,7 @@ export default React.memo(function CentralMenuButton() {
       turn: handleTurnOrder,
       background: handleBackgroundPress,
       players: handlePlayersPress,
-      rulings: () => {},
+      rulings: handleRulingsPress,
     };
     return actions[id] || (() => {});
   };
@@ -300,8 +313,9 @@ export default React.memo(function CentralMenuButton() {
               onPress={getActionFor(item.id)}
               radius={menuItemRadius}
               label={item.label}
+              color={item.color}
             >
-              <item.Icon color={item.color} size={60} />
+              <item.Icon color={BACKGROUND} size={30} />
             </CircularMenuItem>
           ))}
         </View>
@@ -358,13 +372,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItem: {
-    padding: 12,
+    padding: 0,
     alignItems: 'center',
+  },
+  iconCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   menuItemText: {
     color: OFF_WHITE,
-    marginTop: 4,
-    fontSize: 12,
-    fontFamily: 'Comfortaa-SemiBold',
+    fontSize: 18,
+    paddingBottom: 8,
+    fontWeight: '700',
+    fontFamily: 'Comfortaa-Regular',
   },
 });

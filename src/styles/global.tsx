@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, TextStyle } from 'react-native';
 
 /**
  * Design tokens
@@ -33,36 +33,28 @@ export const radius = {
   pill: 999,
 };
 
-export const typography = {
+export const typography: { [key: string]: TextStyle } = {
   heading1: {
-    fontFamily: Platform.select({
-      ios: 'Comfortaa-Bold',
-      android: 'Comfortaa-Bold',
-    }),
-    fontSize: 76,
+    fontFamily: 'Comfortaa-Bold',
+    fontWeight: '900',
+    fontSize: 90,
     color: palette.textPrimary,
   },
   heading2: {
-    fontFamily: Platform.select({
-      ios: 'Comfortaa-SemiBold',
-      android: 'Comfortaa-SemiBold',
-    }),
+    fontFamily: 'Comfortaa',
+    fontWeight: '600',
     fontSize: 24,
     color: palette.textPrimary,
   },
   body: {
-    fontFamily: Platform.select({
-      ios: 'Comfortaa-Regular',
-      android: 'Comfortaa-Regular',
-    }),
+    fontFamily: 'Comfortaa',
+    fontWeight: '400',
     fontSize: 16,
     color: palette.textSecondary,
   },
   caption: {
-    fontFamily: Platform.select({
-      ios: 'Comfortaa-Regular',
-      android: 'Comfortaa-Regular',
-    }),
+    fontFamily: 'Comfortaa',
+    fontWeight: '400',
     fontSize: 24,
     color: palette.textSecondary,
   },
@@ -121,10 +113,8 @@ export const globalStyles = StyleSheet.create({
 
   buttonText: {
     color: '#FFFFFF',
-    fontFamily: Platform.select({
-      ios: 'Comfortaa-SemiBold',
-      android: 'Comfortaa-SemiBold',
-    }),
+    fontFamily: 'Comfortaa',
+    fontWeight: '600',
     fontSize: 16,
   },
 

@@ -13,7 +13,7 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -21,10 +21,11 @@ import { useLifeStore, PlayerState } from '@/store/useLifeStore';
 import { useTurnStore } from '@/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import PlayerPanelMenu from '@/components/PlayerPanelMenu';
-import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
+import { GAP, OFF_WHITE, TEXT, TURN_ORDER_OVERLAY_COLOR } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
 import LifeView from './playerPanel/LifeView';
+import TurnWinnerOverlay from './playerPanel/TurnWinnerOverlay';
 
 export enum ViewMode {
   LIFE = 'life',
@@ -44,10 +45,28 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
   const totalPlayers = useLifeStore((s) => s.players.length);
-  const currentTurn = useTurnStore((s) => s.current);
+  const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const backgroundImage = usePlayerBackgroundStore((state) => state.backgrounds[player.id]);
+
+  // Determine the set of views based on player count
+  const baseViews = [
+    { type: ViewMode.LIFE },
+    { type: ViewMode.COMMANDER },
+    { type: ViewMode.COUNTERS },
+  ];
+
+  const realViews =
+    totalPlayers === 2 ? baseViews.filter((v) => v.type !== ViewMode.COMMANDER) : baseViews;
+  const numRealViews = realViews.length;
+
+  // Define the views for the carousel with cloned items for infinite looping
+  const views = [
+    realViews[numRealViews - 1], // Cloned last item
+    ...realViews,
+    realViews[0], // Cloned first item
+  ];
 
   // Use a shared value for the active view index. Start at 1 for the infinite carousel.
   const activeViewIndex = useSharedValue(1);
@@ -57,21 +76,29 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
 
     const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
 
-    activeViewIndex.value = withTiming(newIndex, { duration: 150 }, (isFinished) => {
-      if (isFinished) {
-        if (newIndex === 4) {
-          // Instantly jump from the cloned last item to the first real item
-          activeViewIndex.value = 1;
-        } else if (newIndex === 0) {
-          // Instantly jump from the cloned first item to the last real item
-          activeViewIndex.value = 3;
+    activeViewIndex.value = withSpring(
+      newIndex,
+      {
+        damping: 15,
+        stiffness: 100,
+      },
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      (isFinished) => {
+        if (isFinished) {
+          if (newIndex === numRealViews + 1) {
+            // Instantly jump from the cloned last item to the first real item
+            activeViewIndex.value = 1;
+          } else if (newIndex === 0) {
+            // Instantly jump from the cloned first item to the last real item
+            activeViewIndex.value = numRealViews;
+          }
         }
-      }
-    });
+      },
+    );
   };
 
   // swipe gestuers to handle menu navigation
-  const swipeGesture = Gesture.Pan().onEnd((e) => {
+  const horizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
     const { translationX } = e;
 
     if (translationX > 50) {
@@ -82,7 +109,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
   });
 
   // flipped swipe gesture to handle menu navigation on the other side
-  const flippedSwipeGesture = Gesture.Pan().onEnd((e) => {
+  const flippedHorizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
     const { translationX } = e;
 
     if (translationX > 50) {
@@ -91,6 +118,39 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
       cycleView('right');
     }
   });
+
+  // Vertical swipe gesture for 2-player mode
+  const verticalSwipeGesture = Gesture.Pan().onEnd((e) => {
+    'worklet';
+    const { translationY } = e;
+    // For 90deg rotation (top panel): swiping up should move content up.
+    if (translationY < -50) {
+      cycleView('left'); // Moves content up
+    } else if (translationY > 50) {
+      cycleView('right'); // Moves content down
+    }
+  });
+
+  // Flipped vertical gesture for the bottom panel in 2-player mode
+  const flippedVerticalSwipeGesture = Gesture.Pan().onEnd((e) => {
+    'worklet';
+    const { translationY } = e;
+    // For 270deg rotation (bottom panel): swiping up should move content up.
+    if (translationY < -50) {
+      cycleView('right'); // Moves content up
+    } else if (translationY > 50) {
+      cycleView('left'); // Moves content down
+    }
+  });
+
+  const gesture =
+    totalPlayers === 2
+      ? isEvenPlayerIndexNumber
+        ? verticalSwipeGesture
+        : flippedVerticalSwipeGesture
+      : isEvenPlayerIndexNumber
+        ? horizontalSwipeGesture
+        : flippedHorizontalSwipeGesture;
 
   /* lets nest some ternaries! */
   const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
@@ -124,8 +184,11 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
 
   const panelBackgroundColor = backgroundImage ? 'transparent' : player.backgroundColor;
 
-  // This animated style will slide the entire container of views
+  // This animated style will slide the entire container of views.
+  // When the panel is rotated (e.g., in 2-player mode), an X-axis translation
+  // visually becomes a Y-axis translation on the screen.
   const containerAnimatedStyle = useAnimatedStyle(() => ({
+    flexDirection: 'row',
     transform: [{ translateX: -activeViewIndex.value * panelW }],
   }));
 
@@ -157,17 +220,8 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
     }
   };
 
-  // Define the views for the carousel
-  const views = [
-    { type: ViewMode.COUNTERS }, // Cloned
-    { type: ViewMode.LIFE },
-    { type: ViewMode.COMMANDER },
-    { type: ViewMode.COUNTERS },
-    { type: ViewMode.LIFE }, // Cloned
-  ];
-
   return (
-    <GestureDetector gesture={isEvenPlayerIndexNumber ? swipeGesture : flippedSwipeGesture}>
+    <GestureDetector gesture={gesture}>
       <View
         style={[
           styles.shadowWrap,
@@ -181,7 +235,10 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
           useAngle={true}
           angle={195}
         />
-        {currentTurn === index && <View style={styles.turnOrderOverlay} />}
+        {isSpinning && currentTurn === index && <View style={styles.turnOrderOverlay} />}
+        {isFinished && currentTurn === index && (
+          <TurnWinnerOverlay panelW={panelW} panelH={panelH} />
+        )}
         <View style={styles.roundedClip}>
           <Animated.View style={[styles.viewsContainer, containerAnimatedStyle]}>
             {views.map((view, i) => (
@@ -190,7 +247,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
                 style={[
                   styles.viewPanel,
                   styles.panelBorder,
-                  { width: panelW, backgroundColor: panelBackgroundColor },
+                  { width: panelW, height: panelH, backgroundColor: panelBackgroundColor },
                 ]}
               >
                 {view.type === ViewMode.LIFE ? (
@@ -206,6 +263,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
                     menuType={view.type}
                     index={index}
                     isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
+                    appliedRot={appliedRot}
                   />
                 )}
               </View>
@@ -253,7 +311,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     overflow: 'hidden',
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.62)',
+    backgroundColor: TURN_ORDER_OVERLAY_COLOR,
   },
   roundedClip: {
     flex: 1,
@@ -268,7 +326,6 @@ const styles = StyleSheet.create({
   },
   viewsContainer: {
     flex: 1,
-    flexDirection: 'row',
   },
   viewPanel: {
     height: '100%',
@@ -291,10 +348,10 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     paddingHorizontal: 20,
+    fontVariant: ['tabular-nums'],
   },
   delta: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: typography.caption.fontSize,
+    ...typography.caption,
     color: OFF_WHITE,
   },
   button: {
@@ -307,7 +364,7 @@ const styles = StyleSheet.create({
   inc: { right: 0 },
   dec: { left: 0 },
   btnText: {
-    fontFamily: typography.heading2.fontFamily,
+    ...typography.heading2,
     fontSize: 32,
     color: TEXT,
     transform: [{ rotate: '90deg' }],
@@ -317,12 +374,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(223, 223, 223, 0.2)',
   },
   lifeTxt: {
-    fontFamily: typography.heading1.fontFamily,
+    ...typography.heading1,
     fontSize: 88,
     color: OFF_WHITE,
+    fontVariant: ['tabular-nums'],
   },
   btnTxt: {
-    fontFamily: typography.body.fontFamily,
+    ...typography.body,
     fontSize: 28,
     color: '#fff',
   },

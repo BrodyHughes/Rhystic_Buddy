@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Alert,
+  Image,
+  Linking,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useLifeStore } from '@/store/useLifeStore';
@@ -40,6 +49,10 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
     onClose();
   };
 
+  const handleLinkToScryfall = () => {
+    Linking.openURL('https://scryfall.com');
+  };
+
   // Determine the number of columns for the grid layout.
   // This logic mirrors the main app layout for consistency.
   const numColumns = players.length > 2 ? 2 : players.length;
@@ -54,7 +67,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
             {players.map((player, index) => (
               <TouchableOpacity
                 key={player.id}
-                style={[styles.selectItem, { width: 140 }]}
+                style={[styles.selectItem]}
                 onPress={() => setSelectedPlayerId(player.id)}
               >
                 <Text style={styles.selectItemText}>Player {index + 1}</Text>
@@ -99,6 +112,14 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
       >
         <Text style={styles.closeButtonText}>×</Text>
       </TouchableOpacity>
+      <View style={styles.scryfallCredit}>
+        <Text style={styles.scryfallCreditText}>
+          Search powered by{' '}
+          <Text style={styles.scryfallCreditTextLink} onPress={handleLinkToScryfall}>
+            Scryfall
+          </Text>
+        </Text>
+      </View>
     </AnimatedView>
   );
 };
@@ -133,6 +154,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 5,
     height: 60,
+    width: 140,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -192,6 +214,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Comfortaa-Bold',
     textAlign: 'center',
+  },
+  scryfallCredit: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+  },
+  scryfallCreditText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 400,
+  },
+  scryfallCreditTextLink: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 400,
+    textDecorationLine: 'underline',
   },
 });
 

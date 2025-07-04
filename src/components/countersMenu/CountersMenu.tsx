@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Bolt, Droplets, Skull } from 'lucide-react-native';
+import { Zap, Droplet, Skull } from 'lucide-react-native';
 
 import CountersMenuButtons from './CountersMenuButtons';
 import { OFF_WHITE } from '@/consts/consts';
@@ -10,29 +10,17 @@ interface Props {
 }
 
 const COUNTERS = [
-  { key: 'storm', Icon: Bolt },
+  { key: 'storm', Icon: Zap },
   { key: 'poison', Icon: Skull },
-  { key: 'mana', Icon: Droplets },
+  { key: 'mana', Icon: Droplet },
 ] as const;
 
 export default function CountersMenu({ defenderId }: Props) {
-  /* 2 rows (icon + square) × 3 columns */
-  const rows = 2,
-    cols = 3;
-  const cellW = 100 / cols - 2;
-  const cellH = 100 / rows;
-
   return (
     <View style={styles.overlay}>
-      <View style={[styles.grid]}>
+      <View style={styles.grid}>
         {COUNTERS.map(({ key, Icon }) => (
-          <View
-            key={key}
-            style={[
-              styles.column,
-              { width: `${cellW}%`, height: `${cellH}%` }, // two cells tall
-            ]}
-          >
+          <View key={key} style={styles.column}>
             <View style={styles.iconWrap}>
               <Icon color={OFF_WHITE} size={32} />
             </View>
@@ -58,22 +46,20 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignContent: 'center',
-    paddingBottom: 40,
-    width: '100%',
-    height: '100%',
+    padding: 5,
   },
 
   /* column wrapper */
   column: {
+    width: '33.33%',
+    height: '80%',
     alignItems: 'center',
-    margin: 2,
+    justifyContent: 'center',
+    padding: 5,
   },
 
   /* icon styles */
   iconWrap: {
-    width: '100%',
-    height: '50%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 10,
   },
 });

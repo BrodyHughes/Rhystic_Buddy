@@ -2,12 +2,11 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/store/useCounterStore';
 import { BORDER_COLOR } from '@/consts/consts';
-import { typography } from '@/styles/global';
 
 type CounterKey = 'storm' | 'poison' | 'mana';
 
 interface Props {
-  defenderId: number; // ← new
+  defenderId: number;
   counter: CounterKey;
   cellW: number;
   cellH: number;
@@ -36,15 +35,15 @@ export default function CountersMenuButtons({ defenderId, counter, cellW, cellH 
       <Text style={styles.total}>{value}</Text>
 
       <View style={styles.btnRow}>
-        <TouchableOpacity style={styles.btn} onPress={dec} activeOpacity={0.8}>
-          <Text style={styles.btnTxt}>‑</Text>
-        </TouchableOpacity>
         <TouchableOpacity
-          style={styles.btn}
+          style={[styles.btn]}
           onPress={() => inc(defenderId, +1)}
           activeOpacity={0.8}
         >
-          <Text style={styles.btnTxt}>+</Text>
+          <Text style={[styles.btnTxt, { marginBottom: 9 }]}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.btn]} onPress={dec} activeOpacity={0.8}>
+          <Text style={[styles.btnTxt, { marginTop: 9 }]}>‑</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -53,47 +52,35 @@ export default function CountersMenuButtons({ defenderId, counter, cellW, cellH 
 
 const styles = StyleSheet.create({
   square: {
-    backgroundColor: BORDER_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    margin: 2,
-    marginTop: 10,
+    margin: 3,
     overflow: 'hidden',
-  },
-  icon: {
-    position: 'absolute',
-    top: 0,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    padding: 4,
-    margin: -40,
-  },
-  iconTxt: {
-    ...typography.body,
-    color: '#fff',
+    borderWidth: 7,
+    borderColor: BORDER_COLOR,
+    backgroundColor: 'rgba(214, 214, 214, 0.13)',
   },
   total: {
-    ...typography.heading2,
     color: '#fff',
+    fontSize: 40,
+    fontFamily: 'Comfortaa-Bold',
+    zIndex: 1,
+    pointerEvents: 'box-none',
+    marginTop: 5,
   },
-
   btnRow: {
     position: 'absolute',
-    flexDirection: 'row',
+    flexDirection: 'column',
     width: '100%',
     height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   btn: {
-    width: '50%',
-    height: '100%',
+    width: '100%',
+    height: '50%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: BORDER_COLOR,
   },
-  btnTxt: {
-    ...typography.body,
-    color: '#fff',
-  },
+  btnTxt: { color: '#fff', fontSize: 18, fontWeight: 200, fontFamily: 'Comfortaa-Bold' },
 });
