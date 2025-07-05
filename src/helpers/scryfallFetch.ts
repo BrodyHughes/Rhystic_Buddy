@@ -22,7 +22,9 @@ export async function fetchCardByName(cardName: string): Promise<string | undefi
   }
 }
 
-export async function fetchRulingsByName(cardName: string): Promise<any[] | undefined> {
+export async function fetchRulingsByName(
+  cardName: string,
+): Promise<{ rulings: any[]; cardName: string } | undefined> {
   try {
     // First, get the card to find its rulings_uri
     const cardRes = await fetch(
@@ -31,15 +33,16 @@ export async function fetchRulingsByName(cardName: string): Promise<any[] | unde
     if (!cardRes.ok) throw new Error(`Card not found: ${cardRes.status}`);
     const cardData = await cardRes.json();
     const rulingsUri = cardData.rulings_uri;
+    const officialCardName = cardData.name;
 
-    if (!rulingsUri) return []; // No rulings for this card
+    if (!rulingsUri) return { rulings: [], cardName: officialCardName }; // No rulings for this card
 
     // Then, fetch the rulings from the URI
     const rulingsRes = await fetch(rulingsUri);
     if (!rulingsRes.ok) throw new Error(`Failed to fetch rulings: ${rulingsRes.status}`);
     const rulingsData = await rulingsRes.json();
 
-    return rulingsData.data; // The rulings are in the 'data' property
+    return { rulings: rulingsData.data, cardName: officialCardName }; // The rulings are in the 'data' property
   } catch (err) {
     console.error('fetchRulingsByName failed:', err);
   }

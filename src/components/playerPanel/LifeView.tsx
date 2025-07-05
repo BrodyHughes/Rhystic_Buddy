@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     paddingHorizontal: 20,
+    marginTop: 10,
   },
   delta: {
     ...typography.caption,

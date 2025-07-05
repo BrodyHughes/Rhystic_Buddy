@@ -28,6 +28,8 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
 
   const players = useLifeStore((state) => state.players);
   const setPlayerBackground = usePlayerBackgroundStore((state) => state.setBackground);
+  const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
+  const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
 
   const handleSearch = async () => {
     if (!cardName) return;
@@ -37,6 +39,16 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
     } else {
       setFetchedImageUrl(image);
     }
+  };
+
+  const handleRemoveBackground = () => {
+    if (selectedPlayerId === null) return;
+    removePlayerBackground(selectedPlayerId);
+    // Reset state and close
+    setCardName('');
+    setSelectedPlayerId(null);
+    setFetchedImageUrl(null);
+    onClose();
   };
 
   const handleSetBackground = () => {
@@ -56,6 +68,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
   // Determine the number of columns for the grid layout.
   // This logic mirrors the main app layout for consistency.
   const numColumns = players.length > 2 ? 2 : players.length;
+  const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
@@ -79,7 +92,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
         // Search Input & Image Preview
         <>
           <TextInput
-            placeholder={`Card for Player ${
+            placeholder={`Type in a card name for Player ${
               players.findIndex((p) => p.id === selectedPlayerId) + 1
             }`}
             placeholderTextColor="#999"
@@ -90,9 +103,19 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
             returnKeyType="search"
             autoFocus
           />
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>Search</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+              <Text style={styles.searchButtonText}>Search</Text>
+            </TouchableOpacity>
+            {hasBackground && (
+              <TouchableOpacity
+                style={[styles.searchButton, { marginLeft: 10 }]}
+                onPress={handleRemoveBackground}
+              >
+                <Text style={styles.searchButtonText}>Remove Background</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           {fetchedImageUrl && (
             <TouchableOpacity style={styles.imagePreviewContainer} onPress={handleSetBackground}>
@@ -174,6 +197,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#fff',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   searchButton: {
     backgroundColor: '#fff',

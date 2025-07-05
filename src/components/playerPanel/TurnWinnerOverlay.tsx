@@ -5,11 +5,12 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withDelay,
+  FadeOut,
 } from 'react-native-reanimated';
-import { typography } from '@/styles/global';
+import { BlurView } from '@react-native-community/blur';
+import { typography, radius } from '@/styles/global';
 import ConfettiParticle from './ConfettiParticle';
 import { useTurnStore } from '@/store/useTurnStore';
-import { TURN_ORDER_OVERLAY_COLOR } from '@/consts/consts';
 
 const confettiCount = 70;
 
@@ -17,6 +18,8 @@ interface Props {
   panelW: number;
   panelH: number;
 }
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
   const reset = useTurnStore((s) => s.reset);
@@ -40,7 +43,8 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
   }));
 
   return (
-    <Pressable onPress={reset} style={styles.container}>
+    <AnimatedPressable onPress={reset} style={styles.container} exiting={FadeOut.duration(150)}>
+      <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
         {Array.from({ length: confettiCount }).map((_, i) => (
           <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
@@ -49,17 +53,20 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
           <Text style={styles.text}>You go first!</Text>
         </View>
       </Animated.View>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: TURN_ORDER_OVERLAY_COLOR,
     zIndex: 110,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    borderWidth: 7,
+    borderColor: 'rgba(0, 0, 0, 0.55)',
   },
   rotatedContainer: {
     flex: 1,

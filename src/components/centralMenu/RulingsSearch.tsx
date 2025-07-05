@@ -32,13 +32,13 @@ const RulingsSearch: React.FC = () => {
 
   const handleSearch = async () => {
     if (!cardName) return;
-    const fetchedRulings = await fetchRulingsByName(cardName);
-    if (fetchedRulings === undefined) {
+    const result = await fetchRulingsByName(cardName);
+    if (result === undefined) {
       Alert.alert('Card not found', 'Please try another card name.');
       setRulings(null);
     } else {
-      setRulings(fetchedRulings);
-      setSearchedCard(cardName);
+      setRulings(result.rulings);
+      setSearchedCard(result.cardName);
     }
   };
 

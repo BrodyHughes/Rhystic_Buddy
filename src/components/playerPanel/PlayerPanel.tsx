@@ -1,13 +1,5 @@
-/* idk about the styling for this tbh but the functionality is in place atm
- * TODO:
- * [ ] make it look nice
- * [ ] fix the '+' and '-' they are rotating wrong sometimes
- * [ ] add a long press on the cards to bring up an individual menu
- * for commander damage etc
- * [ ] add a 'who goes first' randomizer
- */
 import React, { useRef } from 'react';
-import { View, StyleSheet, useWindowDimensions, Image } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Image, Text } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -16,16 +8,18 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
+import { BlurView } from '@react-native-community/blur';
 
 import { useLifeStore, PlayerState } from '@/store/useLifeStore';
 import { useTurnStore } from '@/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
-import PlayerPanelMenu from '@/components/PlayerPanelMenu';
-import { GAP, OFF_WHITE, TEXT, TURN_ORDER_OVERLAY_COLOR } from '@/consts/consts';
+import CountersView from './CountersView';
+import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
-import LifeView from './playerPanel/LifeView';
-import TurnWinnerOverlay from './playerPanel/TurnWinnerOverlay';
+import LifeView from './LifeView';
+import TurnWinnerOverlay from './TurnWinnerOverlay';
+import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
 
 export enum ViewMode {
   LIFE = 'life',
@@ -50,7 +44,8 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
 
   const backgroundImage = usePlayerBackgroundStore((state) => state.backgrounds[player.id]);
 
-  // Determine the set of views based on player count
+  const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
+
   const baseViews = [
     { type: ViewMode.LIFE },
     { type: ViewMode.COMMANDER },
@@ -76,20 +71,31 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
 
     const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
 
+    // Determine the type of the view we are moving to, accounting for clones
+    const nextViewIndexClamped =
+      newIndex === 0 ? numRealViews : newIndex === numRealViews + 1 ? 1 : newIndex;
+    const nextViewType = views[nextViewIndexClamped].type;
+    const currentViewType = views[activeViewIndex.value].type;
+
+    // Update commander damage mode state BEFORE the animation starts to prevent flicker
+    if (nextViewType === ViewMode.COMMANDER && currentViewType !== ViewMode.COMMANDER) {
+      runOnJS(startReceiving)(player.id);
+    } else if (nextViewType !== ViewMode.COMMANDER && currentViewType === ViewMode.COMMANDER) {
+      runOnJS(stopReceiving)();
+    }
+
     activeViewIndex.value = withSpring(
       newIndex,
       {
         damping: 15,
         stiffness: 100,
       },
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      (isFinished) => {
-        if (isFinished) {
+      (finished) => {
+        if (finished) {
+          // This logic is only for resetting the carousel for infinite loop
           if (newIndex === numRealViews + 1) {
-            // Instantly jump from the cloned last item to the first real item
             activeViewIndex.value = 1;
           } else if (newIndex === 0) {
-            // Instantly jump from the cloned first item to the last real item
             activeViewIndex.value = numRealViews;
           }
         }
@@ -125,9 +131,9 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
     const { translationY } = e;
     // For 90deg rotation (top panel): swiping up should move content up.
     if (translationY < -50) {
-      cycleView('left'); // Moves content up
+      cycleView('left');
     } else if (translationY > 50) {
-      cycleView('right'); // Moves content down
+      cycleView('right');
     }
   });
 
@@ -137,9 +143,9 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
     const { translationY } = e;
     // For 270deg rotation (bottom panel): swiping up should move content up.
     if (translationY < -50) {
-      cycleView('right'); // Moves content up
+      cycleView('right');
     } else if (translationY > 50) {
-      cycleView('left'); // Moves content down
+      cycleView('left');
     }
   });
 
@@ -152,12 +158,10 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
         ? horizontalSwipeGesture
         : flippedHorizontalSwipeGesture;
 
-  /* lets nest some ternaries! */
   const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
   const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
 
-  /* size minus gaps & insets */
   const usableW = W - 3 * GAP;
   const usableH = H - top - bottom - 3 * GAP;
   const panelW = usableW / cols;
@@ -168,7 +172,6 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
       source={{ uri: backgroundImage }}
       style={[
         styles.imageStyle,
-        // eslint-disable-next-line react-native/no-inline-styles
         {
           position: 'absolute',
           width: panelH,
@@ -235,7 +238,11 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
           useAngle={true}
           angle={195}
         />
-        {isSpinning && currentTurn === index && <View style={styles.turnOrderOverlay} />}
+        {isSpinning && currentTurn === index && (
+          <View style={styles.turnOrderOverlay}>
+            <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
+          </View>
+        )}
         {isFinished && currentTurn === index && (
           <TurnWinnerOverlay panelW={panelW} panelH={panelH} />
         )}
@@ -250,21 +257,21 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
                   { width: panelW, height: panelH, backgroundColor: panelBackgroundColor },
                 ]}
               >
-                {view.type === ViewMode.LIFE ? (
+                {view.type === ViewMode.LIFE && (
                   <LifeView
                     player={player}
                     changeLifeByAmount={changeLifeByAmount}
                     handleLongPressStart={handleLongPressStart}
                     handlePressOut={handlePressOut}
                   />
-                ) : (
-                  <PlayerPanelMenu
-                    menuVisible
-                    menuType={view.type}
-                    index={index}
-                    isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
-                    appliedRot={appliedRot}
-                  />
+                )}
+                {view.type === ViewMode.COMMANDER && (
+                  <View style={{ width: panelH, transform: [{ rotate: '90deg' }] }}>
+                    <Text style={styles.panelText}>Commander Damage Received</Text>
+                  </View>
+                )}
+                {view.type === ViewMode.COUNTERS && (
+                  <CountersView menuVisible menuType={ViewMode.COUNTERS} index={index} />
                 )}
               </View>
             ))}
@@ -276,8 +283,6 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
 }
 
 export default React.memo(PlayerPanelComponent);
-
-/* ── Styles ────────────────────────────────────────────── */
 
 const styles = StyleSheet.create({
   shadowWrap: {
@@ -311,7 +316,10 @@ const styles = StyleSheet.create({
     zIndex: 100,
     overflow: 'hidden',
     borderRadius: radius.sm,
-    backgroundColor: TURN_ORDER_OVERLAY_COLOR,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 7,
+    borderColor: 'rgba(0, 0, 0, 0.55)',
   },
   roundedClip: {
     flex: 1,
@@ -383,5 +391,16 @@ const styles = StyleSheet.create({
     ...typography.body,
     fontSize: 28,
     color: '#fff',
+  },
+  panelText: {
+    ...typography.heading2,
+    color: OFF_WHITE,
+    textAlign: 'center',
+    padding: spacing.md,
+  },
+  placeholderView: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });

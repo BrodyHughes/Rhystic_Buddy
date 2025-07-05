@@ -4,6 +4,7 @@ import { produce } from 'immer';
 interface PlayerBackgroundState {
   backgrounds: { [playerId: number]: string | null };
   setBackground: (playerId: number, url: string | null) => void;
+  removeBackground: (playerId: number) => void;
 }
 
 export const usePlayerBackgroundStore = create<PlayerBackgroundState>((set) => ({
@@ -12,6 +13,13 @@ export const usePlayerBackgroundStore = create<PlayerBackgroundState>((set) => (
     set(
       produce((draft) => {
         draft.backgrounds[playerId] = url;
+      }),
+    );
+  },
+  removeBackground: (playerId) => {
+    set(
+      produce((draft) => {
+        delete draft.backgrounds[playerId];
       }),
     );
   },

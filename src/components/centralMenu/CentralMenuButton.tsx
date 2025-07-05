@@ -1,22 +1,6 @@
-/**
- * CentralMenuButton Component
- *
- * This component renders a Floating Action Button (FAB) that, when pressed,
- * transforms into a full-screen circular menu with animated items.
- *
- * Features:
- * - A central pentagon-shaped button that serves as the menu trigger.
- * - The button animates (rotates and expands) to become the menu background.
- * - A hamburger icon on the button cross-fades into an 'X' icon when the menu is open.
- * - Menu items are displayed as icons arranged in a circle.
- * - All animations are powered by `react-native-reanimated` for high performance.
- * - The pentagon's border width remains visually consistent during the animation.
- * - The opening/closing animation uses a spring effect for a natural, bouncy feel.
- */
-
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, useWindowDimensions, View, Text } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -31,17 +15,16 @@ import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
 import { BACKGROUND, OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
 import { useTurnStore } from '@/store/useTurnStore';
-import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
+import { BookText, Dice6, Image, Menu, RotateCcw, Users, X } from 'lucide-react-native';
 import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
 import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
 import { useRulingsStore } from '@/store/useRulingsStore';
 
-// --- Animated Components --- //
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-// --- Constants --- //
+// Constants
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
 const PENTAGON_SIDES = 5;
@@ -49,7 +32,7 @@ const PENTAGON_RADIUS = 45;
 const PENTAGON_CENTER = 50;
 const PENTAGON_START_ANGLE = -90;
 
-// --- Geometry Helpers --- //
+// Pentagon geometry helpers
 function getRegularPolygonPath(
   sides = PENTAGON_SIDES,
   cx = PENTAGON_CENTER,
@@ -87,8 +70,8 @@ const menuItems = [
   { id: 'rulings', Icon: BookText, label: 'Rulings', color: FOREST },
 ];
 
-// --- Sub-Components --- //
-const CircularMenuItem = ({
+// Circular menu item
+const MenuItem = ({
   index,
   progress,
   children,
@@ -131,27 +114,22 @@ const CircularMenuItem = ({
   );
 };
 
-// --- Main Component --- //
+// Main Component
 export default React.memo(function CentralMenuButton() {
-  // --- State --- //
   const [open, setOpen] = useState(false);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
 
-  // --- Hooks --- //
   const players = useLifeStore((state) => state.players);
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
 
-  // --- Memoized Values --- //
   const menuItemRadius = W / MENU_LAYOUT_RADIUS_FACTOR;
   const finalFabDiameter = W + menuItemRadius / 2 - 30;
 
-  // --- Animated Values --- //
   const progress = useSharedValue(0);
 
-  // --- Animated Styles --- //
   const fabAnimatedStyle = useAnimatedStyle(() => {
     const size = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const rotation = progress.value * 180;
@@ -167,8 +145,14 @@ export default React.memo(function CentralMenuButton() {
   const animatedStrokeProps = useAnimatedProps(() => {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const scaleFactor = currentSize / FAB_SIZE;
+    const baseStrokeWidth = 7;
+    const minStrokeWidth = 3;
+    const strokeWidth =
+      baseStrokeWidth / scaleFactor > minStrokeWidth
+        ? baseStrokeWidth / scaleFactor
+        : minStrokeWidth;
     return {
-      strokeWidth: 7 / scaleFactor,
+      strokeWidth,
     };
   });
 
@@ -180,7 +164,7 @@ export default React.memo(function CentralMenuButton() {
     opacity: progress.value,
   }));
 
-  // --- Handlers --- //
+  // Handlers
   const handlePress = () => {
     cancelAnimation(progress);
     const toValue = open ? 0 : 1;
@@ -263,7 +247,6 @@ export default React.memo(function CentralMenuButton() {
     return actions[id] || (() => {});
   };
 
-  // --- Render --- //
   return (
     <View style={[styles.container, { width: W, height: H }]}>
       <AnimatedTouchable
@@ -272,27 +255,26 @@ export default React.memo(function CentralMenuButton() {
         activeOpacity={1}
       >
         <Svg height="100%" width="100%" viewBox="0 0 100 100">
+          <Defs>
+            <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="rgb(26, 26, 26)" stopOpacity="1" />
+              <Stop offset="0.5" stopColor="rgb(45, 45, 45)" stopOpacity="1" />
+              <Stop offset="1" stopColor="rgb(26, 26, 26)" stopOpacity="1" />
+            </LinearGradient>
+          </Defs>
           <AnimatedPath
             d={PENTAGON_PATH}
-            fill={BACKGROUND}
+            fill="url(#grad)"
             stroke={'rgb(74, 74, 78)'}
             strokeLinejoin="round"
             animatedProps={animatedStrokeProps}
           />
         </Svg>
         <Animated.View style={[styles.iconContainer, hamburgerIconStyle]}>
-          <Svg height="30" width="30" viewBox="0 0 100 100">
-            <Path
-              d="M20,30 L80,30 M20,50 L80,50 M20,70 L80,70"
-              stroke={OFF_WHITE}
-              strokeWidth="10"
-            />
-          </Svg>
+          <Menu color={OFF_WHITE} size={35} strokeWidth={2.5} />
         </Animated.View>
         <Animated.View style={[styles.iconContainer, xIconStyle]}>
-          <Svg height="30" width="30" viewBox="0 0 100 100">
-            <Path d="M20,20 L80,80 M20,80 L80,20" stroke={OFF_WHITE} strokeWidth="10" />
-          </Svg>
+          <X color={OFF_WHITE} size={35} strokeWidth={2.5} />
         </Animated.View>
       </AnimatedTouchable>
 
@@ -306,7 +288,7 @@ export default React.memo(function CentralMenuButton() {
           ]}
         >
           {menuItems.map((item, index) => (
-            <CircularMenuItem
+            <MenuItem
               key={item.id}
               index={index}
               progress={progress}
@@ -316,7 +298,7 @@ export default React.memo(function CentralMenuButton() {
               color={item.color}
             >
               <item.Icon color={BACKGROUND} size={30} />
-            </CircularMenuItem>
+            </MenuItem>
           ))}
         </View>
       )}

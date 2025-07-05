@@ -11,6 +11,7 @@
     "start": "react-native start",
     "test": "jest",
     "install-all": "yarn install && bundle install && cd ios && pod install && cd ..",
+    "clean": "rm -rf node_modules yarn.lock && cd android && ./gradlew clean && cd .. && cd ios && rm -rf Pods Podfile.lock build",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",

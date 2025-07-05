@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 
-  /* column wrapper */
   column: {
     width: '33.33%',
     height: '80%',
@@ -58,7 +57,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 
-  /* icon styles */
   iconWrap: {
     marginBottom: 10,
   },

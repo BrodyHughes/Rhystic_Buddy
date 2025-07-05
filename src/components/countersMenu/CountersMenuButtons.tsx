@@ -13,13 +13,11 @@ interface Props {
 }
 
 export default function CountersMenuButtons({ defenderId, counter, cellW, cellH }: Props) {
-  /* current value */
   const value = useCounterStore((s) => {
     const row = s.get(defenderId);
     return counter === 'storm' ? row.storm : counter === 'poison' ? row.poison : row.mana;
   });
 
-  /* increment / decrement handlers */
   const inc = useCounterStore(
     counter === 'storm'
       ? (s) => s.incStorm
