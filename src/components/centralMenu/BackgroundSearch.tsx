@@ -15,7 +15,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useLifeStore } from '@/store/useLifeStore';
 import { PlayerBackground, usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
-import { fetchCardPrintings } from '@/helpers/scryfallFetch';
+import { useCardPrintings } from '@/hooks/useCardPrintings';
 
 interface BackgroundSearchProps {
   onClose: () => void;
@@ -23,51 +23,56 @@ interface BackgroundSearchProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
+const CardImage = React.memo(
+  ({ item, onPress }: { item: { url: string; artist: string }; onPress: () => void }) => (
+    <TouchableOpacity style={styles.imagePreviewContainer} onPress={onPress}>
+      <Image source={{ uri: item.url }} style={styles.imagePreview} />
+      <Text style={styles.artistText} numberOfLines={1}>
+        Art by: {item.artist}
+      </Text>
+    </TouchableOpacity>
+  ),
+);
+CardImage.displayName = 'CardImage';
+
 const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
   const [cardName, setCardName] = useState('');
+  const [submittedCardName, setSubmittedCardName] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
-  const [fetchedCards, setFetchedCards] = useState<PlayerBackground[] | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+
+  const { data: fetchedCards, isLoading, isError } = useCardPrintings(submittedCardName);
 
   const players = useLifeStore((state) => state.players);
   const setPlayerBackground = usePlayerBackgroundStore((state) => state.setBackground);
   const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
   const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
 
-  const handleSearch = async (searchTerm: string) => {
+  const handleSearch = () => {
     Keyboard.dismiss();
-    if (!searchTerm) {
-      setFetchedCards(null);
-      return;
-    }
-    setIsSearching(true);
-    const images = await fetchCardPrintings(searchTerm);
-    if (!images) {
-      // Do not alert if the user is just typing
-      // Alert.alert('Card not found', 'Please try another card name.');
-    } else {
-      setFetchedCards(images);
-    }
-    setIsSearching(false);
+    setSubmittedCardName(cardName);
   };
 
   const handleRemoveBackground = () => {
     if (selectedPlayerId === null) return;
     removePlayerBackground(selectedPlayerId);
-    // Reset state and close
     setCardName('');
+    setSubmittedCardName('');
     setSelectedPlayerId(null);
-    setFetchedCards(null);
     onClose();
   };
 
   const handleSetBackground = (background: PlayerBackground) => {
     if (selectedPlayerId === null) return;
     setPlayerBackground(selectedPlayerId, background);
-    // Reset state and close
     setCardName('');
+    setSubmittedCardName('');
     setSelectedPlayerId(null);
-    setFetchedCards(null);
+    onClose();
+  };
+
+  const handleClosePress = () => {
+    setSelectedPlayerId(null);
+    setSubmittedCardName('');
     onClose();
   };
 
@@ -87,14 +92,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
           <Text style={styles.title}>
             {selectedPlayerId === null ? 'Select a Player' : 'Search for a Background'}
           </Text>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => {
-              setSelectedPlayerId(null);
-              setFetchedCards(null); // Also clear image on close
-              onClose();
-            }}
-          >
+          <TouchableOpacity style={styles.closeButton} onPress={handleClosePress}>
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
         </View>
@@ -125,12 +123,12 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
                 placeholderTextColor="#999"
                 value={cardName}
                 onChangeText={setCardName}
-                onSubmitEditing={() => handleSearch(cardName)}
+                onSubmitEditing={handleSearch}
                 style={styles.searchInput}
                 returnKeyType="search"
                 autoFocus
               />
-              <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(cardName)}>
+              <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
                 <Text style={styles.searchButtonText}>Search</Text>
               </TouchableOpacity>
             </View>
@@ -142,23 +140,23 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
             )}
 
             <View style={styles.listContainer}>
-              {isSearching && <Text style={styles.artistText}>Searching...</Text>}
-              {!isSearching && fetchedCards && (
+              {isLoading && <Text style={styles.emptyText}>Searching...</Text>}
+
+              {!isLoading && isError && (
+                <Text style={styles.errorText}>Card not found. Please check for typos.</Text>
+              )}
+
+              {!isLoading && !isError && fetchedCards && (
                 <FlatList
                   data={fetchedCards}
                   keyExtractor={(item) => String(item.url)}
                   numColumns={2}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.imagePreviewContainer}
-                      onPress={() => handleSetBackground(item)}
-                    >
-                      <Image source={{ uri: item.url as string }} style={styles.imagePreview} />
-                      <Text style={styles.artistText} numberOfLines={1}>
-                        Art by: {item.artist}
-                      </Text>
-                    </TouchableOpacity>
+                    <CardImage item={item} onPress={() => handleSetBackground(item)} />
                   )}
+                  initialNumToRender={4}
+                  maxToRenderPerBatch={4}
+                  windowSize={5}
                   ListEmptyComponent={<Text style={styles.emptyText}>No printings found.</Text>}
                 />
               )}
@@ -328,6 +326,12 @@ const styles = StyleSheet.create({
     color: '#aaa',
     textAlign: 'center',
     marginTop: 50,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
   },
 });
 

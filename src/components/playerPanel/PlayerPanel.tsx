@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, StyleSheet, useWindowDimensions, Image, Text } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
@@ -39,6 +39,14 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
   const changeLife = useLifeStore((s) => s.changeLife);
   const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const backgroundSelector = useCallback(
     (s: PlayerBackgroundState) => (player ? s.backgrounds[player.id] : undefined),

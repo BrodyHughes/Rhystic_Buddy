@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, useWindowDimensions, View, Text } from 'react-native';
-import Svg, { Path, Defs, Stop, RadialGradient } from 'react-native-svg';
+import { StyleSheet, useWindowDimensions, View, Text, TouchableOpacity } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,14 +13,13 @@ import { useLifeStore, PlayerCount } from '@/store/useLifeStore';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
 import { BACKGROUND, OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
-import { useTurnStore } from '@/store/useTurnStore';
-import { BookText, Dice6, Image, Menu, RotateCcw, Users, X } from 'lucide-react-native';
+import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
 import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
 import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
 import { useRulingsStore } from '@/store/useRulingsStore';
+import { useTurnOrder } from '@/hooks/useTurnOrder';
+import { MenuLayout } from './MenuLayout';
 
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 // Constants
@@ -120,8 +118,11 @@ export default React.memo(function CentralMenuButton() {
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
 
-  const players = useLifeStore((state) => state.players);
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
+  const resetLife = useLifeStore((state) => state.resetLife);
+  const resetCommanderDamage = useCommanderDamageStore((state) => state.resetAll);
+  const resetCounters = useCounterStore((state) => state.resetAll);
+
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
 
@@ -176,42 +177,18 @@ export default React.memo(function CentralMenuButton() {
     setOpen(!open);
   };
 
+  const { start: startTurnOrder } = useTurnOrder();
+
   const handleReset = () => {
-    useLifeStore.setState(() => ({
-      players: players.map((p) => ({ ...p, life: 40, delta: 0 })),
-    }));
-    useCommanderDamageStore.setState({ damage: {} });
-    useCounterStore.setState({ counters: {} });
+    resetLife();
+    resetCommanderDamage();
+    resetCounters();
     handlePress();
   };
 
   const handleTurnOrder = () => {
     handlePress();
-    const { startSpin, set, finishSpin } = useTurnStore.getState();
-    setTimeout(() => {
-      if (players.length === 0) return;
-
-      startSpin();
-
-      const playersArray = Array.from({ length: players.length }, (_, i) => i);
-      for (let i = playersArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
-      }
-      const order = playersArray;
-      const winner = order[order.length - 1];
-      const loops = 3;
-      const flashDelay = 100;
-      let tick = 0;
-      const spin = setInterval(() => {
-        set(order[tick % order.length]);
-        tick++;
-        if (tick === order.length * loops + 1) {
-          clearInterval(spin);
-          finishSpin(winner);
-        }
-      }, flashDelay);
-    }, 500);
+    setTimeout(startTurnOrder, 500);
   };
 
   const handleBackgroundPress = () => {
@@ -249,33 +226,18 @@ export default React.memo(function CentralMenuButton() {
 
   return (
     <View style={[styles.container, { width: W, height: H }]}>
-      <AnimatedTouchable
-        style={[styles.fab, { top: H / 2 + (top - bottom) / 2, left: W / 2 }, fabAnimatedStyle]}
+      <MenuLayout
+        fabAnimatedStyle={[
+          styles.fab,
+          { top: H / 2 + (top - bottom) / 2, left: W / 2 },
+          fabAnimatedStyle,
+        ]}
+        animatedStrokeProps={animatedStrokeProps}
+        hamburgerIconStyle={hamburgerIconStyle}
+        xIconStyle={xIconStyle}
         onPress={handlePress}
-        activeOpacity={1}
-      >
-        <Svg height="100%" width="100%" viewBox="0 0 100 100">
-          <Defs>
-            <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
-              <Stop offset="1" stopColor="rgb(26, 26, 26)" stopOpacity="1" />
-              <Stop offset="0" stopColor="rgb(49, 49, 49)" stopOpacity="1" />
-            </RadialGradient>
-          </Defs>
-          <AnimatedPath
-            d={PENTAGON_PATH}
-            fill="url(#grad)"
-            stroke={'rgb(74, 74, 78)'}
-            strokeLinejoin="round"
-            animatedProps={animatedStrokeProps}
-          />
-        </Svg>
-        <Animated.View style={[styles.iconContainer, hamburgerIconStyle]}>
-          <Menu color={OFF_WHITE} size={35} strokeWidth={2.5} />
-        </Animated.View>
-        <Animated.View style={[styles.iconContainer, xIconStyle]}>
-          <X color={OFF_WHITE} size={35} strokeWidth={2.5} />
-        </Animated.View>
-      </AnimatedTouchable>
+        pentagonPath={PENTAGON_PATH}
+      />
 
       {!isSearchVisible && !isPlayerCountSelectorVisible && (
         <View

@@ -12,49 +12,34 @@ import {
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRulingsStore } from '@/store/useRulingsStore';
-import { fetchRulingsByName } from '@/helpers/scryfallFetch';
-import { ScryfallRuling } from '@/types/scryfall';
+import { useRulings } from '@/hooks/useRulings';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
+
+const RulingItem = React.memo(({ item }: { item: { published_at: string; comment: string } }) => (
+  <View style={styles.rulingItem}>
+    <Text style={styles.rulingDate}>{item.published_at}</Text>
+    <Text style={styles.rulingText}>{item.comment}</Text>
+  </View>
+));
+RulingItem.displayName = 'RulingItem';
 
 const RulingsSearch: React.FC = () => {
   const { isSearchVisible, setIsSearchVisible } = useRulingsStore();
   const [cardName, setCardName] = useState('');
-  const [rulings, setRulings] = useState<ScryfallRuling[] | null>(null);
-  const [searchedCard, setSearchedCard] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submittedCardName, setSubmittedCardName] = useState('');
 
-  const handleSearch = async (searchTerm: string) => {
+  const { data: rulingsData, isLoading, isError } = useRulings(submittedCardName);
+
+  const handleSearch = () => {
     Keyboard.dismiss();
-    setError(null);
-    if (!searchTerm) {
-      setRulings(null);
-      setSearchedCard('');
-      return;
-    }
-    setIsSearching(true);
-    try {
-      const result = await fetchRulingsByName(searchTerm);
-      if (result === undefined) {
-        setError('Card not found. Please enter the full card name and check for typos.');
-        setRulings(null);
-      } else {
-        setRulings(result.rulings);
-        setSearchedCard(result.cardName);
-      }
-    } catch (err) {
-      setError('An error occurred while fetching rulings.');
-    } finally {
-      setIsSearching(false);
-    }
+    setSubmittedCardName(cardName);
   };
 
   const handleClose = () => {
     setIsSearchVisible(false);
     setCardName('');
-    setRulings(null);
-    setSearchedCard('');
+    setSubmittedCardName('');
   };
 
   const handleLinkToScryfall = () => {
@@ -65,53 +50,67 @@ const RulingsSearch: React.FC = () => {
     return null;
   }
 
+  const rulings = rulingsData?.rulings;
+  const searchedCard = rulingsData?.cardName;
+  const noRulingsFound = !isLoading && rulings && rulings.length === 0;
+  const cardNotFound = isError || (rulingsData === undefined && !!submittedCardName);
+
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.header}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Card Rulings</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.searchRow}>
           <TextInput
             placeholder="Search Card Rulings"
             placeholderTextColor="#999"
             value={cardName}
             onChangeText={setCardName}
-            onSubmitEditing={() => handleSearch(cardName)}
+            onSubmitEditing={handleSearch}
             style={styles.searchInput}
             returnKeyType="search"
             autoFocus
           />
-          <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(cardName)}>
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
         </View>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
-        {isSearching && <Text style={styles.emptyText}>Searching...</Text>}
-        {!isSearching &&
-          rulings &&
-          (rulings.length > 0 ? (
-            <View style={styles.listContainer}>
-              <Text style={styles.title}>
-                Rulings for <Text style={styles.cardName}>{searchedCard}</Text>
-              </Text>
-              <FlatList
-                data={rulings}
-                keyExtractor={(item) => item.published_at + item.comment}
-                renderItem={({ item }) => (
-                  <View style={styles.rulingItem}>
-                    <Text style={styles.rulingDate}>{item.published_at}</Text>
-                    <Text style={styles.rulingText}>{item.comment}</Text>
-                  </View>
-                )}
-                ListEmptyComponent={<Text style={styles.emptyText}>No rulings found.</Text>}
-              />
-            </View>
-          ) : (
-            <Text style={styles.emptyText}>No rulings found for {searchedCard}.</Text>
-          ))}
+        {cardNotFound && !isLoading && (
+          <Text style={styles.errorText}>
+            Card not found. Please enter the full card name and check for typos.
+          </Text>
+        )}
+        {isError && !cardNotFound && (
+          <Text style={styles.errorText}>An error occurred while fetching rulings.</Text>
+        )}
+        {isLoading && <Text style={styles.emptyText}>Searching...</Text>}
 
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-          <Text style={styles.closeButtonText}>×</Text>
-        </TouchableOpacity>
+        {rulings && rulings.length > 0 && (
+          <View style={styles.listContainer}>
+            <Text style={styles.rulingsFoundTitle}>
+              Rulings for <Text style={styles.cardName}>{searchedCard}</Text>
+            </Text>
+            <FlatList
+              data={rulings}
+              keyExtractor={(item) => item.published_at + item.comment}
+              renderItem={({ item }) => <RulingItem item={item} />}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={11}
+            />
+          </View>
+        )}
+
+        {noRulingsFound && (
+          <Text style={styles.emptyText}>No rulings found for {searchedCard}.</Text>
+        )}
+
         <View style={styles.scryfallCredit}>
           <Text style={styles.scryfallCreditText}>
             Search powered by{' '}
@@ -129,16 +128,30 @@ const styles = StyleSheet.create({
   flex: { flex: 1, width: '100%' },
   container: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.85)',
     zIndex: 40,
+    paddingTop: 20,
   },
-  header: {
+  modalHeader: {
     flexDirection: 'row',
-    padding: 20,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    top: 20,
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontFamily: 'Comfortaa-Bold',
+    color: '#fff',
+    fontWeight: '900',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
   listContainer: {
     flex: 1,
@@ -165,7 +178,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
   },
-  title: {
+  rulingsFoundTitle: {
     fontSize: 22,
     color: '#fff',
     marginBottom: 20,
@@ -202,9 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   closeButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
     padding: 10,
   },
   closeButtonText: {
@@ -219,12 +229,12 @@ const styles = StyleSheet.create({
   scryfallCreditText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 400,
+    fontWeight: '400',
   },
   scryfallCreditTextLink: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 400,
+    fontWeight: '400',
     textDecorationLine: 'underline',
   },
 });

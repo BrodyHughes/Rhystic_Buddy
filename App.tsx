@@ -17,6 +17,8 @@ import RulingsSearch from '@/components/centralMenu/RulingsSearch';
 import GlobalDamageOverlays from '@/components/commanderDamage/GlobalDamageOverlays';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTurnStore } from '@/store/useTurnStore';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 // Remove 'import { useStore } from 'zustand';' if it exists
 
 export default function App() {
@@ -44,48 +46,50 @@ export default function App() {
   const panelH = usableH / rows;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.screen}>
-        <StatusBar barStyle="light-content" />
-        <View style={[styles.grid, { gap: currentGap, padding: currentGap }]}>
-          {[...Array(totalPlayersCount).keys()].map((index) => {
-            return (
-              <PlayerPanel
-                key={index}
-                index={index}
-                cols={columns}
-                rows={rows}
-                isEvenPlayerIndexNumber={index % 2 === 0}
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.screen}>
+          <StatusBar barStyle="light-content" />
+          <View style={[styles.grid, { gap: currentGap, padding: currentGap }]}>
+            {[...Array(totalPlayersCount).keys()].map((index) => {
+              return (
+                <PlayerPanel
+                  key={index}
+                  index={index}
+                  cols={columns}
+                  rows={rows}
+                  isEvenPlayerIndexNumber={index % 2 === 0}
+                />
+              );
+            })}
+            {/* a blank panel for odd number of players to fill the last row lol this is kinda dumb and hacky */}
+            {totalPlayersCount % 2 === 1 && (
+              <View
+                style={{
+                  height: panelH,
+                  width: panelW,
+                  backgroundColor: 'transparent',
+                  pointerEvents: 'none',
+                  zIndex: -1,
+                }}
               />
-            );
-          })}
-          {/* a blank panel for odd number of players to fill the last row lol this is kinda dumb and hacky */}
-          {totalPlayersCount % 2 === 1 && (
-            <View
-              style={{
-                height: panelH,
-                width: panelW,
-                backgroundColor: 'transparent',
-                pointerEvents: 'none',
-                zIndex: -1,
-              }}
+            )}
+          </View>
+          <CentralMenuButton />
+          {isReceiving && defenderId !== null && (
+            <GlobalDamageOverlays
+              defenderId={defenderId}
+              layoutConfigurations={layoutConfigurations}
+              gap={currentGap}
             />
           )}
-        </View>
-        <CentralMenuButton />
-        {isReceiving && defenderId !== null && (
-          <GlobalDamageOverlays
-            defenderId={defenderId}
-            layoutConfigurations={layoutConfigurations}
-            gap={currentGap}
-          />
-        )}
-        {isFinished && (
-          <Pressable onPress={reset} style={styles.fullscreenPressable} testID="winner-dismiss" />
-        )}
-      </SafeAreaView>
-      <RulingsSearch />
-    </GestureHandlerRootView>
+          {isFinished && (
+            <Pressable onPress={reset} style={styles.fullscreenPressable} testID="winner-dismiss" />
+          )}
+        </SafeAreaView>
+        <RulingsSearch />
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
 

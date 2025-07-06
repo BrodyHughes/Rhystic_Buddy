@@ -18,6 +18,7 @@ export interface LifeStore {
 
   changeLife: (index: number, amount: number) => void;
   setTotalPlayers: (total: PlayerCount) => void;
+  resetLife: () => void;
 }
 
 /* ── Helpers ───────────────────────────────────────── */
@@ -81,4 +82,9 @@ export const useLifeStore = create<LifeStore>((set) => ({
       if (total < 2 || total > 6) return state;
       return { totalPlayers: total, players: createPlayers(total) };
     }),
+
+  resetLife: () =>
+    set((state) => ({
+      players: state.players.map((p) => ({ ...p, life: 40, delta: 0 })),
+    })),
 }));
