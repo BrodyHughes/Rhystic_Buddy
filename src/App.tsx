@@ -19,7 +19,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTurnStore } from '@/store/useTurnStore';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-// Remove 'import { useStore } from 'zustand';' if it exists
 
 export default function App() {
   const totalPlayersCount = useLifeStore((s) => s.players.length);

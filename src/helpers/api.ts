@@ -1,5 +1,5 @@
 const HEADERS = {
-  'User-Agent': 'CommanderCounter/1.0',
+  'User-Agent': 'RhysticBuddy/1.0',
   Accept: 'application/json',
 };
 
