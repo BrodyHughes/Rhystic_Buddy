@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';

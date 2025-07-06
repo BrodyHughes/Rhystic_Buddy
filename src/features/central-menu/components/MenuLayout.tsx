@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import { StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';

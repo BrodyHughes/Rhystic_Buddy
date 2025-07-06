@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { create } from 'zustand';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 export type CommanderMatrix = Record<number, Record<number, number>>;

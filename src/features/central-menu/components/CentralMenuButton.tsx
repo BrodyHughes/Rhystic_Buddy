@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import React, { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
@@ -21,6 +23,7 @@ import { useTurnOrder } from '../hooks/useTurnOrder';
 import { MenuLayout } from './MenuLayout';
 import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
+import AboutModal from '../modals/AboutModal';
 
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
@@ -49,6 +52,7 @@ export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
+  const [isAboutVisible, setAboutVisible] = useState(false);
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);
@@ -203,10 +207,12 @@ export default React.memo(function CentralMenuButton() {
         <PlayerCountSelector
           onSelect={handlePlayerCountSelect}
           onClose={() => setPlayerCountSelectorVisible(false)}
+          onInfoPress={() => setAboutVisible(true)}
         />
       )}
 
       {isSearchVisible && <BackgroundSearch onClose={() => setSearchVisible(false)} />}
+      {isAboutVisible && <AboutModal onClose={() => setAboutVisible(false)} />}
     </View>
   );
 });

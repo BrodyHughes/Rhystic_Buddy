@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {

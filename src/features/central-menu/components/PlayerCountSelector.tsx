@@ -1,20 +1,42 @@
-import React from 'react';
+// SPDX-License-Identifier: Apache-2.0
+
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { Info } from 'lucide-react-native';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
   onClose: () => void;
+  onInfoPress: () => void;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
+const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({
+  onSelect,
+  onClose,
+  onInfoPress,
+}) => {
+  const [tapCount, setTapCount] = useState(0);
+
+  const handleSecretTap = () => {
+    const newCount = tapCount + 1;
+    setTapCount(newCount);
+    if (newCount >= 5) {
+      onInfoPress();
+      setTapCount(0); // Reset for next time
+    }
+  };
+
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <SafeAreaView style={styles.modalContainer}>
+        <TouchableOpacity style={styles.infoButton} onPress={handleSecretTap}>
+          <Info color="rgba(255, 255, 255, 0.05)" size={30} />
+        </TouchableOpacity>
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Select Player Count</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -57,6 +79,13 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
+  infoButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    padding: 10,
+    zIndex: 10,
+  },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -70,6 +99,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Comfortaa-Bold',
     color: '#fff',
+    textAlign: 'center',
+    flex: 1,
   },
   selectItem: {
     backgroundColor: 'rgba(255,255,255,0.9)',

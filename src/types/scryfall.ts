@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 export type Legality = 'legal' | 'not_legal' | 'restricted' | 'banned';
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'special' | 'mythic' | 'bonus';
