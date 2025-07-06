@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, TextStyle } from 'react-native';
 
 /**
  * Design tokens
@@ -31,28 +31,40 @@ export const radius = {
   md: 8,
   lg: 16,
   pill: 999,
+  full: '100%',
 };
 
-export const typography = {
+export type TypographyVariant = 'heading1' | 'heading2' | 'body' | 'caption' | 'button';
+
+export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
-    fontSize: 76,
-    fontWeight: '700' as const,
+    fontFamily: 'Comfortaa-Bold',
+    fontWeight: '900',
+    fontSize: 90,
     color: palette.textPrimary,
   },
   heading2: {
-    fontSize: 24,
-    fontWeight: '600' as const,
+    fontFamily: 'Comfortaa',
+    fontWeight: '600',
+    fontSize: 30,
     color: palette.textPrimary,
   },
   body: {
+    fontFamily: 'Comfortaa',
+    fontWeight: '400',
     fontSize: 16,
-    fontWeight: '400' as const,
     color: palette.textSecondary,
   },
   caption: {
+    fontFamily: 'Comfortaa',
+    fontWeight: '400',
     fontSize: 24,
-    fontWeight: '400' as const,
     color: palette.textSecondary,
+  },
+  button: {
+    fontFamily: 'Comfortaa',
+    fontWeight: '600',
+    fontSize: 16,
   },
 };
 
@@ -108,9 +120,8 @@ export const globalStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    color: palette.surface,
   },
 
   input: {
@@ -119,28 +130,9 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.border,
     padding: spacing.sm,
-    fontSize: 16,
+    fontSize: typography.body.fontSize,
     color: palette.textPrimary,
     ...shadows,
-  },
-});
-
-export const styles = StyleSheet.create({
-  main: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-  },
-  text: {
-    color: 'black',
-  },
-  title: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
   },
 });
 

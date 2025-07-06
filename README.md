@@ -1,130 +1,133 @@
-# commander-counter
+<div align="center">
+  <img src="assets/ICON_NO_BCKGRND.png" alt="Rhystic Buddy Logo" width="150" />
+  <h1>Rhystic Buddy</h1>
+  <p>A sleek and intuitive life counter and game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
+  
+  <!-- Badges -->
+  <p>
+    <img src="https://img.shields.io/github/package-json/v/BrodyHughes/commander-counter?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square" alt="License" />
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome" />
+  </p>
+</div>
 
-A React Native application for tracking Commander (EDH) game stats.
+---
 
-## Prerequisites
+**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It goes beyond just life tracking, offering a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
 
-- Node.js (>=18 recommended, see `engines` in `package.json`)
+## ✨ Key Features
+
+- **Multi-Player Life Tracking**: Supports games from 2 to 6 players, with clear, easily adjustable life totals.
+- **Commander Damage**: Dedicated interface to track commander damage dealt by each player to their opponents.
+- **Turn Order Randomizer**: Quickly determine who goes first with a single tap.
+- **In-App Rulings**: Integrated Scryfall search to look up card rulings without leaving the app.
+- **Customizable Backgrounds**: Personalize your player panel by searching for and setting your favorite Magic card art as a background.
+- **Counter Tracking**: Easily manage poison, energy, and floating mana.
+- **Intuitive Gestures**: A smooth, carousel-based UI for navigating between different utility views.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [React Native](https://reactnative.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand) & [TanStack Query](https://tanstack.com/query/latest)
+- **Animation & Gestures**: [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) & [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/)
+- **UI**: [React Native SVG](https://github.com/react-native-svg/react-native-svg) for custom components & [Lucide](https://lucide.dev/) for icons.
+
+## 📂 Project Structure
+
+The project uses a feature-sliced architecture to keep the codebase modular, scalable, and easy to navigate.
+
+```
+src/
+├── consts/         # Application-wide constants (colors, layout values)
+├── features/       # Self-contained feature modules
+│   ├── central-menu/
+│   ├── commander-damage/
+│   ├── counters-menu/
+│   └── player-panel/
+├── helpers/        # Utility functions (e.g., API helpers)
+├── hooks/          # Shared custom React Hooks
+├── lib/            # Core libraries and managers (e.g., queryClient)
+├── styles/         # Global styles and design tokens
+└── types/          # Shared TypeScript type definitions
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (>=18)
 - Yarn (v1.x)
-- Watchman (recommended for macOS)
-- Ruby and Bundler (for iOS development)
-- JDK (for Android development)
-- Xcode (for iOS development)
-- Android Studio & Android SDK (for Android development)
+- Watchman (macOS)
+- Ruby & Bundler (iOS)
+- JDK (Android)
+- [React Native Environment Setup](https://reactnative.dev/docs/set-up-your-environment) completed for your OS.
 
-> **Note**: Make sure you have completed the React Native [Set Up Your Environment guide](https://reactnative.dev/docs/set-up-your-environment) for your specific OS and target platforms (iOS/Android).
+### Installation & Running
 
-## Initial Setup
+1.  **Clone the repository:**
 
-1. Clone the repository:
-   ```sh
-   git clone git@github.com:BrodyHughes/commander-counter.git
-   cd commander-counter
-   ```
+    ```sh
+    git clone git@github.com:BrodyHughes/Rhystic_Buddy.git
+    cd Rhystic_Buddy
+    ```
 
-2. Install dependencies (JavaScript, Ruby gems, and CocoaPods):
-   ```sh
-   yarn install-all 
-   ```
-   *(This runs `yarn install`, `bundle install`, and `pod install`)*
+2.  **Install all dependencies:**
+    This command handles Yarn packages, Ruby gems, and CocoaPods in one go.
 
-   Alternatively, for a manual step-by-step setup:
-   ```sh
-   yarn install          # Install JavaScript dependencies
-   bundle install        # Install Ruby dependencies (for iOS)
-   cd ios && pod install && cd .. # Install CocoaPods (for iOS)
-   ```
+    ```sh
+    yarn install-all
+    ```
 
-## Development
+3.  **Start the Metro server:**
 
-### Step 1: Start Metro
+    ```sh
+    yarn start
+    ```
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-To start the Metro dev server, run the following command from the root of your project:
+4.  **Run on a simulator or device:**
+    Keep the Metro server running in a separate terminal.
+    - **For iOS:**
+      ```sh
+      yarn ios
+      ```
+    - **For Android (still in development):**
+      ```sh
+      yarn android
+      ```
 
-```sh
-yarn start
-```
+## 📜 Available Scripts
 
-### Step 2: Running the App
+| Command            | Description                                               |
+| :----------------- | :-------------------------------------------------------- |
+| `yarn start`       | Starts the Metro bundler.                                 |
+| `yarn ios`         | Builds and runs the app on the iOS Simulator.             |
+| `yarn android`     | Builds and runs the app on an Android emulator or device. |
+| `yarn install-all` | Installs all JS, Ruby, and CocoaPods dependencies.        |
+| `yarn lint`        | Lints the codebase with ESLint.                           |
+| `yarn lint:fix`    | Lints and automatically fixes issues.                     |
+| `yarn typecheck`   | Runs the TypeScript compiler to check for type errors.    |
+| `yarn format`      | Formats code with Prettier.                               |
+| `yarn clean`       | Removes all generated files and caches.                   |
 
-#### iOS
+## 🤝 Contributing
 
-```bash
-yarn ios            # Builds & runs in iOS Simulator
-```
+Contributions are welcome! Whether it's a bug report, a new feature, or a suggestion, please feel free to open an issue or submit a pull request.
 
-#### Android
+1.  **Fork the repository** and create your feature branch:
+    `git checkout -b <your-username>/<short-description>`
+2.  **Make your changes.**
+3.  **Ensure your code passes local checks** before pushing:
+    ```sh
+    yarn lint:fix && yarn typecheck
+    ```
+4.  **Push your branch** and open a Pull Request against the `main` branch.
 
-```bash
-yarn android        # Builds & runs on Android emulator or connected device
-```
+## 📄 License
 
-_Pro‑tip_: Press `R` twice to reload on Android, or `⌘ R` in the iOS Simulator.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
-## Project Structure
+## 🙏 Acknowledgements
 
-```
-.
-├── android/            # Native Android project files
-├── ios/                # Native iOS project files
-├── src/
-│   ├── components/     # Reusable UI components (e.g., PlayerPanel, CentralMenuButton)
-│   ├── consts/         # Application-wide constants (e.g., layout values, theme elements)
-│   ├── helpers/        # Utility functions (e.g., API helpers)
-│   ├── hooks/          # Custom React Hooks (if any, shared across features)
-│   ├── store/          # Zustand state management (e.g., useLifeStore, useTurnStore)
-│   └── styles/         # Global styles, design system tokens (e.g., typography, spacing)
-├── app.json            # React Native configuration (app name, display name)
-├── babel.config.js     # Babel configuration (includes module-resolver for @/ alias)
-├── metro.config.js     # Metro bundler configuration
-├── tsconfig.json       # TypeScript configuration (includes baseUrl and paths for @/ alias)
-└── README.md           # This file
-```
-
-**Note on Path Aliases:** This project uses a path alias `@/*` which resolves to `src/*`. This is configured in `tsconfig.json` (for TypeScript) and `babel.config.js` (for Metro).
-
-## Available Scripts
-
-| Command          | Description                                                     |
-| ---------------- | --------------------------------------------------------------- |
-| `yarn start`     | Starts the Metro bundler.                                       |
-| `yarn ios`       | Builds and runs the app on the iOS Simulator.                   |
-| `yarn android`   | Builds and runs the app on an Android emulator or device.       |
-| `yarn install-all`| Installs JS, Ruby, and CocoaPods dependencies. Useful for initial setup. |
-| `yarn lint`      | Lints the codebase using ESLint (configured with Prettier).     |
-| `yarn lint:fix`  | Lints and automatically fixes code style issues.                |
-| `yarn typecheck` | Checks the project for TypeScript errors (`tsc --noEmit`).        |
-| `yarn format`    | Formats code using Prettier (for all supported file types).     |
-| `yarn test`      | Runs unit tests using Jest (if configured).                     |
-
-## Contributing
-
-Follow these steps to get a pull request merged:
-
-1. If you're an outside contributor, fork the repo & create a feature branch. If you are an internal contributor, create a feature branch from `main`:
-   `git checkout -b <username>/<short-description>`
-2. Commit using descriptive commits.
-3. Push up your work and open a PR against `main`.
-4. Our future CI pipeline will run lint, type‑check, tests and build. For now, please ensure your changes pass locally.
-5. Request a review from @BrodyHughes or another maintainer.
-6. Squash‑merge once CI is green (or local checks pass and PR is approved) ✅.
-
-**Local Sanity Check:**
-Before pushing, run the following to ensure your changes meet project standards:
-```bash
-yarn lint:fix && yarn typecheck # Add && yarn test when tests are in place
-```
-
-Feel free to open an issue or PR for anything you'd like to tackle.
-
-## Troubleshooting
-
-- **Metro stuck on "Loading dependency graph"** – Run `npx react-native-clean-project` then `yarn start --reset-cache`.
-- **iOS build fails with Ruby gems** – Ensure Ruby is installed (e.g., via `brew install ruby`) then try `bundle install` again. Sometimes `sudo gem install cocoapods bundler` might be needed if permissions are an issue, but prefer managing gems via Bundler.
-- More tips in the official [React Native Troubleshooting guide](https://reactnative.dev/docs/troubleshooting).
-
-## Acknowledgements
-
-- [React Native](https://reactnative.dev) & the awesome OSS community
-- Iconography by [lucide.dev](https://lucide.dev) (If you are using icons from here, otherwise remove or update)
+- Icons by [Lucide](https://lucide.dev/)
+- Card data and images via the [Scryfall API](https://scryfall.com/docs/api)
