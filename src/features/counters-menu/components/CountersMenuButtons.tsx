@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useCounterStore } from '@/store/useCounterStore';
+import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { BORDER_COLOR } from '@/consts/consts';
 
 type CounterKey = 'storm' | 'poison' | 'mana';

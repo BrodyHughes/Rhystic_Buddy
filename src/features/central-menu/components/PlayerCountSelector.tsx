@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { PlayerCount } from '@/store/useLifeStore';
+import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;

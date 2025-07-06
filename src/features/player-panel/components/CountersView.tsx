@@ -9,7 +9,7 @@ interface Props {
   index: number;
 }
 
-export default function PlayerPanelMenu({ menuVisible, menuType, index }: Props) {
+export default function CountersView({ menuVisible, menuType, index }: Props) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   if (!menuVisible) {

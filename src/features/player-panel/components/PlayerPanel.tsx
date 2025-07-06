@@ -5,15 +5,18 @@ import Animated, { runOnJS } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlurView } from '@react-native-community/blur';
 
-import { LifeStore, useLifeStore } from '@/store/useLifeStore';
-import { useTurnStore } from '@/store/useTurnStore';
+import { LifeStore, useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import CountersView from './CountersView';
 import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PlayerBackgroundState, usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
+import {
+  PlayerBackgroundState,
+  usePlayerBackgroundStore,
+} from '@/features/central-menu/store/usePlayerBackgroundStore';
 import LifeView from './LifeView';
-import TurnWinnerOverlay from './TurnWinnerOverlay';
+import TurnWinnerOverlay from '../../central-menu/components/TurnWinnerOverlay';
 import { useCarousel } from '@/hooks/useCarousel';
 
 export enum ViewMode {

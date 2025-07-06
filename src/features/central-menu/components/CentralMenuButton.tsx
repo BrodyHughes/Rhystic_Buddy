@@ -9,10 +9,10 @@ import {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useLifeStore, PlayerCount } from '@/store/useLifeStore';
-import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
+import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLifeStore';
+import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
-import { useCounterStore } from '@/store/useCounterStore';
+import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
@@ -22,7 +22,6 @@ import { MenuLayout } from './MenuLayout';
 import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
-// Constants
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
 const PENTAGON_SIDES = 5;
@@ -30,7 +29,6 @@ const PENTAGON_RADIUS = 45;
 const PENTAGON_CENTER = 50;
 const PENTAGON_START_ANGLE = -90;
 
-// Pentagon geometry helpers
 function getRegularPolygonPath(
   sides = PENTAGON_SIDES,
   cx = PENTAGON_CENTER,
@@ -47,15 +45,6 @@ function getRegularPolygonPath(
 
 const PENTAGON_PATH = getRegularPolygonPath();
 
-const menuItems = [
-  { id: 'players', Icon: Users, label: 'Players', color: ISLAND },
-  { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP },
-  { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN },
-  { id: 'background', Icon: Image, label: 'Background', color: FOREST },
-  { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS },
-];
-
-// Main Component
 export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
   const [isSearchVisible, setSearchVisible] = useState(false);
@@ -108,7 +97,6 @@ export default React.memo(function CentralMenuButton() {
     opacity: progress.value,
   }));
 
-  // Handlers
   const handlePress = () => {
     cancelAnimation(progress);
     const toValue = open ? 0 : 1;
@@ -157,16 +145,19 @@ export default React.memo(function CentralMenuButton() {
 
   const setIsSearchVisible = useRulingsStore((s) => s.setIsSearchVisible);
 
-  const getActionFor = (id: string) => {
-    const actions: { [key: string]: () => void } = {
-      reset: handleReset,
-      turn: handleTurnOrder,
-      background: handleBackgroundPress,
-      players: handlePlayersPress,
-      rulings: handleRulingsPress,
-    };
-    return actions[id] || (() => {});
-  };
+  const menuItems = [
+    { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
+    { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
+    { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
+    {
+      id: 'background',
+      Icon: Image,
+      label: 'Background',
+      color: FOREST,
+      action: handleBackgroundPress,
+    },
+    { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS, action: handleRulingsPress },
+  ];
 
   return (
     <View style={[styles.container, { width: W, height: H }]}>
@@ -197,7 +188,7 @@ export default React.memo(function CentralMenuButton() {
               key={item.id}
               index={index}
               progress={progress}
-              onPress={getActionFor(item.id)}
+              onPress={item.action}
               radius={menuItemRadius}
               label={item.label}
               color={item.color}

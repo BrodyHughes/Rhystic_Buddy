@@ -9,14 +9,14 @@ import {
 } from 'react-native';
 import PlayerPanel from '@/features/player-panel/components/PlayerPanel';
 import CentralMenuButton from '@/features/central-menu/components/CentralMenuButton';
-import { useLifeStore } from '@/store/useLifeStore';
-import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BACKGROUND, GAP } from '@/consts/consts';
 import RulingsSearch from '@/features/central-menu/modals/RulingsSearch';
 import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalDamageOverlays';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTurnStore } from '@/store/useTurnStore';
+import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 

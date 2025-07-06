@@ -1,5 +1,5 @@
-import { useTurnStore } from '@/store/useTurnStore';
-import { useLifeStore } from '@/store/useLifeStore';
+import { useTurnStore } from '../store/useTurnStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 
 export const useTurnOrder = () => {
   const { startSpin, set, finishSpin } = useTurnStore.getState();

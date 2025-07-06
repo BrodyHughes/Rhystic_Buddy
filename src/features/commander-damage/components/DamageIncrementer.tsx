@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
+import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
+import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { OFF_WHITE } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
 import { BlurView } from '@react-native-community/blur';

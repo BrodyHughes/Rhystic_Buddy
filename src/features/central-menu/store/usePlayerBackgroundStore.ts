@@ -13,23 +13,23 @@ export interface PlayerBackgroundState {
 
 const stockImages = [
   {
-    url: require('../../assets/art-institute-of-chicago-wPoRl5TbjZ4-unsplash.jpg'),
+    url: require('@/../assets/art-institute-of-chicago-wPoRl5TbjZ4-unsplash.jpg'),
     artist: 'Art Institute of Chicago',
   },
   {
-    url: require('../../assets/birmingham-museums-trust-0xa0OVutd_A-unsplash.jpg'),
+    url: require('@/../assets/birmingham-museums-trust-0xa0OVutd_A-unsplash.jpg'),
     artist: 'Birmingham Museums Trust',
   },
   {
-    url: require('../../assets/birmingham-museums-trust-m8hTQlLH2Lg-unsplash.jpg'),
+    url: require('@/../assets/birmingham-museums-trust-m8hTQlLH2Lg-unsplash.jpg'),
     artist: 'Birmingham Museums Trust',
   },
   {
-    url: require('../../assets/catherine-kay-greenup-l5EaYAbV1X4-unsplash.jpg'),
+    url: require('@/../assets/catherine-kay-greenup-l5EaYAbV1X4-unsplash.jpg'),
     artist: 'Catherine Kay Greenup',
   },
   {
-    url: require('../../assets/the-cleveland-museum-of-art-ruUOEdmS1Mw-unsplash.jpg'),
+    url: require('@/../assets/the-cleveland-museum-of-art-ruUOEdmS1Mw-unsplash.jpg'),
     artist: 'The Cleveland Museum of Art',
   },
 ];

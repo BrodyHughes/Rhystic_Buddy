@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
 import { typography, radius } from '@/styles/global';
-import ConfettiParticle from './ConfettiParticle';
+import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
 
 const confettiCount = 70;
 

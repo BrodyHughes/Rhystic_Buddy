@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useLifeStore } from '@/store/useLifeStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 export type CommanderMatrix = Record<number, Record<number, number>>;
 
 export interface CommanderDamageStore {

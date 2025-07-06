@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useLifeStore } from '@/store/useLifeStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import DamageIncrementer from './DamageIncrementer';
 
 interface Props {

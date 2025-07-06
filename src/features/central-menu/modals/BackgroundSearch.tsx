@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { useLifeStore } from '@/store/useLifeStore';
-import { PlayerBackground, usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import {
+  PlayerBackground,
+  usePlayerBackgroundStore,
+} from '@/features/central-menu/store/usePlayerBackgroundStore';
 import { useCardPrintings } from '../hooks/useCardPrintings';
 
 interface BackgroundSearchProps {

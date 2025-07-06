@@ -1,7 +1,7 @@
 import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { ViewMode } from '@/features/player-panel/components/PlayerPanel';
-import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
+import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { useCallback, useEffect } from 'react';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
@@ -30,7 +30,11 @@ export const useCarousel = ({
     if (views[activeViewIndex.value].type === ViewMode.COMMANDER) {
       runOnJS(stopReceiving)();
     }
-    activeViewIndex.value = withSpring(1);
+    activeViewIndex.value = withSpring(1, {
+      damping: 17,
+      stiffness: 150,
+      mass: 1,
+    });
   }, [activeViewIndex, stopReceiving, views]);
 
   useEffect(() => {
