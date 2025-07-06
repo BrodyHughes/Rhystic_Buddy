@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, useWindowDimensions, View, Text } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, Stop, RadialGradient } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -63,11 +63,11 @@ const PENTAGON_PATH = getRegularPolygonPath();
 const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 
 const menuItems = [
-  { id: 'players', Icon: Users, label: 'Players', color: SWAMP },
-  { id: 'turn', Icon: Dice6, label: 'Turn Order', color: PLAINS },
-  { id: 'reset', Icon: RotateCcw, label: 'Reset', color: ISLAND },
-  { id: 'background', Icon: Image, label: 'Background', color: MOUNTAIN },
-  { id: 'rulings', Icon: BookText, label: 'Rulings', color: FOREST },
+  { id: 'players', Icon: Users, label: 'Players', color: ISLAND },
+  { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP },
+  { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN },
+  { id: 'background', Icon: Image, label: 'Background', color: FOREST },
+  { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS },
 ];
 
 // Circular menu item
@@ -256,11 +256,10 @@ export default React.memo(function CentralMenuButton() {
       >
         <Svg height="100%" width="100%" viewBox="0 0 100 100">
           <Defs>
-            <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-              <Stop offset="0" stopColor="rgb(26, 26, 26)" stopOpacity="1" />
-              <Stop offset="0.5" stopColor="rgb(45, 45, 45)" stopOpacity="1" />
+            <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
               <Stop offset="1" stopColor="rgb(26, 26, 26)" stopOpacity="1" />
-            </LinearGradient>
+              <Stop offset="0" stopColor="rgb(49, 49, 49)" stopOpacity="1" />
+            </RadialGradient>
           </Defs>
           <AnimatedPath
             d={PENTAGON_PATH}

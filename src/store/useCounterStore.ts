@@ -10,13 +10,8 @@ type CounterMatrix = Record<number, PlayerCounters>;
 
 interface CounterStore {
   counters: CounterMatrix;
-
-  incStorm: (defender: number, delta?: number) => void;
-  incPoison: (defender: number, delta?: number) => void;
-  incMana: (defender: number, delta?: number) => void;
-
+  changeCounter: (defender: number, counter: keyof PlayerCounters, amount?: number) => void;
   get: (defender: number) => PlayerCounters;
-
   resetPlayer: (defender: number) => void;
   resetAll: () => void;
 }
@@ -26,34 +21,24 @@ const emptyRow = (): PlayerCounters => ({ storm: 0, poison: 0, mana: 0 });
 export const useCounterStore = create<CounterStore>()((set, get) => ({
   counters: {},
 
-  incStorm: (d, Δ = 1) =>
-    set((s) => {
-      const row = { ...(s.counters[d] ?? emptyRow()) };
-      row.storm = Math.max(row.storm + Δ, 0);
-      return { counters: { ...s.counters, [d]: row } };
-    }),
-
-  incPoison: (d, Δ = 1) =>
-    set((s) => {
-      const row = { ...(s.counters[d] ?? emptyRow()) };
-      row.poison = Math.max(row.poison + Δ, 0);
-      return { counters: { ...s.counters, [d]: row } };
-    }),
-
-  incMana: (d, Δ = 1) =>
-    set((s) => {
-      const row = { ...(s.counters[d] ?? emptyRow()) };
-      row.mana = Math.max(row.mana + Δ, 0);
-      return { counters: { ...s.counters, [d]: row } };
+  changeCounter: (defender, counter, amount = 1) =>
+    set((state) => {
+      const newCounters = { ...state.counters };
+      const currentCounters = newCounters[defender] ?? emptyRow();
+      newCounters[defender] = {
+        ...currentCounters,
+        [counter]: Math.max(0, currentCounters[counter] + amount),
+      };
+      return { counters: newCounters };
     }),
 
   get: (defender) => get().counters[defender] ?? emptyRow(),
 
   resetPlayer: (defender) =>
-    set((s) => {
-      const nxt = { ...s.counters };
-      delete nxt[defender];
-      return { counters: nxt };
+    set((state) => {
+      const newCounters = { ...state.counters };
+      delete newCounters[defender];
+      return { counters: newCounters };
     }),
 
   resetAll: () => set({ counters: {} }),

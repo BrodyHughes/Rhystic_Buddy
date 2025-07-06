@@ -7,5 +7,5 @@ interface RulingsState {
 
 export const useRulingsStore = create<RulingsState>((set) => ({
   isSearchVisible: false,
-  setIsSearchVisible: (isVisible) => set({ isSearchVisible: isVisible }),
+  setIsSearchVisible: (isSearchVisible) => set({ isSearchVisible }),
 }));

@@ -2,17 +2,17 @@ import React from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { PlayerState } from '@/store/useLifeStore';
+import { useLifeStore } from '@/store/useLifeStore';
 import DamageIncrementer from './DamageIncrementer';
-import { GAP } from '@/consts/consts';
 
 interface Props {
-  players: PlayerState[];
   defenderId: number;
   layoutConfigurations: { [count: number]: { columns: number; rows: number } };
+  gap: number;
 }
 
-export default function GlobalDamageOverlays({ players, defenderId, layoutConfigurations }: Props) {
+export default function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) {
+  const players = useLifeStore((s) => s.players);
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
 
@@ -20,8 +20,8 @@ export default function GlobalDamageOverlays({ players, defenderId, layoutConfig
   const currentLayout = layoutConfigurations[totalPlayersCount] || layoutConfigurations[4];
   const { columns, rows } = currentLayout;
 
-  const usableW = W - (columns + 1) * GAP;
-  const usableH = H - top - bottom - (rows + 1) * GAP;
+  const usableW = W - (columns + 1) * gap;
+  const usableH = H - top - bottom - (rows + 1) * gap;
   const panelW = usableW / columns;
   const panelH = usableH / rows;
 
@@ -41,8 +41,8 @@ export default function GlobalDamageOverlays({ players, defenderId, layoutConfig
         const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
 
         // The overlay itself is rotated 90deg to match the panel's internal content flow.
-        const gridCellTop = Math.floor(index / columns) * (panelH + GAP) + GAP + top;
-        const gridCellLeft = (index % columns) * (panelW + GAP) + GAP;
+        const gridCellTop = Math.floor(index / columns) * (panelH + gap) + gap + top;
+        const gridCellLeft = (index % columns) * (panelW + gap) + gap;
 
         const panelStyle = {
           position: 'absolute' as const,
@@ -57,7 +57,6 @@ export default function GlobalDamageOverlays({ players, defenderId, layoutConfig
           <View key={player.id} style={panelStyle}>
             <DamageIncrementer
               dealerId={player.id}
-              defenderId={defenderId}
               appliedRot={rot}
               isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             />

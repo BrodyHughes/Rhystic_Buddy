@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface CommanderDamageModeState {
+export interface CommanderDamageModeState {
   isReceiving: boolean;
   defenderId: number | null;
   startReceiving: (defenderId: number) => void;

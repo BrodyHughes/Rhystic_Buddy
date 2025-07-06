@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, Pressable, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,7 +10,6 @@ import Animated, {
 import { BlurView } from '@react-native-community/blur';
 import { typography, radius } from '@/styles/global';
 import ConfettiParticle from './ConfettiParticle';
-import { useTurnStore } from '@/store/useTurnStore';
 
 const confettiCount = 70;
 
@@ -19,10 +18,7 @@ interface Props {
   panelH: number;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
-  const reset = useTurnStore((s) => s.reset);
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
@@ -43,17 +39,17 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
   }));
 
   return (
-    <AnimatedPressable onPress={reset} style={styles.container} exiting={FadeOut.duration(150)}>
+    <Animated.View style={styles.container} exiting={FadeOut.duration(150)}>
       <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
         {Array.from({ length: confettiCount }).map((_, i) => (
           <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
         ))}
         <View style={[styles.textWrapper, { width: panelH }]}>
-          <Text style={styles.text}>You go first!</Text>
+          <Text style={styles.text}>You Win!</Text>
         </View>
       </Animated.View>
-    </AnimatedPressable>
+    </Animated.View>
   );
 }
 

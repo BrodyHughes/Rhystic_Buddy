@@ -14,7 +14,7 @@ export const useTurnStore = create<TurnState>((set) => ({
   current: null,
   isSpinning: false,
   isFinished: false,
-  set: (id) => set({ current: id }),
+  set: (current) => set({ current }),
   startSpin: () => set({ isSpinning: true, isFinished: false, current: null }),
   finishSpin: (id) => set({ current: id, isSpinning: false, isFinished: true }),
   reset: () => set({ current: null, isSpinning: false, isFinished: false }),

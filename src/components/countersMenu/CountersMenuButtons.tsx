@@ -13,20 +13,8 @@ interface Props {
 }
 
 export default function CountersMenuButtons({ defenderId, counter, cellW, cellH }: Props) {
-  const value = useCounterStore((s) => {
-    const row = s.get(defenderId);
-    return counter === 'storm' ? row.storm : counter === 'poison' ? row.poison : row.mana;
-  });
-
-  const inc = useCounterStore(
-    counter === 'storm'
-      ? (s) => s.incStorm
-      : counter === 'poison'
-        ? (s) => s.incPoison
-        : (s) => s.incMana,
-  );
-
-  const dec = () => inc(defenderId, -1);
+  const value = useCounterStore((s) => s.counters[defenderId]?.[counter] ?? 0);
+  const changeCounter = useCounterStore((s) => s.changeCounter);
 
   return (
     <View style={[styles.square, { width: `${cellW - 2}%`, height: `${cellH - 4}%` }]}>
@@ -35,12 +23,16 @@ export default function CountersMenuButtons({ defenderId, counter, cellW, cellH 
       <View style={styles.btnRow}>
         <TouchableOpacity
           style={[styles.btn]}
-          onPress={() => inc(defenderId, +1)}
-          activeOpacity={0.8}
+          onPress={() => changeCounter(defenderId, counter, 1)}
+          activeOpacity={1}
         >
           <Text style={[styles.btnTxt, { marginBottom: 9 }]}>+</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn]} onPress={dec} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[styles.btn]}
+          onPress={() => changeCounter(defenderId, counter, -1)}
+          activeOpacity={1}
+        >
           <Text style={[styles.btnTxt, { marginTop: 9 }]}>‑</Text>
         </TouchableOpacity>
       </View>

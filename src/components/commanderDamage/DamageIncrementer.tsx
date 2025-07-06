@@ -1,28 +1,28 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
+import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
 import { OFF_WHITE } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
 import { BlurView } from '@react-native-community/blur';
 
 interface Props {
   dealerId: number;
-  defenderId: number;
   appliedRot: string;
   isEvenPlayerIndexNumber: boolean;
 }
 
 export default function DamageIncrementer({
   dealerId,
-  defenderId,
   appliedRot,
   isEvenPlayerIndexNumber,
 }: Props) {
-  const damage = useCommanderDamageStore((s) => s.get(defenderId, dealerId));
+  const defenderId = useCommanderDamageModeStore((s) => s.defenderId);
+  const damage = useCommanderDamageStore((s) => s.get(defenderId as number, dealerId));
   const change = useCommanderDamageStore((s) => s.change);
 
-  const inc = () => change(defenderId, dealerId, 1);
-  const dec = () => (damage > 0 ? change(defenderId, dealerId, -1) : null);
+  const inc = () => change(defenderId as number, dealerId, 1);
+  const dec = () => (damage > 0 ? change(defenderId as number, dealerId, -1) : null);
 
   // Counter-rotate the content to make it readable
   const counterRotation = appliedRot.includes('180')

@@ -1,25 +1,20 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, useWindowDimensions, Image, Text } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import { GestureDetector } from 'react-native-gesture-handler';
+import Animated, { runOnJS } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlurView } from '@react-native-community/blur';
 
-import { useLifeStore, PlayerState } from '@/store/useLifeStore';
+import { LifeStore, useLifeStore } from '@/store/useLifeStore';
 import { useTurnStore } from '@/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import CountersView from './CountersView';
 import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
+import { PlayerBackgroundState, usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
 import LifeView from './LifeView';
 import TurnWinnerOverlay from './TurnWinnerOverlay';
-import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
+import { useCarousel } from '@/hooks/useCarousel';
 
 export enum ViewMode {
   LIFE = 'life',
@@ -27,149 +22,71 @@ export enum ViewMode {
   COUNTERS = 'counters',
 }
 interface Props {
-  player: PlayerState;
   index: number;
   cols: number;
   rows: number;
   isEvenPlayerIndexNumber: boolean;
 }
 
-function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumber }: Props) {
+function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Props) {
+  const playerSelector = useCallback((s: LifeStore) => s.players[index], [index]);
+  const player = useLifeStore(playerSelector);
+
+  const totalPlayers = useLifeStore((s) => s.players.length);
+
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
-  const totalPlayers = useLifeStore((s) => s.players.length);
   const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const backgroundImage = usePlayerBackgroundStore((state) => state.backgrounds[player.id]);
+  const backgroundSelector = useCallback(
+    (s: PlayerBackgroundState) => (player ? s.backgrounds[player.id] : undefined),
+    [player],
+  );
+  const background = usePlayerBackgroundStore(backgroundSelector);
 
-  const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
+  const { views, numRealViews } = useMemo(() => {
+    const baseViews = [
+      { type: ViewMode.LIFE },
+      { type: ViewMode.COMMANDER },
+      { type: ViewMode.COUNTERS },
+    ];
+    const realViews =
+      totalPlayers === 2 ? baseViews.filter((v) => v.type !== ViewMode.COMMANDER) : baseViews;
+    const finalViews = [
+      realViews[realViews.length - 1], // Cloned last item
+      ...realViews,
+      realViews[0], // Cloned first item
+    ];
+    return { views: finalViews, numRealViews: realViews.length };
+  }, [totalPlayers]);
 
-  const baseViews = [
-    { type: ViewMode.LIFE },
-    { type: ViewMode.COMMANDER },
-    { type: ViewMode.COUNTERS },
-  ];
+  const usableW = W - (cols + 1) * GAP;
+  const usableH = H - top - bottom - (rows + 1) * GAP;
+  const panelW = usableW / cols;
+  const panelH = usableH / rows;
 
-  const realViews =
-    totalPlayers === 2 ? baseViews.filter((v) => v.type !== ViewMode.COMMANDER) : baseViews;
-  const numRealViews = realViews.length;
-
-  // Define the views for the carousel with cloned items for infinite looping
-  const views = [
-    realViews[numRealViews - 1], // Cloned last item
-    ...realViews,
-    realViews[0], // Cloned first item
-  ];
-
-  // Use a shared value for the active view index. Start at 1 for the infinite carousel.
-  const activeViewIndex = useSharedValue(1);
-
-  const cycleView = (direction: 'left' | 'right') => {
-    'worklet';
-
-    const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
-
-    // Determine the type of the view we are moving to, accounting for clones
-    const nextViewIndexClamped =
-      newIndex === 0 ? numRealViews : newIndex === numRealViews + 1 ? 1 : newIndex;
-    const nextViewType = views[nextViewIndexClamped].type;
-    const currentViewType = views[activeViewIndex.value].type;
-
-    // Update commander damage mode state BEFORE the animation starts to prevent flicker
-    if (nextViewType === ViewMode.COMMANDER && currentViewType !== ViewMode.COMMANDER) {
-      runOnJS(startReceiving)(player.id);
-    } else if (nextViewType !== ViewMode.COMMANDER && currentViewType === ViewMode.COMMANDER) {
-      runOnJS(stopReceiving)();
-    }
-
-    activeViewIndex.value = withSpring(
-      newIndex,
-      {
-        damping: 15,
-        stiffness: 100,
-      },
-      (finished) => {
-        if (finished) {
-          // This logic is only for resetting the carousel for infinite loop
-          if (newIndex === numRealViews + 1) {
-            activeViewIndex.value = 1;
-          } else if (newIndex === 0) {
-            activeViewIndex.value = numRealViews;
-          }
-        }
-      },
-    );
-  };
-
-  // swipe gestuers to handle menu navigation
-  const horizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    const { translationX } = e;
-
-    if (translationX > 50) {
-      cycleView('right');
-    } else if (translationX < -50) {
-      cycleView('left');
-    }
+  const { gesture, containerAnimatedStyle } = useCarousel({
+    numRealViews,
+    totalPlayers,
+    isEvenPlayerIndexNumber,
+    panelW,
+    views,
+    playerId: player?.id ?? -1,
   });
 
-  // flipped swipe gesture to handle menu navigation on the other side
-  const flippedHorizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    const { translationX } = e;
-
-    if (translationX > 50) {
-      cycleView('left');
-    } else if (translationX < -50) {
-      cycleView('right');
-    }
-  });
-
-  // Vertical swipe gesture for 2-player mode
-  const verticalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    'worklet';
-    const { translationY } = e;
-    // For 90deg rotation (top panel): swiping up should move content up.
-    if (translationY < -50) {
-      cycleView('left');
-    } else if (translationY > 50) {
-      cycleView('right');
-    }
-  });
-
-  // Flipped vertical gesture for the bottom panel in 2-player mode
-  const flippedVerticalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    'worklet';
-    const { translationY } = e;
-    // For 270deg rotation (bottom panel): swiping up should move content up.
-    if (translationY < -50) {
-      cycleView('right');
-    } else if (translationY > 50) {
-      cycleView('left');
-    }
-  });
-
-  const gesture =
-    totalPlayers === 2
-      ? isEvenPlayerIndexNumber
-        ? verticalSwipeGesture
-        : flippedVerticalSwipeGesture
-      : isEvenPlayerIndexNumber
-        ? horizontalSwipeGesture
-        : flippedHorizontalSwipeGesture;
+  if (!player) {
+    return null;
+  }
 
   const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
   const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
 
-  const usableW = W - 3 * GAP;
-  const usableH = H - top - bottom - 3 * GAP;
-  const panelW = usableW / cols;
-  const panelH = usableH / rows;
-
-  const imageNode = backgroundImage ? (
+  const imageNode = background ? (
     <Image
-      source={{ uri: backgroundImage }}
+      source={typeof background.url === 'string' ? { uri: background.url } : background.url}
       style={[
         styles.imageStyle,
         {
@@ -185,15 +102,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
     />
   ) : null;
 
-  const panelBackgroundColor = backgroundImage ? 'transparent' : player.backgroundColor;
-
-  // This animated style will slide the entire container of views.
-  // When the panel is rotated (e.g., in 2-player mode), an X-axis translation
-  // visually becomes a Y-axis translation on the screen.
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    flexDirection: 'row',
-    transform: [{ translateX: -activeViewIndex.value * panelW }],
-  }));
+  const panelBackgroundColor = background ? 'transparent' : player.backgroundColor;
 
   const changeLifeByAmount = (amount: number) => {
     changeLife(index, amount);
@@ -259,7 +168,8 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
               >
                 {view.type === ViewMode.LIFE && (
                   <LifeView
-                    player={player}
+                    life={player.life}
+                    delta={player.delta}
                     changeLifeByAmount={changeLifeByAmount}
                     handleLongPressStart={handleLongPressStart}
                     handlePressOut={handlePressOut}
@@ -267,7 +177,7 @@ function PlayerPanelComponent({ player, index, cols, rows, isEvenPlayerIndexNumb
                 )}
                 {view.type === ViewMode.COMMANDER && (
                   <View style={{ width: panelH, transform: [{ rotate: '90deg' }] }}>
-                    <Text style={styles.panelText}>Commander Damage Received</Text>
+                    <Text style={styles.panelText}>Damage Received</Text>
                   </View>
                 )}
                 {view.type === ViewMode.COUNTERS && (

@@ -1,11 +1,8 @@
-// store/useCommanderDamageStore.ts
 import { create } from 'zustand';
 import { useLifeStore } from '@/store/useLifeStore';
-
-/* defenderId → { sourceId → damage } */
 export type CommanderMatrix = Record<number, Record<number, number>>;
 
-interface CommanderDamageStore {
+export interface CommanderDamageStore {
   damage: CommanderMatrix;
 
   /**
@@ -16,29 +13,21 @@ interface CommanderDamageStore {
    */
   change: (defender: number, source: number, amount: number) => void;
 
-  /** Selector helper (safe 0 fallback). */
   get: (defender: number, source: number) => number;
-
-  /** Wipe all squares for a single defender. */
   resetDefender: (defender: number) => void;
-
-  /** Wipe the entire matrix. */
   resetAll: () => void;
 }
 
-/* ── Store ───────────────────────────────────────────── */
 export const useCommanderDamageStore = create<CommanderDamageStore>((set, get) => ({
   damage: {},
 
   change: (defender, source, amount) =>
     set((state) => {
-      /* immutably update the matrix */
       const dmg = { ...state.damage };
       const row = { ...(dmg[defender] ?? {}) };
       row[source] = Math.max((row[source] ?? 0) + amount, 0);
       dmg[defender] = row;
 
-      /* sync life ( +damage → −life, −damage → +life ) */
       useLifeStore.getState().changeLife(defender, -amount);
 
       return { damage: dmg };

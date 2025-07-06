@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { PlayerCount, useLifeStore } from '@/store/useLifeStore';
+import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
 export default function PlayerPicker() {
   const totalPlayers = useLifeStore((s) => s.totalPlayers);
   const setTotalPlayers = useLifeStore((s) => s.setTotalPlayers);
+  const resetCarousels = PlayerCarouselManager.resetAll;
 
   /* keep editable text locally so the user can type freely */
   const [draft, setDraft] = useState(totalPlayers.toString());
+  const isInitialMount = useRef(true);
 
   const commit = () => {
     const num = Number(draft);
@@ -26,7 +29,19 @@ export default function PlayerPicker() {
       setDraft(totalPlayers.toString());
     }
   };
-  React.useEffect(() => setDraft(totalPlayers.toString()), [totalPlayers]);
+
+  useEffect(() => setDraft(totalPlayers.toString()), [totalPlayers]);
+
+  useEffect(() => {
+    // On subsequent renders (not the initial one), when totalPlayers changes,
+    // we reset the carousels. This runs after the new player panels have mounted
+    // and registered their reset functions.
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    resetCarousels();
+  }, [totalPlayers, resetCarousels]);
 
   return (
     <View style={styles.container}>

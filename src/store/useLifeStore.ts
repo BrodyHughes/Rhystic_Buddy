@@ -12,7 +12,7 @@ export interface PlayerState {
 
 export type PlayerCount = 2 | 3 | 4 | 5 | 6;
 
-interface LifeStore {
+export interface LifeStore {
   totalPlayers: PlayerCount;
   players: PlayerState[];
 
@@ -43,26 +43,38 @@ export const useLifeStore = create<LifeStore>((set) => ({
   totalPlayers: 4,
   players: createPlayers(4),
 
-  changeLife: (index, amount) =>
+  changeLife: (index, amount) => {
     set((state) => {
-      const next = [...state.players];
-      const p = { ...next[index] };
+      const player = state.players[index];
+      if (player.timer) {
+        clearTimeout(player.timer);
+      }
 
-      if (p.timer) clearTimeout(p.timer);
-      p.life += amount;
-      p.delta += amount;
+      const newPlayers = [...state.players];
+      newPlayers[index] = {
+        ...player,
+        life: player.life + amount,
+        delta: player.delta + amount,
+        timer: undefined,
+      };
 
-      p.timer = setTimeout(() => {
-        set((cur) => {
-          const upd = [...cur.players];
-          upd[index] = { ...upd[index], delta: 0, timer: undefined };
-          return { players: upd };
-        });
-      }, 3000);
+      return { players: newPlayers };
+    });
 
-      next[index] = p;
-      return { players: next };
-    }),
+    const timer = setTimeout(() => {
+      set((state) => {
+        const newPlayers = [...state.players];
+        newPlayers[index] = { ...newPlayers[index], delta: 0, timer: undefined };
+        return { players: newPlayers };
+      });
+    }, 3000);
+
+    set((state) => {
+      const newPlayers = [...state.players];
+      newPlayers[index] = { ...newPlayers[index], timer };
+      return { players: newPlayers };
+    });
+  },
 
   setTotalPlayers: (total) =>
     set((state) => {

@@ -1,26 +1,26 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 
-import { PlayerState } from '@/store/useLifeStore';
 import { typography, spacing } from '@/styles/global';
 import { OFF_WHITE, TEXT } from '@/consts/consts';
 
 interface LifeViewProps {
-  player: PlayerState;
+  life: number;
+  delta: number;
   changeLifeByAmount: (amount: number) => void;
   handleLongPressStart: (direction: 'inc' | 'dec') => void;
   handlePressOut: () => void;
 }
 
 const LifeView: React.FC<LifeViewProps> = ({
-  player,
+  life,
+  delta,
   changeLifeByAmount,
   handleLongPressStart,
   handlePressOut,
 }) => {
-  const { life, delta } = player;
-  const green = 'rgb(255, 255, 255)';
-  const red = 'rgb(255, 255, 255)';
+  const green = 'rgb(150, 255, 129)';
+  const red = 'rgb(255, 140, 140)';
 
   return (
     <>
@@ -32,17 +32,23 @@ const LifeView: React.FC<LifeViewProps> = ({
           </Text>
         )}
       </View>
-      <TouchableOpacity
-        activeOpacity={0.1}
-        style={[styles.button, styles.inc]}
+      <Pressable
+        style={({ pressed }) => [
+          styles.button,
+          styles.inc,
+          pressed && { backgroundColor: 'rgba(200, 200, 200, 0.05)' },
+        ]}
         onPress={() => changeLifeByAmount(1)}
         onLongPress={() => handleLongPressStart('inc')}
         onPressOut={handlePressOut}
         delayLongPress={1000}
       />
-      <TouchableOpacity
-        activeOpacity={0.1}
-        style={[styles.button, styles.dec]}
+      <Pressable
+        style={({ pressed }) => [
+          styles.button,
+          styles.dec,
+          pressed && { backgroundColor: 'rgba(200, 200, 200, 0.05)' },
+        ]}
         onPress={() => changeLifeByAmount(-1)}
         onLongPress={() => handleLongPressStart('dec')}
         onPressOut={handlePressOut}
@@ -73,7 +79,9 @@ const styles = StyleSheet.create({
   },
   delta: {
     ...typography.caption,
-    color: OFF_WHITE,
+    textShadowColor: 'rgb(0, 0, 0)',
+    textShadowOffset: { width: 5, height: 1 },
+    textShadowRadius: 20,
   },
   button: {
     position: 'absolute',
@@ -81,6 +89,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(131, 131, 131, 0)',
   },
   inc: { right: 0 },
   dec: { left: 0 },

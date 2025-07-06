@@ -31,9 +31,12 @@ export const radius = {
   md: 8,
   lg: 16,
   pill: 999,
+  full: '100%',
 };
 
-export const typography: { [key: string]: TextStyle } = {
+export type TypographyVariant = 'heading1' | 'heading2' | 'body' | 'caption' | 'button';
+
+export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
     fontFamily: 'Comfortaa-Bold',
     fontWeight: '900',
@@ -43,7 +46,7 @@ export const typography: { [key: string]: TextStyle } = {
   heading2: {
     fontFamily: 'Comfortaa',
     fontWeight: '600',
-    fontSize: 24,
+    fontSize: 30,
     color: palette.textPrimary,
   },
   body: {
@@ -57,6 +60,11 @@ export const typography: { [key: string]: TextStyle } = {
     fontWeight: '400',
     fontSize: 24,
     color: palette.textSecondary,
+  },
+  button: {
+    fontFamily: 'Comfortaa',
+    fontWeight: '600',
+    fontSize: 16,
   },
 };
 
@@ -112,10 +120,8 @@ export const globalStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: '#FFFFFF',
-    fontFamily: 'Comfortaa',
-    fontWeight: '600',
-    fontSize: 16,
+    ...typography.button,
+    color: palette.surface,
   },
 
   input: {
@@ -124,7 +130,7 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.border,
     padding: spacing.sm,
-    fontSize: 16,
+    fontSize: typography.body.fontSize,
     color: palette.textPrimary,
     ...shadows,
   },
