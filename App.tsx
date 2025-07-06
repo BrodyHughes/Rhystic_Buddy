@@ -7,14 +7,14 @@ import {
   useWindowDimensions,
   Pressable,
 } from 'react-native';
-import PlayerPanel from '@/components/playerPanel/PlayerPanel';
-import CentralMenuButton from '@/components/centralMenu/CentralMenuButton';
+import PlayerPanel from '@/features/player-panel/components/PlayerPanel';
+import CentralMenuButton from '@/features/central-menu/components/CentralMenuButton';
 import { useLifeStore } from '@/store/useLifeStore';
 import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BACKGROUND, GAP } from '@/consts/consts';
-import RulingsSearch from '@/components/centralMenu/RulingsSearch';
-import GlobalDamageOverlays from '@/components/commanderDamage/GlobalDamageOverlays';
+import RulingsSearch from '@/features/central-menu/modals/RulingsSearch';
+import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalDamageOverlays';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTurnStore } from '@/store/useTurnStore';
 import { QueryClientProvider } from '@tanstack/react-query';

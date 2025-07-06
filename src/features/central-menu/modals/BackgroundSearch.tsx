@@ -15,7 +15,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useLifeStore } from '@/store/useLifeStore';
 import { PlayerBackground, usePlayerBackgroundStore } from '@/store/usePlayerBackgroundStore';
-import { useCardPrintings } from '@/hooks/useCardPrintings';
+import { useCardPrintings } from '../hooks/useCardPrintings';
 
 interface BackgroundSearchProps {
   onClose: () => void;

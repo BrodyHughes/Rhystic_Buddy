@@ -11,8 +11,8 @@ import {
   Keyboard,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useRulingsStore } from '@/store/useRulingsStore';
-import { useRulings } from '@/hooks/useRulings';
+import { useRulingsStore } from '../store/useRulingsStore';
+import { useRulings } from '../hooks/useRulings';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 

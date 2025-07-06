@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlayerCountSelector;
+export default React.memo(PlayerCountSelector);

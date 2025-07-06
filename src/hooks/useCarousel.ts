@@ -1,6 +1,6 @@
 import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { ViewMode } from '@/components/playerPanel/PlayerPanel';
+import { ViewMode } from '@/features/player-panel/components/PlayerPanel';
 import { useCommanderDamageModeStore } from '@/store/useCommanderDamageModeStore';
 import { useCallback, useEffect } from 'react';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';

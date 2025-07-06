@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ViewMode } from './PlayerPanel';
-import CountersMenu from '@/components/countersMenu/CountersMenu';
+import CountersMenu from '@/features/counters-menu/components/CountersMenu';
 
 interface Props {
   menuVisible: boolean;

@@ -11,7 +11,7 @@ interface Props {
   gap: number;
 }
 
-export default function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) {
+function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) {
   const players = useLifeStore((s) => s.players);
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
@@ -66,6 +66,8 @@ export default function GlobalDamageOverlays({ defenderId, layoutConfigurations,
     </Animated.View>
   );
 }
+
+export default React.memo(GlobalDamageOverlays);
 
 const styles = StyleSheet.create({
   overlayManagerContainer: {

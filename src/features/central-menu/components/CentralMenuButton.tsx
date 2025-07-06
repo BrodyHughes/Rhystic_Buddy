@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View, Text, TouchableOpacity } from 'react-native';
-import Animated, {
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
   useSharedValue,
   useAnimatedStyle,
   useAnimatedProps,
@@ -11,16 +11,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLifeStore, PlayerCount } from '@/store/useLifeStore';
 import { useCommanderDamageStore } from '@/store/useCommanderDamageStore';
-import { BACKGROUND, OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
+import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/store/useCounterStore';
 import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
-import PlayerCountSelector from '@/components/centralMenu/PlayerCountSelector';
-import BackgroundSearch from '@/components/centralMenu/BackgroundSearch';
-import { useRulingsStore } from '@/store/useRulingsStore';
-import { useTurnOrder } from '@/hooks/useTurnOrder';
+import PlayerCountSelector from './PlayerCountSelector';
+import BackgroundSearch from '../modals/BackgroundSearch';
+import { useRulingsStore } from '../store/useRulingsStore';
+import { useTurnOrder } from '../hooks/useTurnOrder';
 import { MenuLayout } from './MenuLayout';
-
-const AnimatedView = Animated.createAnimatedComponent(View);
+import { MenuItem } from './MenuItem';
+import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
 // Constants
 const FAB_SIZE = 90;
@@ -45,20 +45,7 @@ function getRegularPolygonPath(
   return `M${pts.map((p) => p.join(' ')).join(' L')} Z`;
 }
 
-function getMenuItemAngles(sides = PENTAGON_SIDES, startAngleDeg = 90) {
-  const angleIncrement = 360 / sides;
-  // This offset will shift each item from a vertex to the center of a side.
-  const angleOffset = angleIncrement / 2;
-  const angles = Array.from(
-    { length: sides },
-    (_, i) => startAngleDeg + i * angleIncrement + angleOffset,
-  );
-  // Maintain the same logical order of items around the circle.
-  return [angles[2], angles[3], angles[4], angles[1], angles[0]];
-}
-
 const PENTAGON_PATH = getRegularPolygonPath();
-const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 
 const menuItems = [
   { id: 'players', Icon: Users, label: 'Players', color: ISLAND },
@@ -67,50 +54,6 @@ const menuItems = [
   { id: 'background', Icon: Image, label: 'Background', color: FOREST },
   { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS },
 ];
-
-// Circular menu item
-const MenuItem = ({
-  index,
-  progress,
-  children,
-  onPress,
-  radius,
-  label,
-  color,
-}: {
-  index: number;
-  progress: Animated.SharedValue<number>;
-  children: React.ReactNode;
-  onPress: () => void;
-  radius: number;
-  label: string;
-  color: string;
-}) => {
-  const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
-  const angle = itemAngles[index];
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const translateX = progress.value * radius * Math.cos(angle);
-    const translateY = progress.value * radius * Math.sin(angle);
-    const rotation = (angle * 180) / Math.PI - 90;
-
-    return {
-      opacity: progress.value,
-      transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
-      display: progress.value === 0 ? 'none' : 'flex',
-      pointerEvents: progress.value === 1 ? 'auto' : 'none',
-    };
-  });
-
-  return (
-    <AnimatedView style={[styles.menuItemContainer, animatedStyle]}>
-      <TouchableOpacity onPress={onPress} style={styles.menuItem}>
-        <View style={[styles.iconCircle, { backgroundColor: color }]}>{children}</View>
-        <Text style={styles.menuItemText}>{label}</Text>
-      </TouchableOpacity>
-    </AnimatedView>
-  );
-};
 
 // Main Component
 export default React.memo(function CentralMenuButton() {
@@ -175,6 +118,7 @@ export default React.memo(function CentralMenuButton() {
       mass: 0.5,
     });
     setOpen(!open);
+    PlayerCarouselManager.resetAll();
   };
 
   const { start: startTurnOrder } = useTurnOrder();
@@ -308,29 +252,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     top: 12,
-  },
-  menuItemContainer: {
-    position: 'absolute',
-    zIndex: 20,
-    alignItems: 'center',
-  },
-  menuItem: {
-    padding: 0,
-    alignItems: 'center',
-  },
-  iconCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  menuItemText: {
-    color: OFF_WHITE,
-    fontSize: 18,
-    paddingBottom: 8,
-    fontWeight: '700',
-    fontFamily: 'Comfortaa-Regular',
   },
 });

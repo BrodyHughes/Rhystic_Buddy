@@ -62,10 +62,10 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
-    ],
-    "*.{json,md}": [
+      "eslint --fix",
       "prettier --write"
-    ]
+    ],
+    "*.{json,md}": "prettier --write",
+    "**/*.{ts,tsx}": "bash -c 'yarn typecheck'"
   }
 }
