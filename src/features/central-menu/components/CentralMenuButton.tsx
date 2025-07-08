@@ -110,7 +110,7 @@ export default React.memo(function CentralMenuButton() {
       mass: 0.5,
     });
     setOpen(!open);
-    PlayerCarouselManager.resetAll();
+    setTimeout(() => PlayerCarouselManager.resetAll(), 250);
   };
 
   const { start: startTurnOrder } = useTurnOrder();

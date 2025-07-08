@@ -31,9 +31,8 @@ export const useCarousel = ({
       runOnJS(stopReceiving)();
     }
     activeViewIndex.value = withSpring(1, {
-      damping: 17,
-      stiffness: 150,
-      mass: 1,
+      damping: 12,
+      stiffness: 120,
     });
   }, [activeViewIndex, stopReceiving, views]);
 
@@ -55,8 +54,6 @@ export const useCarousel = ({
 
     if (nextViewType === ViewMode.COMMANDER && currentViewType !== ViewMode.COMMANDER) {
       runOnJS(startReceiving)(playerId);
-    } else if (nextViewType !== ViewMode.COMMANDER && currentViewType === ViewMode.COMMANDER) {
-      runOnJS(stopReceiving)();
     }
 
     activeViewIndex.value = withSpring(
@@ -66,7 +63,12 @@ export const useCarousel = ({
         stiffness: 100,
       },
       (finished) => {
+        'worklet';
         if (finished) {
+          if (nextViewType !== ViewMode.COMMANDER && currentViewType === ViewMode.COMMANDER) {
+            runOnJS(stopReceiving)();
+          }
+
           if (newIndex === numRealViews + 1) {
             activeViewIndex.value = 1;
           } else if (newIndex === 0) {

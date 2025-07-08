@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import DamageIncrementer from './DamageIncrementer';
 
@@ -15,6 +16,8 @@ interface Props {
 
 function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) {
   const players = useLifeStore((s) => s.players);
+  const playerIds = useMemo(() => players.map((p) => p.id), [players]);
+
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
 
@@ -33,8 +36,8 @@ function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) 
       entering={FadeIn.duration(150)}
       exiting={FadeOut.duration(150)}
     >
-      {players.map((player, index) => {
-        if (player.id === defenderId) {
+      {playerIds.map((playerId, index) => {
+        if (playerId === defenderId) {
           return null;
         }
 
@@ -56,9 +59,9 @@ function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) 
         };
 
         return (
-          <View key={player.id} style={panelStyle}>
+          <View key={playerId} style={panelStyle}>
             <DamageIncrementer
-              dealerId={player.id}
+              dealerId={playerId}
               appliedRot={rot}
               isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
             />
