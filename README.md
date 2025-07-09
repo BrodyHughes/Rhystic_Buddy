@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/ICON_NO_BCKGRND.png" alt="Rhystic Buddy Logo" width="150" />
   <h1>Rhystic Buddy</h1>
-  <p>A sleek and intuitive life counter and game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
+  <p>A life counter and game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
   
   <!-- Badges -->
   <p>
@@ -13,7 +13,7 @@
 
 ---
 
-**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It goes beyond just life tracking, offering a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
+**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It features life trackin and also offers a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
 
 ## ✨ Key Features
 
@@ -22,7 +22,7 @@
 - **Turn Order Randomizer**: Quickly determine who goes first with a single tap.
 - **In-App Rulings**: Integrated Scryfall search to look up card rulings without leaving the app.
 - **Customizable Backgrounds**: Personalize your player panel by searching for and setting your favorite Magic card art as a background.
-- **Counter Tracking**: Easily manage poison, energy, and floating mana.
+- **Counter Tracking**: Easily manage counters like poison, energy, and floating mana.
 - **Intuitive Gestures**: A smooth, carousel-based UI for navigating between different utility views.
 
 ## 🛠️ Tech Stack
@@ -131,3 +131,9 @@ This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE
 
 - Icons by [Lucide](https://lucide.dev/)
 - Card data and images via the [Scryfall API](https://scryfall.com/docs/api)
+
+## ⚖️ Disclaimer
+
+Rhystic Buddy is unofficial Fan Content permitted under the [Wizards of the Coast Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy). Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
+
+This application uses data from the [Scryfall API](https://scryfall.com/docs/api), but is not produced by, endorsed by, supported by, or affiliated with Scryfall.
