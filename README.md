@@ -13,7 +13,7 @@
 
 ---
 
-**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It features life trackin and also offers a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
+**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It features life tracking and offers a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
 
 ## ✨ Key Features
 
