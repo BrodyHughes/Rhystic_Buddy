@@ -9,7 +9,13 @@ import { LifeStore, useLifeStore } from '@/features/player-panel/store/useLifeSt
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import CountersView from './CountersView';
-import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
+import {
+  BORDER_COLOR,
+  GAP,
+  OFF_WHITE,
+  TEXT_SHADOW_COLOR,
+  TURN_WINNER_OVERLAY_BORDER_COLOR,
+} from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -95,11 +101,11 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
   const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
 
+  // Background art with custom crop: wrapper preserves layout, image inside shifts upward
   const imageNode = background ? (
-    <Image
-      source={typeof background.url === 'string' ? { uri: background.url } : background.url}
+    <View
       style={[
-        styles.imageStyle,
+        styles.imageWrapper,
         {
           position: 'absolute',
           width: panelH,
@@ -109,8 +115,13 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
           transform: [{ rotate: '90deg' }],
         },
       ]}
-      resizeMode="cover"
-    />
+    >
+      <Image
+        source={typeof background.url === 'string' ? { uri: background.url } : background.url}
+        style={styles.imageCrop}
+        resizeMode="cover"
+      />
+    </View>
   ) : null;
 
   const panelBackgroundColor = background ? 'transparent' : player.backgroundColor;
@@ -181,6 +192,7 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
                   <LifeView
                     life={player.life}
                     delta={player.delta}
+                    panelWidth={panelH} // this is correct but it looks wrong. need to really dig into my variable names.
                     changeLifeByAmount={changeLifeByAmount}
                     handleLongPressStart={handleLongPressStart}
                     handlePressOut={handlePressOut}
@@ -192,7 +204,13 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
                   </View>
                 )}
                 {view.type === ViewMode.COUNTERS && (
-                  <CountersView menuVisible menuType={ViewMode.COUNTERS} index={index} />
+                  <CountersView
+                    menuVisible
+                    menuType={ViewMode.COUNTERS}
+                    index={index}
+                    panelHeight={panelH}
+                    panelWidth={panelW}
+                  />
                 )}
               </View>
             ))}
@@ -228,6 +246,15 @@ const styles = StyleSheet.create({
     opacity: 0.35,
     borderRadius: radius.sm,
   },
+  imageWrapper: {
+    overflow: 'hidden',
+    borderRadius: radius.sm,
+  },
+  imageCrop: {
+    width: '100%',
+    height: '140%',
+    opacity: 0.4,
+  },
   turnOrderOverlay: {
     position: 'absolute',
     top: 0,
@@ -240,7 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 7,
-    borderColor: 'rgba(0, 0, 0, 0.55)',
+    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   roundedClip: {
     flex: 1,
@@ -273,7 +300,7 @@ const styles = StyleSheet.create({
     ...typography.heading1,
     color: OFF_WHITE,
     marginRight: spacing.xs,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     paddingHorizontal: 20,
@@ -294,28 +321,22 @@ const styles = StyleSheet.create({
   dec: { left: 0 },
   btnText: {
     ...typography.heading2,
-    fontSize: 32,
-    color: TEXT,
     transform: [{ rotate: '90deg' }],
   },
   panelBorder: {
     borderWidth: 7,
-    borderColor: 'rgba(223, 223, 223, 0.2)',
+    borderColor: BORDER_COLOR,
   },
   lifeTxt: {
     ...typography.heading1,
-    fontSize: 88,
     color: OFF_WHITE,
-    fontVariant: ['tabular-nums'],
   },
   btnTxt: {
     ...typography.body,
-    fontSize: 28,
     color: '#fff',
   },
   panelText: {
     ...typography.heading2,
-    color: OFF_WHITE,
     textAlign: 'center',
     padding: spacing.md,
   },

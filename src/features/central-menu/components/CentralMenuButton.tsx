@@ -15,15 +15,17 @@ import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLife
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
+import { Dice6, Image, RotateCcw, Users, MoreHorizontal } from 'lucide-react-native';
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
+import MoreMenu from '../modals/MoreMenu';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useTurnOrder } from '../hooks/useTurnOrder';
 import { MenuLayout } from './MenuLayout';
 import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 import AboutModal from '../modals/AboutModal';
+import StartingLifeSelector from './StartingLifeSelector';
 
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
@@ -50,12 +52,16 @@ const PENTAGON_PATH = getRegularPolygonPath();
 
 export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
-  const [isSearchVisible, setSearchVisible] = useState(false);
+  const [isBackgroundSearchVisible, setBackgroundSearchVisible] = useState(false);
   const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
   const [isAboutVisible, setAboutVisible] = useState(false);
+  const [isStartingLifeVisible, setStartingLifeVisible] = useState(false);
+  const [isMoreMenuVisible, setMoreMenuVisible] = useState(false);
+  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);
+  // starting life setters now handled inside selector
   const resetCommanderDamage = useCommanderDamageStore((state) => state.resetAll);
   const resetCounters = useCounterStore((state) => state.resetAll);
 
@@ -129,7 +135,7 @@ export default React.memo(function CentralMenuButton() {
 
   const handleBackgroundPress = () => {
     handlePress();
-    setTimeout(() => setSearchVisible(true), 500);
+    setTimeout(() => setBackgroundSearchVisible(true), 500);
   };
 
   const handlePlayersPress = () => {
@@ -137,17 +143,15 @@ export default React.memo(function CentralMenuButton() {
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
   };
 
-  const handleRulingsPress = () => {
+  const handleMorePress = () => {
     handlePress();
-    setTimeout(() => setIsSearchVisible(true), 500);
+    setTimeout(() => setMoreMenuVisible(true), 500);
   };
 
   const handlePlayerCountSelect = (count: PlayerCount) => {
     setTotalPlayers(count);
     setPlayerCountSelectorVisible(false);
   };
-
-  const setIsSearchVisible = useRulingsStore((s) => s.setIsSearchVisible);
 
   const menuItems = [
     { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
@@ -160,7 +164,7 @@ export default React.memo(function CentralMenuButton() {
       color: FOREST,
       action: handleBackgroundPress,
     },
-    { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS, action: handleRulingsPress },
+    { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
   ];
 
   return (
@@ -178,41 +182,57 @@ export default React.memo(function CentralMenuButton() {
         pentagonPath={PENTAGON_PATH}
       />
 
-      {!isSearchVisible && !isPlayerCountSelectorVisible && (
-        <View
-          style={[
-            styles.menuItemsWrapper,
-            {
-              paddingTop: top - bottom,
-            },
-          ]}
-        >
-          {menuItems.map((item, index) => (
-            <MenuItem
-              key={item.id}
-              index={index}
-              progress={progress}
-              onPress={item.action}
-              radius={menuItemRadius}
-              label={item.label}
-              color={item.color}
-            >
-              <item.Icon color={BACKGROUND} size={30} />
-            </MenuItem>
-          ))}
-        </View>
-      )}
+      {!isBackgroundSearchVisible &&
+        !isPlayerCountSelectorVisible &&
+        !isRulingsSearchVisible &&
+        !isMoreMenuVisible && (
+          <View
+            style={[
+              styles.menuItemsWrapper,
+              {
+                paddingTop: top - bottom,
+              },
+            ]}
+          >
+            {menuItems.map((item, index) => (
+              <MenuItem
+                key={item.id}
+                index={index}
+                progress={progress}
+                onPress={item.action}
+                radius={menuItemRadius}
+                label={item.label}
+                color={item.color}
+              >
+                <item.Icon color={BACKGROUND} size={30} />
+              </MenuItem>
+            ))}
+          </View>
+        )}
 
       {isPlayerCountSelectorVisible && (
         <PlayerCountSelector
           onSelect={handlePlayerCountSelect}
           onClose={() => setPlayerCountSelectorVisible(false)}
-          onInfoPress={() => setAboutVisible(true)}
         />
       )}
 
-      {isSearchVisible && <BackgroundSearch onClose={() => setSearchVisible(false)} />}
+      {isBackgroundSearchVisible && (
+        <BackgroundSearch onClose={() => setBackgroundSearchVisible(false)} />
+      )}
       {isAboutVisible && <AboutModal onClose={() => setAboutVisible(false)} />}
+      {isMoreMenuVisible && (
+        <MoreMenu
+          onClose={() => setMoreMenuVisible(false)}
+          onRulingsPress={() => setIsRulingsSearchVisible(true)}
+          onAboutPress={() => setAboutVisible(true)}
+          onStartingLifePress={() => setStartingLifeVisible(true)}
+        />
+      )}
+
+      {isStartingLifeVisible && (
+        <StartingLifeSelector onClose={() => setStartingLifeVisible(false)} />
+      )}
     </View>
   );
 });

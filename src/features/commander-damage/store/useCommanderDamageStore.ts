@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 export type CommanderMatrix = Record<number, Record<number, number>>;
 
@@ -20,29 +22,37 @@ export interface CommanderDamageStore {
   resetAll: () => void;
 }
 
-export const useCommanderDamageStore = create<CommanderDamageStore>((set, get) => ({
-  damage: {},
+export const useCommanderDamageStore = create<CommanderDamageStore>()(
+  persist(
+    (set, get) => ({
+      damage: {},
 
-  change: (defender, source, amount) =>
-    set((state) => {
-      const dmg = { ...state.damage };
-      const row = { ...(dmg[defender] ?? {}) };
-      row[source] = Math.max((row[source] ?? 0) + amount, 0);
-      dmg[defender] = row;
+      change: (defender, source, amount) =>
+        set((state) => {
+          const dmg = { ...state.damage };
+          const row = { ...(dmg[defender] ?? {}) };
+          row[source] = Math.max((row[source] ?? 0) + amount, 0);
+          dmg[defender] = row;
 
-      useLifeStore.getState().changeLife(defender, -amount);
+          useLifeStore.getState().changeLife(defender, -amount);
 
-      return { damage: dmg };
+          return { damage: dmg };
+        }),
+
+      get: (defender, source) => get().damage[defender]?.[source] ?? 0,
+
+      resetDefender: (defender) =>
+        set((state) => {
+          const dmg = { ...state.damage };
+          delete dmg[defender];
+          return { damage: dmg };
+        }),
+
+      resetAll: () => set({ damage: {} }),
     }),
-
-  get: (defender, source) => get().damage[defender]?.[source] ?? 0,
-
-  resetDefender: (defender) =>
-    set((state) => {
-      const dmg = { ...state.damage };
-      delete dmg[defender];
-      return { damage: dmg };
-    }),
-
-  resetAll: () => set({ damage: {} }),
-}));
+    {
+      name: 'rb_commander_damage',
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);

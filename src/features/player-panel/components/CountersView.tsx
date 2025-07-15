@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { ViewMode } from './PlayerPanel';
 import CountersMenu from '@/features/counters-menu/components/CountersMenu';
 
@@ -7,9 +7,17 @@ interface Props {
   menuVisible: boolean;
   menuType: ViewMode;
   index: number;
+  panelHeight: number;
+  panelWidth: number;
 }
 
-export default function CountersView({ menuVisible, menuType, index }: Props) {
+export default function CountersView({
+  menuVisible,
+  menuType,
+  index,
+  panelHeight,
+  panelWidth,
+}: Props) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   if (!menuVisible) {
@@ -30,14 +38,21 @@ export default function CountersView({ menuVisible, menuType, index }: Props) {
         <View
           style={[
             styles.content,
-            dims && {
-              width: dims.h,
-              height: dims.w,
+            {
+              width: panelHeight, // rotated: width becomes original height
+              maxHeight: panelWidth, // height becomes original width
               transform: [{ rotate: '90deg' }],
             },
           ]}
         >
-          <CountersMenu defenderId={index} />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <CountersMenu defenderId={index} />
+          </ScrollView>
         </View>
       )}
     </View>
@@ -52,6 +67,11 @@ const styles = StyleSheet.create({
   },
   content: {
     justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  scrollContent: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 });

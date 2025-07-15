@@ -79,31 +79,39 @@ export const useCarousel = ({
     );
   };
 
-  const horizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    const { translationX } = e;
-    if (translationX > 50) cycleView('right');
-    else if (translationX < -50) cycleView('left');
-  });
+  const horizontalSwipeGesture = Gesture.Pan()
+    .cancelsTouchesInView(false)
+    .onEnd((e) => {
+      const { translationX } = e;
+      if (translationX > 50) cycleView('right');
+      else if (translationX < -50) cycleView('left');
+    });
 
-  const flippedHorizontalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    const { translationX } = e;
-    if (translationX > 50) cycleView('left');
-    else if (translationX < -50) cycleView('right');
-  });
+  const flippedHorizontalSwipeGesture = Gesture.Pan()
+    .cancelsTouchesInView(false)
+    .onEnd((e) => {
+      const { translationX } = e;
+      if (translationX > 50) cycleView('left');
+      else if (translationX < -50) cycleView('right');
+    });
 
-  const verticalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    'worklet';
-    const { translationY } = e;
-    if (translationY < -50) cycleView('left');
-    else if (translationY > 50) cycleView('right');
-  });
+  const verticalSwipeGesture = Gesture.Pan()
+    .cancelsTouchesInView(false)
+    .onEnd((e) => {
+      'worklet';
+      const { translationY } = e;
+      if (translationY < -50) cycleView('left');
+      else if (translationY > 50) cycleView('right');
+    });
 
-  const flippedVerticalSwipeGesture = Gesture.Pan().onEnd((e) => {
-    'worklet';
-    const { translationY } = e;
-    if (translationY < -50) cycleView('right');
-    else if (translationY > 50) cycleView('left');
-  });
+  const flippedVerticalSwipeGesture = Gesture.Pan()
+    .cancelsTouchesInView(false)
+    .onEnd((e) => {
+      'worklet';
+      const { translationY } = e;
+      if (translationY < -50) cycleView('right');
+      else if (translationY > 50) cycleView('left');
+    });
 
   const gesture =
     totalPlayers === 2

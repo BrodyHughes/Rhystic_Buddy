@@ -17,46 +17,34 @@ const COUNTERS = [
 
 export default function CountersMenu({ defenderId }: Props) {
   return (
-    <View style={styles.overlay}>
-      <View style={styles.grid}>
-        {COUNTERS.map(({ key, Icon }) => (
-          <View key={key} style={styles.column}>
-            <View style={styles.iconWrap}>
-              <Icon color={OFF_WHITE} size={32} />
-            </View>
-
-            <CountersMenuButtons defenderId={defenderId} counter={key} cellW={100} cellH={100} />
+    <View style={styles.container}>
+      {COUNTERS.map(({ key, Icon }) => (
+        <View key={key} style={styles.column}>
+          <View style={styles.iconWrap}>
+            <Icon color={OFF_WHITE} size={32} />
           </View>
-        ))}
-      </View>
+          <CountersMenuButtons defenderId={defenderId} counter={key} cellW={100} cellH={100} />
+        </View>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-
-  grid: {
+  container: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignContent: 'center',
-    padding: 5,
-  },
-
-  column: {
-    width: '33.33%',
-    height: '80%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 5,
+    height: '100%',
+    paddingHorizontal: 10,
   },
-
+  column: {
+    width: 140,
+    height: '60%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 5,
+  },
   iconWrap: {
     marginBottom: 10,
   },

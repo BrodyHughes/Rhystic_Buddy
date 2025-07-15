@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import { OFF_WHITE } from '@/consts/consts';
+import { typography } from '@/styles/global';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -82,10 +82,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   menuItemText: {
-    color: OFF_WHITE,
-    fontSize: 18,
-    paddingBottom: 8,
-    fontWeight: '700',
-    fontFamily: 'Comfortaa-Regular',
+    ...typography.body,
+    paddingBottom: 12,
   },
 });

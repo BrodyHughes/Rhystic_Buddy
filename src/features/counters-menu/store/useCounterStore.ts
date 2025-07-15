@@ -23,11 +23,13 @@ export const useCounterStore = create<CounterStore>()((set, get) => ({
 
   changeCounter: (defender, counter, amount = 1) =>
     set((state) => {
+      if (amount > 100) return { counters: state.counters };
       const newCounters = { ...state.counters };
       const currentCounters = newCounters[defender] ?? emptyRow();
+      const updated = currentCounters[counter] + amount;
       newCounters[defender] = {
         ...currentCounters,
-        [counter]: Math.max(0, currentCounters[counter] + amount),
+        [counter]: Math.min(100, Math.max(0, updated)),
       };
       return { counters: newCounters };
     }),

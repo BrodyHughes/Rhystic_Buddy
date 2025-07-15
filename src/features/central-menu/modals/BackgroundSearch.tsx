@@ -21,6 +21,8 @@ import {
   usePlayerBackgroundStore,
 } from '@/features/central-menu/store/usePlayerBackgroundStore';
 import { useCardPrintings } from '../hooks/useCardPrintings';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { typography } from '@/styles/global';
 
 interface BackgroundSearchProps {
   onClose: () => void;
@@ -31,7 +33,9 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 const CardImage = React.memo(
   ({ item, onPress }: { item: { url: string; artist: string }; onPress: () => void }) => (
     <TouchableOpacity style={styles.imagePreviewContainer} onPress={onPress}>
-      <Image source={{ uri: item.url }} style={styles.imagePreview} />
+      <View style={styles.imageFrame}>
+        <Image source={{ uri: item.url }} style={styles.imageTopCrop} resizeMode="cover" />
+      </View>
       <Text style={styles.artistText} numberOfLines={1}>
         Art by: {item.artist}
       </Text>
@@ -49,22 +53,22 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
 
   const players = useLifeStore((state) => state.players);
   const setPlayerBackground = usePlayerBackgroundStore((state) => state.setBackground);
-  const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
-  const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
+  // const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
+  // const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
 
   const handleSearch = () => {
     Keyboard.dismiss();
     setSubmittedCardName(cardName);
   };
 
-  const handleRemoveBackground = () => {
-    if (selectedPlayerId === null) return;
-    removePlayerBackground(selectedPlayerId);
-    setCardName('');
-    setSubmittedCardName('');
-    setSelectedPlayerId(null);
-    onClose();
-  };
+  // const handleRemoveBackground = () => {
+  //   if (selectedPlayerId === null) return;
+  //   removePlayerBackground(selectedPlayerId);
+  //   setCardName('');
+  //   setSubmittedCardName('');
+  //   setSelectedPlayerId(null);
+  //   onClose();
+  // };
 
   const handleSetBackground = (background: PlayerBackground) => {
     if (selectedPlayerId === null) return;
@@ -88,7 +92,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
   // Determine the number of columns for the grid layout.
   // This logic mirrors the main app layout for consistency.
   const numColumns = players.length > 2 ? 2 : players.length;
-  const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
+  // const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
@@ -138,11 +142,11 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
               </TouchableOpacity>
             </View>
 
-            {hasBackground && (
+            {/* {hasBackground && (
               <TouchableOpacity style={styles.actionButton} onPress={handleRemoveBackground}>
                 <Text style={styles.searchButtonText}>Remove Background</Text>
               </TouchableOpacity>
-            )}
+            )} */}
 
             <View style={styles.listContainer}>
               {isLoading && <Text style={styles.emptyText}>Searching...</Text>}
@@ -152,18 +156,21 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
               )}
 
               {!isLoading && !isError && fetchedCards && (
-                <FlatList
-                  data={fetchedCards}
-                  keyExtractor={(item) => String(item.url)}
-                  numColumns={2}
-                  renderItem={({ item }) => (
-                    <CardImage item={item} onPress={() => handleSetBackground(item)} />
-                  )}
-                  initialNumToRender={4}
-                  maxToRenderPerBatch={4}
-                  windowSize={5}
-                  ListEmptyComponent={<Text style={styles.emptyText}>No printings found.</Text>}
-                />
+                <>
+                  <Text style={styles.confirmText}>Tap card image to confirm</Text>
+                  <FlatList
+                    data={fetchedCards}
+                    keyExtractor={(item) => String(item.url)}
+                    numColumns={2}
+                    renderItem={({ item }) => (
+                      <CardImage item={item} onPress={() => handleSetBackground(item)} />
+                    )}
+                    initialNumToRender={4}
+                    maxToRenderPerBatch={4}
+                    windowSize={5}
+                    ListEmptyComponent={<Text style={styles.emptyText}>No printings found.</Text>}
+                  />
+                </>
               )}
             </View>
           </View>
@@ -186,7 +193,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 30,
   },
   modalContainer: {
@@ -216,13 +223,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
-    fontSize: 24,
-    fontFamily: 'Comfortaa-Bold',
+    ...typography.heading2,
     color: '#fff',
-    fontWeight: 900,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -230,7 +235,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectItem: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: BUTTON_BACKGROUND,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -241,9 +246,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectItemText: {
-    fontSize: 18,
+    ...typography.body,
     color: '#000',
-    fontFamily: 'Comfortaa-SemiBold',
   },
   searchRow: {
     flexDirection: 'row',
@@ -255,88 +259,85 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 50,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: BUTTON_BACKGROUND,
     borderRadius: 8,
     paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#000',
     marginRight: 10,
-  },
-  actionButton: {
-    backgroundColor: '#fff',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginBottom: 20,
+    ...typography.body,
+    color: '#000', // Okay to use here bc input color should be different
   },
   searchButton: {
-    backgroundColor: '#fff',
+    backgroundColor: BUTTON_BACKGROUND,
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
   },
   searchButtonText: {
+    ...typography.body,
     color: '#000',
-    fontSize: 16,
-    fontFamily: 'Comfortaa-Bold',
   },
   closeButton: {
     padding: 10,
   },
   closeButtonText: {
-    color: '#fff',
-    fontSize: 32,
-    fontFamily: 'Comfortaa-Bold',
+    color: OFF_WHITE,
+    fontFamily: 'Dosis',
+    ...typography.heading2,
+    fontSize: 45, // okay to use here bc its a different sized 'x' for close
+  },
+  confirmText: {
+    color: OFF_WHITE,
+    ...typography.body,
+    textAlign: 'center',
+    marginBottom: 10,
   },
   imagePreviewContainer: {
     margin: 10,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  imagePreview: {
-    width: 150,
-    height: 210,
+  imageFrame: {
+    width: 160,
+    height: 80,
+    overflow: 'hidden',
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 4,
   },
-  imagePreviewText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Comfortaa-Bold',
-    textAlign: 'center',
+  imageTopCrop: {
+    width: '100%',
+    height: '120%',
   },
   artistText: {
     color: '#ccc',
-    fontSize: 12,
-    fontFamily: 'Comfortaa-Regular',
+    ...typography.miniCaption,
     textAlign: 'center',
     marginTop: 4,
-    width: 150,
+    width: 160,
   },
   scryfallCredit: {
     paddingTop: 20,
     alignSelf: 'center',
   },
   scryfallCreditText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 400,
+    color: OFF_WHITE,
+    ...typography.miniCaption,
   },
   scryfallCreditTextLink: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 400,
+    color: OFF_WHITE,
+    ...typography.miniCaption,
     textDecorationLine: 'underline',
   },
   emptyText: {
+    ...typography.body,
     color: '#aaa',
     textAlign: 'center',
     marginTop: 50,
   },
   errorText: {
+    ...typography.body,
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-    fontSize: 16,
   },
 });
 

@@ -1,42 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Info } from 'lucide-react-native';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
+import { typography } from '@/styles/global';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND } from '@/consts/consts';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
   onClose: () => void;
-  onInfoPress: () => void;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({
-  onSelect,
-  onClose,
-  onInfoPress,
-}) => {
-  const [tapCount, setTapCount] = useState(0);
-
-  const handleSecretTap = () => {
-    const newCount = tapCount + 1;
-    setTapCount(newCount);
-    if (newCount >= 5) {
-      onInfoPress();
-      setTapCount(0); // Reset for next time
-    }
-  };
-
+const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <SafeAreaView style={styles.modalContainer}>
-        <TouchableOpacity style={styles.infoButton} onPress={handleSecretTap}>
-          <Info color="rgba(255, 255, 255, 0.05)" size={30} />
-        </TouchableOpacity>
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Select Player Count</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -64,7 +46,7 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.85)',
+    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 30,
   },
   modalContainer: {
@@ -79,13 +61,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
-  infoButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    padding: 10,
-    zIndex: 10,
-  },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -96,14 +71,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    fontFamily: 'Comfortaa-Bold',
+    ...typography.heading2,
     color: '#fff',
-    textAlign: 'center',
+    textAlign: 'left',
     flex: 1,
   },
   selectItem: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: BUTTON_BACKGROUND,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -112,16 +86,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectItemText: {
-    fontSize: 18,
+    ...typography.body,
     color: '#000',
-    fontFamily: 'Comfortaa-SemiBold',
   },
   closeButton: {
     padding: 10,
   },
   closeButtonText: {
-    color: '#fff',
-    fontSize: 32,
+    ...typography.heading2,
+    fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
 });
 

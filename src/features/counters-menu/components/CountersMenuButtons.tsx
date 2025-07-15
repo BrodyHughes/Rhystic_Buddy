@@ -1,7 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { BORDER_COLOR } from '@/consts/consts';
+import {
+  BORDER_COLOR,
+  COUNTERS_MENU_BUTTON_COLOR,
+  OFF_WHITE,
+  PRESSED_BUTTON_COLOR,
+} from '@/consts/consts';
+import { typography } from '@/styles/global';
 
 type CounterKey = 'storm' | 'poison' | 'mana';
 
@@ -21,20 +27,18 @@ export default function CountersMenuButtons({ defenderId, counter, cellW, cellH 
       <Text style={styles.total}>{value}</Text>
 
       <View style={styles.btnRow}>
-        <TouchableOpacity
-          style={[styles.btn]}
+        <Pressable
+          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
           onPress={() => changeCounter(defenderId, counter, 1)}
-          activeOpacity={1}
         >
           <Text style={[styles.btnTxt, { marginBottom: 9 }]}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btn]}
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
           onPress={() => changeCounter(defenderId, counter, -1)}
-          activeOpacity={1}
         >
           <Text style={[styles.btnTxt, { marginTop: 9 }]}>‑</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -49,12 +53,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 7,
     borderColor: BORDER_COLOR,
-    backgroundColor: 'rgba(214, 214, 214, 0.13)',
+    backgroundColor: COUNTERS_MENU_BUTTON_COLOR,
   },
   total: {
-    color: '#fff',
+    ...typography.heading2,
     fontSize: 40,
-    fontFamily: 'Comfortaa-Bold',
     zIndex: 1,
     pointerEvents: 'box-none',
     marginTop: 5,
@@ -72,5 +75,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btnTxt: { color: '#fff', fontSize: 18, fontWeight: 200, fontFamily: 'Comfortaa-Bold' },
+  pressed: {
+    backgroundColor: PRESSED_BUTTON_COLOR,
+  },
+  btnTxt: { ...typography.button, color: OFF_WHITE, fontSize: 24 },
 });

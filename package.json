@@ -19,6 +19,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/blur": "^4.4.1",
     "@tanstack/react-query": "^5.81.5",
     "immer": "^10.1.1",
@@ -27,6 +28,7 @@
     "react-native": "0.79.2",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-linear-gradient": "^2.8.3",
+    "react-native-mmkv": "2.11.0",
     "react-native-reanimated": "^3.17.5",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-svg": "^15.12.0",
@@ -62,5 +64,6 @@
     ],
     "*.{json,md}": "prettier --write",
     "**/*.{ts,tsx}": "bash -c 'yarn typecheck'"
-  }
+  },
+  "packageManager": "yarn@1.22.21+sha512.ca75da26c00327d26267ce33536e5790f18ebd53266796fbb664d2a4a5116308042dd8ee7003b276a20eace7d3c5561c3577bdd71bcb67071187af124779620a"
 }

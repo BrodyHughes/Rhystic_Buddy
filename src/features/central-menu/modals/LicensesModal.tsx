@@ -1,12 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { X } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 
 import { radius, spacing, typography } from '@/styles/global';
-import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER_COLOR, OFF_WHITE } from '@/consts/consts';
 import { licenses } from '@/consts/licenses';
 
 interface LicensesModalProps {
@@ -16,23 +24,26 @@ interface LicensesModalProps {
 const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
   return (
     <Animated.View style={styles.container} entering={FadeIn} exiting={FadeOut}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Open Source Licenses</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <X color={OFF_WHITE} size={32} />
-          </TouchableOpacity>
+      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
+        <View style={styles.panel}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.backButton}>
+              <ChevronLeft color={OFF_WHITE} size={28} />
+            </TouchableOpacity>
+            <Text style={styles.title}>Open Source Licenses</Text>
+          </View>
+          <ScrollView style={styles.content}>
+            {licenses.map((lib) => (
+              <View key={lib.name} style={styles.licenseItem}>
+                <Text style={styles.libName}>
+                  {lib.name} ({lib.version})
+                </Text>
+                <Text style={styles.libLicense}>{lib.license}</Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
-        <ScrollView style={styles.content}>
-          {licenses.map((lib) => (
-            <View key={lib.name} style={styles.licenseItem}>
-              <Text style={styles.libName}>
-                {lib.name} ({lib.version})
-              </Text>
-              <Text style={styles.libLicense}>{lib.license}</Text>
-            </View>
-          ))}
-        </ScrollView>
       </SafeAreaView>
     </Animated.View>
   );
@@ -41,54 +52,50 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: BACKGROUND_TRANSPARENT,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 40,
+    zIndex: 60, // Higher zIndex to ensure it's on top
   },
-  safeArea: {
+  safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  panel: {
     width: '90%',
-    height: '80%',
+    maxHeight: '80%',
     backgroundColor: BACKGROUND,
     borderRadius: radius.lg,
-    padding: spacing.md,
+    overflow: 'hidden',
+    borderWidth: 7,
+    borderColor: BORDER_COLOR,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: OFF_WHITE,
-    paddingBottom: spacing.sm,
-    marginBottom: spacing.md,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   title: {
     ...typography.heading2,
-    color: OFF_WHITE,
-    fontSize: 22,
+    marginLeft: 10,
   },
-  closeButton: {
+  backButton: {
     padding: spacing.xs,
   },
   content: {
-    flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
   licenseItem: {
     paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   libName: {
-    ...typography.button,
-    color: OFF_WHITE,
+    ...typography.body,
   },
   libLicense: {
     ...typography.body,
-    color: OFF_WHITE,
-    opacity: 0.7,
     marginTop: spacing.xs,
+    opacity: 0.7,
+    fontSize: 14,
   },
 });
 

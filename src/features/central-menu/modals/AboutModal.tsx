@@ -1,13 +1,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  Pressable,
+  Linking,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { X } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 
 import { radius, spacing, typography } from '@/styles/global';
-import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER_COLOR, OFF_WHITE } from '@/consts/consts';
 import LicensesModal from './LicensesModal';
+
+const APP_DESCRIPTION =
+  'Rhystic Buddy is a simple yet feature-rich companion for MTG games.\n\nKey highlights:\n\n\u2022   Multi-player life & commander-damage tracking\n\u2022   Board-state utilities (counters, turn order, backgrounds)\n\u2022   Smooth, gesture-driven interface designed for the tabletop.';
 
 interface AboutProps {
   onClose: () => void;
@@ -16,31 +28,51 @@ interface AboutProps {
 const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
   const [licensesVisible, setLicensesVisible] = useState(false);
 
-  if (licensesVisible) {
-    return <LicensesModal onClose={() => setLicensesVisible(false)} />;
-  }
+  const handleOpenGithub = () => {
+    Linking.openURL('https://github.com/BrodyHughes/Rhystic_Buddy');
+  };
 
   return (
     <Animated.View style={styles.container} entering={FadeIn} exiting={FadeOut}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.title}>About</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <X color={OFF_WHITE} size={32} />
-          </TouchableOpacity>
+      {/* backdrop press */}
+      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
+        <View style={styles.panel}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.backButton}>
+              <ChevronLeft color={OFF_WHITE} size={28} />
+            </TouchableOpacity>
+            <Text style={styles.title}>About</Text>
+          </View>
+          <ScrollView style={styles.content}>
+            <Text style={styles.sectionTitle}>About Rhystic Buddy</Text>
+            <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
+            <Text style={styles.sectionTitle}>GitHub</Text>
+            <TouchableOpacity onPress={handleOpenGithub}>
+              <Text style={styles.linkText}>View on GitHub</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.sectionTitle}>Contributing</Text>
+            <Text style={styles.sectionText}>
+              This project is open source and developed by a single developer. Contributions are
+              very welcome! Feel free to open issues or submit pull requests on GitHub.
+            </Text>
+            <Text style={styles.sectionTitle}>App Version</Text>
+            <Text style={styles.sectionText}>0.0.1</Text>
+
+            <Text style={styles.sectionTitle}>Copyright</Text>
+            <Text style={styles.sectionText}>Copyright 2025 Brody Hughes</Text>
+
+            <TouchableOpacity
+              style={styles.licensesButton}
+              onPress={() => setLicensesVisible(true)}
+            >
+              <Text style={styles.licensesButtonText}>View Open Source Licenses</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-        <ScrollView style={styles.content}>
-          <Text style={styles.sectionTitle}>App Version</Text>
-          <Text style={styles.sectionText}>0.0.1</Text>
-
-          <Text style={styles.sectionTitle}>Copyright</Text>
-          <Text style={styles.sectionText}>Copyright 2025 Brody Hughes</Text>
-
-          <TouchableOpacity style={styles.licensesButton} onPress={() => setLicensesVisible(true)}>
-            <Text style={styles.licensesButtonText}>View Open Source Licenses</Text>
-          </TouchableOpacity>
-        </ScrollView>
       </SafeAreaView>
+      {licensesVisible && <LicensesModal onClose={() => setLicensesVisible(false)} />}
     </Animated.View>
   );
 };
@@ -48,47 +80,43 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 40,
+    backgroundColor: BACKGROUND_TRANSPARENT,
+    zIndex: 50,
   },
-  safeArea: {
+  safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  panel: {
     width: '90%',
     maxHeight: '80%',
     backgroundColor: BACKGROUND,
     borderRadius: radius.lg,
-    padding: spacing.md,
+    overflow: 'hidden',
+    borderWidth: 7,
+    borderColor: BORDER_COLOR,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: OFF_WHITE,
-    paddingBottom: spacing.sm,
-    marginBottom: spacing.md,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   title: {
     ...typography.heading2,
-    color: OFF_WHITE,
+    marginLeft: 10,
   },
-  closeButton: {
+  backButton: {
     padding: spacing.xs,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     ...typography.heading2,
-    fontSize: 24,
-    color: OFF_WHITE,
     marginTop: spacing.md,
   },
   sectionText: {
     ...typography.body,
-    color: OFF_WHITE,
     marginTop: spacing.xs,
   },
   licensesButton: {
@@ -97,10 +125,16 @@ const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderRadius: radius.md,
     alignItems: 'center',
+    marginBottom: 20,
   },
   licensesButtonText: {
     ...typography.button,
     color: BACKGROUND,
+  },
+  linkText: {
+    ...typography.body,
+    textDecorationLine: 'underline',
+    marginTop: spacing.xs,
   },
 });
 
