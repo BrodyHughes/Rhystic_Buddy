@@ -42,7 +42,7 @@ const LifeView: React.FC<LifeViewProps> = ({
 
   return (
     <>
-      <View style={[styles.lifeBlock, { width: panelWidth }]}>
+      <View style={[styles.lifeBlock, { width: panelWidth }, rotateStyle]}>
         <Text style={styles.life} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
           {life}
         </Text>
@@ -69,11 +69,9 @@ const LifeView: React.FC<LifeViewProps> = ({
         onPressOut={handlePressOut}
         delayLongPress={1000}
       >
-        <Animated.Text
-          style={[styles.feedbackTextBase, rotateStyle, { marginLeft: 20, opacity: incOpacity }]}
-        >
-          +
-        </Animated.Text>
+        <Animated.View style={[{ marginLeft: 30 }, rotateStyle, { opacity: incOpacity }]}>
+          <Text style={[styles.feedbackTextBase]}>+</Text>
+        </Animated.View>
       </Pressable>
       <Pressable
         style={({ pressed }) => [
@@ -92,11 +90,9 @@ const LifeView: React.FC<LifeViewProps> = ({
         onPressOut={handlePressOut}
         delayLongPress={1000}
       >
-        <Animated.Text
-          style={[styles.feedbackTextBase, rotateStyle, { marginRight: 20, opacity: decOpacity }]}
-        >
-          -
-        </Animated.Text>
+        <Animated.View style={[{ marginRight: 30 }, rotateStyle, { opacity: decOpacity }]}>
+          <Text style={[styles.feedbackTextBase]}>-</Text>
+        </Animated.View>
       </Pressable>
     </>
   );
@@ -107,7 +103,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ rotate: '90deg' }],
     zIndex: 1,
     pointerEvents: 'none',
     flex: 1,
@@ -141,6 +136,7 @@ const styles = StyleSheet.create({
   },
   feedbackTextBase: {
     ...typography.caption,
+    fontSize: 40,
   },
 });
 
