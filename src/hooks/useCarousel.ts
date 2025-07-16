@@ -9,6 +9,7 @@ interface UseCarouselParams {
   numRealViews: number;
   totalPlayers: number;
   isEvenPlayerIndexNumber: boolean;
+  isLastPlayerOddLayout?: boolean;
   panelW: number;
   views: { type: ViewMode }[];
   playerId: number;
@@ -18,6 +19,7 @@ export const useCarousel = ({
   numRealViews,
   totalPlayers,
   isEvenPlayerIndexNumber,
+  isLastPlayerOddLayout,
   panelW,
   views,
   playerId,
@@ -114,7 +116,7 @@ export const useCarousel = ({
     });
 
   const gesture =
-    totalPlayers === 2
+    totalPlayers === 2 || isLastPlayerOddLayout
       ? isEvenPlayerIndexNumber
         ? verticalSwipeGesture
         : flippedVerticalSwipeGesture

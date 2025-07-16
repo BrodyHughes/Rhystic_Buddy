@@ -11,7 +11,6 @@ import { typography, spacing, radius } from '@/styles/global';
 import CountersView from './CountersView';
 import {
   BORDER_COLOR,
-  GAP,
   OFF_WHITE,
   TEXT_SHADOW_COLOR,
   TURN_WINNER_OVERLAY_BORDER_COLOR,
@@ -35,15 +34,26 @@ interface Props {
   cols: number;
   rows: number;
   isEvenPlayerIndexNumber: boolean;
+  isLastPlayerOddLayout?: boolean;
+  W: number;
+  currentGap: number;
 }
 
-function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Props) {
+function PlayerPanelComponent({
+  index,
+  cols,
+  rows,
+  isEvenPlayerIndexNumber,
+  isLastPlayerOddLayout,
+  W,
+  currentGap,
+}: Props) {
   const playerSelector = useCallback((s: LifeStore) => s.players[index], [index]);
   const player = useLifeStore(playerSelector);
 
   const totalPlayers = useLifeStore((s) => s.players.length);
 
-  const { width: W, height: H } = useWindowDimensions();
+  const { height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
   const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
@@ -79,10 +89,10 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
     return { views: finalViews, numRealViews: realViews.length };
   }, [totalPlayers]);
 
-  const usableW = W - (cols + 1) * GAP;
-  const usableH = H - top - bottom - (rows + 1) * GAP;
-  const panelW = usableW / cols;
-  const panelH = usableH / rows;
+  const usableW = W - (cols + 1) * currentGap;
+  const usableH = H - top - bottom - (rows + 1) * currentGap;
+  const panelW = isLastPlayerOddLayout ? usableH / rows : usableW / cols;
+  const panelH = isLastPlayerOddLayout ? W - currentGap * 2 : usableH / rows;
 
   const { gesture, containerAnimatedStyle } = useCarousel({
     numRealViews,
@@ -91,6 +101,7 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
     panelW,
     views,
     playerId: player?.id ?? -1,
+    isLastPlayerOddLayout,
   });
 
   if (!player) {
@@ -100,6 +111,7 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
   const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
   const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
+  const finalRot = isLastPlayerOddLayout ? '270deg' : appliedRot;
 
   // Background art with custom crop: wrapper preserves layout, image inside shifts upward
   const imageNode = background ? (
@@ -159,7 +171,11 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
       <View
         style={[
           styles.shadowWrap,
-          { width: panelW, height: panelH, transform: [{ rotate: appliedRot }] },
+          {
+            width: panelW,
+            height: panelH,
+            transform: [{ rotate: finalRot }],
+          },
         ]}
       >
         {imageNode}
