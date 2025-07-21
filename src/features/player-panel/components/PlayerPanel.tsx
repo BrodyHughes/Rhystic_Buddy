@@ -320,7 +320,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     paddingHorizontal: 20,
-    fontVariant: ['tabular-nums'],
   },
   delta: {
     ...typography.caption,

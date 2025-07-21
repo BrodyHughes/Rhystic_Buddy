@@ -157,6 +157,21 @@ export const useLifeStore = create<LifeStore>()(
         startingLifeMultiPlayers: state.startingLifeMultiPlayers,
         players: state.players.map(({ timer: _t, ...rest }) => rest),
       }),
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version === 0) {
+          const state = persistedState as any;
+          if (state.totalPlayers < 2) {
+            state.totalPlayers = 4;
+            state.players = createPlayers(
+              4,
+              state.startingLife2Players,
+              state.startingLifeMultiPlayers,
+            );
+          }
+        }
+        return persistedState as LifeStore;
+      },
     },
   ),
 );

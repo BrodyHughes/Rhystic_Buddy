@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1BD2FFDC56E145A0BA751D8D /* Asap-VariableFont_wdth,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 69270B7A7A584ED78F7AD022 /* Asap-VariableFont_wdth,wght.ttf */; };
 		42DC860613CA9E697980FCC3 /* libPods-CommanderCounter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D682C011A24A37E05EA1A226 /* libPods-CommanderCounter.a */; };
+		65883EDD1B1143F3A2F22B0C /* Comfortaa-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EE36C72D53B74ACEBA213805 /* Comfortaa-VariableFont_wght.ttf */; };
 		70652633B60C1B10494F99F7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		9C3DB197FCB14CC4BF5120ED /* BalooPaaji2-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 496628C51B1749859C347375 /* BalooPaaji2-VariableFont_wght.ttf */; };
 		A66EE3DEA29E42F1B1652055 /* Dosis-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4B0A34B2A384713AD695F15 /* Dosis-VariableFont_wght.ttf */; };
 /* End PBXBuildFile section */
 
@@ -20,13 +23,16 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CommanderCounter/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = CommanderCounter/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = CommanderCounter/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		496628C51B1749859C347375 /* BalooPaaji2-VariableFont_wght.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "BalooPaaji2-VariableFont_wght.ttf"; path = "../assets/fonts/BalooPaaji2-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		69270B7A7A584ED78F7AD022 /* Asap-VariableFont_wdth,wght.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Asap-VariableFont_wdth,wght.ttf"; path = "../assets/fonts/Asap-VariableFont_wdth,wght.ttf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = CommanderCounter/AppDelegate.swift; sourceTree = "<group>"; };
 		81139740686C19FF3B52673F /* Pods-CommanderCounter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CommanderCounter.release.xcconfig"; path = "Target Support Files/Pods-CommanderCounter/Pods-CommanderCounter.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = CommanderCounter/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A878F44BA3F236B953670589 /* Pods-CommanderCounter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CommanderCounter.debug.xcconfig"; path = "Target Support Files/Pods-CommanderCounter/Pods-CommanderCounter.debug.xcconfig"; sourceTree = "<group>"; };
+		D4B0A34B2A384713AD695F15 /* Dosis-VariableFont_wght.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Dosis-VariableFont_wght.ttf"; path = "../assets/fonts/Dosis-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		D682C011A24A37E05EA1A226 /* libPods-CommanderCounter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CommanderCounter.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		D4B0A34B2A384713AD695F15 /* Dosis-VariableFont_wght.ttf */ = {isa = PBXFileReference; name = "Dosis-VariableFont_wght.ttf"; path = "../assets/fonts/Dosis-VariableFont_wght.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EE36C72D53B74ACEBA213805 /* Comfortaa-VariableFont_wght.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Comfortaa-VariableFont_wght.ttf"; path = "../assets/fonts/Comfortaa-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +102,9 @@
 			isa = PBXGroup;
 			children = (
 				D4B0A34B2A384713AD695F15 /* Dosis-VariableFont_wght.ttf */,
+				496628C51B1749859C347375 /* BalooPaaji2-VariableFont_wght.ttf */,
+				69270B7A7A584ED78F7AD022 /* Asap-VariableFont_wdth,wght.ttf */,
+				EE36C72D53B74ACEBA213805 /* Comfortaa-VariableFont_wght.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -173,6 +182,9 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				70652633B60C1B10494F99F7 /* PrivacyInfo.xcprivacy in Resources */,
 				A66EE3DEA29E42F1B1652055 /* Dosis-VariableFont_wght.ttf in Resources */,
+				9C3DB197FCB14CC4BF5120ED /* BalooPaaji2-VariableFont_wght.ttf in Resources */,
+				1BD2FFDC56E145A0BA751D8D /* Asap-VariableFont_wdth,wght.ttf in Resources */,
+				65883EDD1B1143F3A2F22B0C /* Comfortaa-VariableFont_wght.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

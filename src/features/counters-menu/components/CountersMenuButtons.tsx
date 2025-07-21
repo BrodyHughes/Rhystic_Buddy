@@ -57,10 +57,11 @@ const styles = StyleSheet.create({
   },
   total: {
     ...typography.heading2,
+    fontFamily: 'Comfortaa',
     fontSize: 40,
     zIndex: 1,
     pointerEvents: 'box-none',
-    marginTop: 5,
+    marginTop: 11,
   },
   btnRow: {
     position: 'absolute',

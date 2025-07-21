@@ -45,37 +45,38 @@ export type TypographyVariant =
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
-    fontFamily: 'Dosis',
-    fontWeight: 600,
-    fontSize: 110,
+    marginTop: 10,
+    fontFamily: 'Comfortaa',
+    fontWeight: 900,
+    fontSize: 95,
     color: palette.textPrimary,
   },
   heading2: {
-    fontFamily: 'Dosis',
+    fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 30,
     color: palette.textPrimary,
   },
   body: {
-    fontFamily: 'Dosis',
+    fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 22,
     color: palette.textSecondary,
   },
   caption: {
-    fontFamily: 'Dosis',
+    fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 30,
     color: palette.textSecondary,
   },
   miniCaption: {
-    fontFamily: 'Dosis',
+    fontFamily: 'Asap',
     fontWeight: 500,
     fontSize: 16,
     color: palette.textSecondary,
   },
   button: {
-    fontFamily: 'Dosis',
+    fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 16,
   },

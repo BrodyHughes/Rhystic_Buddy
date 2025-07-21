@@ -2,6 +2,18 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/Asap-VariableFont_wdth,wght.ttf",
+      "sha1": "7dbb1ed0cc13941541471bf432b168f5ca5e19a2"
+    },
+    {
+      "path": "assets/fonts/BalooPaaji2-VariableFont_wght.ttf",
+      "sha1": "0e442892221ae39488248dc8a2642078697d0cce"
+    },
+    {
+      "path": "assets/fonts/Comfortaa-VariableFont_wght.ttf",
+      "sha1": "9f37fc03e23bbe3a73a74cd51676f198cfe171ca"
+    },
+    {
       "path": "assets/fonts/Dosis-VariableFont_wght.ttf",
       "sha1": "cd9eb1c9229ff9c5f32e63a6947ca23af8e691c3"
     }

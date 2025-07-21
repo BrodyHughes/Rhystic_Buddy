@@ -50,6 +50,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>Dosis-VariableFont_wght.ttf</string>
+		<string>BalooPaaji2-VariableFont_wght.ttf</string>
+		<string>Asap-VariableFont_wdth,wght.ttf</string>
+		<string>Comfortaa-VariableFont_wght.ttf</string>
 	</array>
 </dict>
 </plist>

@@ -25,18 +25,33 @@ export const useCarousel = ({
   playerId,
 }: UseCarouselParams) => {
   const activeViewIndex = useSharedValue(1);
+  const isAnimating = useSharedValue(false);
   const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
 
   const reset = useCallback(() => {
     'worklet';
-    if (views[activeViewIndex.value].type === ViewMode.COMMANDER) {
+    if (activeViewIndex.value === 1 || isAnimating.value) {
+      return;
+    }
+    isAnimating.value = true;
+
+    if (views[activeViewIndex.value]?.type === ViewMode.COMMANDER) {
       runOnJS(stopReceiving)();
     }
-    activeViewIndex.value = withSpring(1, {
-      damping: 12,
-      stiffness: 120,
-    });
-  }, [activeViewIndex, stopReceiving, views]);
+    activeViewIndex.value = withSpring(
+      1,
+      {
+        damping: 12,
+        stiffness: 120,
+      },
+      (finished) => {
+        'worklet';
+        if (finished) {
+          isAnimating.value = false;
+        }
+      },
+    );
+  }, [activeViewIndex, stopReceiving, views, isAnimating]);
 
   useEffect(() => {
     const { register, unregister } = PlayerCarouselManager;
@@ -47,12 +62,17 @@ export const useCarousel = ({
   const cycleView = (direction: 'left' | 'right') => {
     'worklet';
 
+    if (isAnimating.value) {
+      return;
+    }
+
+    isAnimating.value = true;
     const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
 
     const nextViewIndexClamped =
       newIndex === 0 ? numRealViews : newIndex === numRealViews + 1 ? 1 : newIndex;
-    const nextViewType = views[nextViewIndexClamped].type;
-    const currentViewType = views[activeViewIndex.value].type;
+    const nextViewType = views[nextViewIndexClamped]?.type;
+    const currentViewType = views[activeViewIndex.value]?.type;
 
     if (nextViewType === ViewMode.COMMANDER && currentViewType !== ViewMode.COMMANDER) {
       runOnJS(startReceiving)(playerId);
@@ -76,6 +96,7 @@ export const useCarousel = ({
           } else if (newIndex === 0) {
             activeViewIndex.value = numRealViews;
           }
+          isAnimating.value = false;
         }
       },
     );
