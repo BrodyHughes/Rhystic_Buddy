@@ -1,29 +1,40 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import {
-  BORDER_COLOR,
-  COUNTERS_MENU_BUTTON_COLOR,
-  OFF_WHITE,
-  PRESSED_BUTTON_COLOR,
-} from '@/consts/consts';
+import { OFF_WHITE, PRESSED_BUTTON_COLOR } from '@/consts/consts';
 import { typography } from '@/styles/global';
 
-type CounterKey = 'storm' | 'poison' | 'mana';
+type CounterKey = string;
 
 interface Props {
   defenderId: number;
   counter: CounterKey;
   cellW: number;
   cellH: number;
+  backgroundColor?: string;
 }
 
-export default function CountersMenuButtons({ defenderId, counter, cellW, cellH }: Props) {
+export default function CountersMenuButtons({
+  defenderId,
+  counter,
+  cellW,
+  cellH,
+  backgroundColor,
+}: Props) {
   const value = useCounterStore((s) => s.counters[defenderId]?.[counter] ?? 0);
   const changeCounter = useCounterStore((s) => s.changeCounter);
 
   return (
-    <View style={[styles.square, { width: `${cellW - 2}%`, height: `${cellH - 4}%` }]}>
+    <View
+      style={[
+        styles.square,
+        {
+          width: cellW,
+          height: cellH,
+          backgroundColor: backgroundColor ?? 'rgba(255, 255, 255, 0.15)',
+        },
+      ]}
+    >
       <Text style={styles.total}>{value}</Text>
 
       <View style={styles.btnRow}>
@@ -48,20 +59,24 @@ const styles = StyleSheet.create({
   square: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    margin: 3,
+    borderRadius: 15,
+    margin: 6,
     overflow: 'hidden',
-    borderWidth: 7,
-    borderColor: BORDER_COLOR,
-    backgroundColor: COUNTERS_MENU_BUTTON_COLOR,
+    aspectRatio: 1, // ensures circle retains shape regardless of parent width
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
   total: {
     ...typography.heading2,
     fontFamily: 'Comfortaa',
-    fontSize: 40,
+    fontSize: 34,
+    fontWeight: '700',
+    marginTop: 9,
     zIndex: 1,
     pointerEvents: 'box-none',
-    marginTop: 11,
   },
   btnRow: {
     position: 'absolute',
@@ -79,5 +94,5 @@ const styles = StyleSheet.create({
   pressed: {
     backgroundColor: PRESSED_BUTTON_COLOR,
   },
-  btnTxt: { ...typography.button, color: OFF_WHITE, fontSize: 24 },
+  btnTxt: { ...typography.button, color: OFF_WHITE, fontSize: 22 },
 });

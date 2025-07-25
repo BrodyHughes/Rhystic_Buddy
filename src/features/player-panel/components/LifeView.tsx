@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native';
+import { Skull } from 'lucide-react-native';
 
 import { typography, spacing } from '@/styles/global';
 import { OFF_WHITE, PRESSED_BUTTON_COLOR, TEXT_SHADOW_COLOR } from '@/consts/consts';
@@ -8,6 +9,7 @@ interface LifeViewProps {
   life: number;
   delta: number;
   panelWidth: number; // width of panel for responsive font sizing
+  isDead?: boolean;
   changeLifeByAmount: (amount: number) => void;
   handleLongPressStart: (direction: 'inc' | 'dec') => void;
   handlePressOut: () => void;
@@ -17,6 +19,7 @@ const LifeView: React.FC<LifeViewProps> = ({
   life,
   delta,
   panelWidth,
+  isDead,
   changeLifeByAmount,
   handleLongPressStart,
   handlePressOut,
@@ -43,31 +46,40 @@ const LifeView: React.FC<LifeViewProps> = ({
   return (
     <>
       <View style={[styles.lifeBlock, { width: panelWidth }, rotateStyle]}>
-        <Text style={styles.life} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-          {life}
-        </Text>
-        {delta !== 0 && (
-          <Text style={[styles.delta, { color: delta > 0 ? green : red }]}>
-            {delta > 0 ? `+${delta}` : delta}
-          </Text>
+        {isDead ? (
+          <Skull color={OFF_WHITE} size={100} style={styles.deadSkull} />
+        ) : (
+          <>
+            <Text style={styles.life} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
+              {life}
+            </Text>
+            {delta !== 0 && (
+              <Text style={[styles.delta, { color: delta > 0 ? green : red }]}>
+                {delta > 0 ? `+${delta}` : delta}
+              </Text>
+            )}
+          </>
         )}
       </View>
       <Pressable
         style={({ pressed }) => [
           styles.button,
           styles.inc,
-          pressed && { backgroundColor: PRESSED_BUTTON_COLOR },
+          pressed && !isDead && { backgroundColor: PRESSED_BUTTON_COLOR },
         ]}
         onPress={() => {
+          if (isDead) return;
           changeLifeByAmount(1);
           triggerFeedback(incOpacity);
         }}
         onLongPress={() => {
+          if (isDead) return;
           handleLongPressStart('inc');
           triggerFeedback(incOpacity);
         }}
         onPressOut={handlePressOut}
         delayLongPress={1000}
+        disabled={isDead}
       >
         <Animated.View style={[{ marginLeft: 30 }, rotateStyle, { opacity: incOpacity }]}>
           <Text style={[styles.feedbackTextBase]}>+</Text>
@@ -77,18 +89,21 @@ const LifeView: React.FC<LifeViewProps> = ({
         style={({ pressed }) => [
           styles.button,
           styles.dec,
-          pressed && { backgroundColor: PRESSED_BUTTON_COLOR },
+          pressed && !isDead && { backgroundColor: PRESSED_BUTTON_COLOR },
         ]}
         onPress={() => {
+          if (isDead) return;
           changeLifeByAmount(-1);
           triggerFeedback(decOpacity);
         }}
         onLongPress={() => {
+          if (isDead) return;
           handleLongPressStart('dec');
           triggerFeedback(decOpacity);
         }}
         onPressOut={handlePressOut}
         delayLongPress={1000}
+        disabled={isDead}
       >
         <Animated.View style={[{ marginRight: 30 }, rotateStyle, { opacity: decOpacity }]}>
           <Text style={[styles.feedbackTextBase]}>-</Text>
@@ -139,6 +154,12 @@ const styles = StyleSheet.create({
   feedbackTextBase: {
     ...typography.caption,
     fontSize: 40,
+  },
+  deadSkull: {
+    shadowColor: 'rgb(0, 0, 0)',
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 0 },
   },
 });
 

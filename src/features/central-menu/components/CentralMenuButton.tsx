@@ -13,9 +13,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
-import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
+import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { Dice6, Image, RotateCcw, Users, MoreHorizontal } from 'lucide-react-native';
+import { Dice6, RotateCcw, Users, MoreHorizontal } from 'lucide-react-native';
+
+// Placeholder icon that renders nothing
+const NullIcon = () => null;
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
 import MoreMenu from '../modals/MoreMenu';
@@ -133,11 +136,6 @@ export default React.memo(function CentralMenuButton() {
     setTimeout(startTurnOrder, 500);
   };
 
-  const handleBackgroundPress = () => {
-    handlePress();
-    setTimeout(() => setBackgroundSearchVisible(true), 500);
-  };
-
   const handlePlayersPress = () => {
     handlePress();
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
@@ -157,13 +155,7 @@ export default React.memo(function CentralMenuButton() {
     { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
     { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
     { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
-    {
-      id: 'background',
-      Icon: Image,
-      label: 'Background',
-      color: FOREST,
-      action: handleBackgroundPress,
-    },
+    { id: 'placeholder', Icon: NullIcon, label: '', color: 'transparent', action: () => {} },
     { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
   ];
 

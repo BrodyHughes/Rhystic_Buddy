@@ -10,6 +10,7 @@ export interface PlayerState {
   delta: number;
   timer?: NodeJS.Timeout;
   backgroundColor: string;
+  isDead?: boolean;
 }
 
 export type PlayerCount = 2 | 3 | 4 | 5 | 6;
@@ -21,6 +22,7 @@ export interface LifeStore {
   players: PlayerState[];
 
   changeLife: (index: number, amount: number) => void;
+  toggleDead: (index: number) => void;
   setTotalPlayers: (total: PlayerCount) => void;
   setStartingLifeTwoPlayers: (life: number) => void;
   setStartingLifeMultiPlayers: (life: number) => void;
@@ -95,6 +97,17 @@ export const useLifeStore = create<LifeStore>()(
         set((state) => {
           const newPlayers = [...state.players];
           newPlayers[index] = { ...newPlayers[index], timer };
+          return { players: newPlayers };
+        });
+      },
+
+      toggleDead: (index) => {
+        set((state) => {
+          const newPlayers = [...state.players];
+          newPlayers[index] = {
+            ...newPlayers[index],
+            isDead: !newPlayers[index].isDead,
+          };
           return { players: newPlayers };
         });
       },

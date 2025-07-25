@@ -133,6 +133,7 @@ function PlayerPanelComponent({
         style={styles.imageCrop}
         resizeMode="cover"
       />
+      {player.isDead && <View style={styles.grayscaleOverlay} />}
     </View>
   ) : null;
 
@@ -209,6 +210,7 @@ function PlayerPanelComponent({
                     life={player.life}
                     delta={player.delta}
                     panelWidth={panelH} // this is correct but it looks wrong. need to really dig into my variable names.
+                    isDead={player.isDead}
                     changeLifeByAmount={changeLifeByAmount}
                     handleLongPressStart={handleLongPressStart}
                     handlePressOut={handlePressOut}
@@ -269,7 +271,11 @@ const styles = StyleSheet.create({
   imageCrop: {
     width: '100%',
     height: '140%',
-    opacity: 0.4,
+    opacity: 0.3,
+  },
+  grayscaleOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   turnOrderOverlay: {
     position: 'absolute',

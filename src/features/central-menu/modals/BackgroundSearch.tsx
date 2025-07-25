@@ -12,6 +12,7 @@ import {
   Keyboard,
   FlatList,
   SafeAreaView,
+  Modal,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -26,6 +27,7 @@ import { typography } from '@/styles/global';
 
 interface BackgroundSearchProps {
   onClose: () => void;
+  playerId?: number;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -44,10 +46,10 @@ const CardImage = React.memo(
 );
 CardImage.displayName = 'CardImage';
 
-const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
+const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }) => {
   const [cardName, setCardName] = useState('');
   const [submittedCardName, setSubmittedCardName] = useState('');
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(playerId ?? null);
 
   const { data: fetchedCards, isLoading, isError } = useCardPrintings(submittedCardName);
 
@@ -95,96 +97,98 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose }) => {
   // const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
 
   return (
-    <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
-      <SafeAreaView style={styles.modalContainer}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.title}>
-            {selectedPlayerId === null ? 'Select a Player' : 'Search for a Background'}
-          </Text>
-          <TouchableOpacity style={styles.closeButton} onPress={handleClosePress}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-        </View>
-
-        {selectedPlayerId === null ? (
-          // Player Picker
-          <View style={styles.pickerContainer}>
-            <View style={[styles.gridContainer, { maxWidth: numColumns * 150 }]}>
-              {players.map((player, index) => (
-                <TouchableOpacity
-                  key={player.id}
-                  style={[styles.selectItem]}
-                  onPress={() => setSelectedPlayerId(player.id)}
-                >
-                  <Text style={styles.selectItemText}>Player {index + 1}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.title}>
+              {selectedPlayerId === null ? 'Select a Player' : 'Search for a Background'}
+            </Text>
+            <TouchableOpacity style={styles.closeButton} onPress={handleClosePress}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
           </View>
-        ) : (
-          // Search Input & Image Preview
-          <View style={styles.searchContainer}>
-            <View style={styles.searchRow}>
-              <TextInput
-                placeholder={`Card name for Player ${
-                  players.findIndex((p) => p.id === selectedPlayerId) + 1
-                }`}
-                placeholderTextColor="#999"
-                value={cardName}
-                onChangeText={setCardName}
-                onSubmitEditing={handleSearch}
-                style={styles.searchInput}
-                returnKeyType="search"
-                autoFocus
-              />
-              <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                <Text style={styles.searchButtonText}>Search</Text>
-              </TouchableOpacity>
-            </View>
 
-            {/* {hasBackground && (
+          {selectedPlayerId === null ? (
+            // Player Picker
+            <View style={styles.pickerContainer}>
+              <View style={[styles.gridContainer, { maxWidth: numColumns * 150 }]}>
+                {players.map((player, index) => (
+                  <TouchableOpacity
+                    key={player.id}
+                    style={[styles.selectItem]}
+                    onPress={() => setSelectedPlayerId(player.id)}
+                  >
+                    <Text style={styles.selectItemText}>Player {index + 1}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ) : (
+            // Search Input & Image Preview
+            <View style={styles.searchContainer}>
+              <View style={styles.searchRow}>
+                <TextInput
+                  placeholder={`Card name for Player ${
+                    players.findIndex((p) => p.id === selectedPlayerId) + 1
+                  }`}
+                  placeholderTextColor="#999"
+                  value={cardName}
+                  onChangeText={setCardName}
+                  onSubmitEditing={handleSearch}
+                  style={styles.searchInput}
+                  returnKeyType="search"
+                  autoFocus
+                />
+                <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+                  <Text style={styles.searchButtonText}>Search</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* {hasBackground && (
               <TouchableOpacity style={styles.actionButton} onPress={handleRemoveBackground}>
                 <Text style={styles.searchButtonText}>Remove Background</Text>
               </TouchableOpacity>
             )} */}
 
-            <View style={styles.listContainer}>
-              {isLoading && <Text style={styles.emptyText}>Searching...</Text>}
+              <View style={styles.listContainer}>
+                {isLoading && <Text style={styles.emptyText}>Searching...</Text>}
 
-              {!isLoading && isError && (
-                <Text style={styles.errorText}>Card not found. Please check for typos.</Text>
-              )}
+                {!isLoading && isError && (
+                  <Text style={styles.errorText}>Card not found. Please check for typos.</Text>
+                )}
 
-              {!isLoading && !isError && fetchedCards && (
-                <>
-                  <Text style={styles.confirmText}>Tap card image to confirm</Text>
-                  <FlatList
-                    data={fetchedCards}
-                    keyExtractor={(item) => String(item.url)}
-                    numColumns={2}
-                    renderItem={({ item }) => (
-                      <CardImage item={item} onPress={() => handleSetBackground(item)} />
-                    )}
-                    initialNumToRender={4}
-                    maxToRenderPerBatch={4}
-                    windowSize={5}
-                    ListEmptyComponent={<Text style={styles.emptyText}>No printings found.</Text>}
-                  />
-                </>
-              )}
+                {!isLoading && !isError && fetchedCards && (
+                  <>
+                    <Text style={styles.confirmText}>Tap card image to confirm</Text>
+                    <FlatList
+                      data={fetchedCards}
+                      keyExtractor={(item) => String(item.url)}
+                      numColumns={2}
+                      renderItem={({ item }) => (
+                        <CardImage item={item} onPress={() => handleSetBackground(item)} />
+                      )}
+                      initialNumToRender={4}
+                      maxToRenderPerBatch={4}
+                      windowSize={5}
+                      ListEmptyComponent={<Text style={styles.emptyText}>No printings found.</Text>}
+                    />
+                  </>
+                )}
+              </View>
             </View>
-          </View>
-        )}
-        <View style={styles.scryfallCredit}>
-          <Text style={styles.scryfallCreditText}>
-            Search powered by{' '}
-            <Text style={styles.scryfallCreditTextLink} onPress={handleLinkToScryfall}>
-              Scryfall
+          )}
+          <View style={styles.scryfallCredit}>
+            <Text style={styles.scryfallCreditText}>
+              Search powered by{' '}
+              <Text style={styles.scryfallCreditTextLink} onPress={handleLinkToScryfall}>
+                Scryfall
+              </Text>
             </Text>
-          </Text>
-        </View>
-      </SafeAreaView>
-    </AnimatedView>
+          </View>
+        </SafeAreaView>
+      </AnimatedView>
+    </Modal>
   );
 };
 
