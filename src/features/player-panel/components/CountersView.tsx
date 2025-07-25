@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { ViewMode } from './PlayerPanel';
+import { ViewMode } from '@/types/app';
 import CountersMenu from '@/features/counters-menu/components/CountersMenu';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   index: number;
   panelHeight: number;
   panelWidth: number;
+  active?: boolean;
 }
 
 export default function CountersView({
@@ -17,8 +18,18 @@ export default function CountersView({
   index,
   panelHeight,
   panelWidth,
+  active = false,
 }: Props) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+
+  const [scrollKey, setScrollKey] = useState(0);
+
+  useEffect(() => {
+    if (active) {
+      // force remount of ScrollView -> fresh offset at 0, no snap
+      setScrollKey((k) => k + 1);
+    }
+  }, [active]);
 
   if (!menuVisible) {
     return null;
@@ -46,8 +57,10 @@ export default function CountersView({
           ]}
         >
           <ScrollView
+            key={`${index}-${scrollKey}`}
             horizontal
             showsHorizontalScrollIndicator={false}
+            contentOffset={{ x: 0, y: 0 }}
             style={{ flex: 1 }}
             contentContainerStyle={styles.scrollContent}
           >

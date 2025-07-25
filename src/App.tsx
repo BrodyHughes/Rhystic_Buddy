@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { SafeAreaView, View, StatusBar, StyleSheet, Pressable } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StatusBar,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 import PlayerPanel from '@/features/player-panel/components/PlayerPanel';
 import CentralMenuButton from '@/features/central-menu/components/CentralMenuButton';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
@@ -15,6 +22,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useStoresHydrated from '@/hooks/useStoresHydrated';
 
 export default function App() {
   const totalPlayersCount = useLifeStore((s) => s.players.length);
@@ -141,24 +149,38 @@ export default function App() {
     }
   };
 
+  const storesHydrated = useStoresHydrated();
+
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaView style={styles.screen}>
           <StatusBar barStyle="light-content" />
-          <View style={[styles.grid, { gap: currentGap, padding: currentGap }]}>
-            {renderPlayerPanels()}
-          </View>
-          <CentralMenuButton />
-          {isReceiving && defenderId !== null && (
-            <GlobalDamageOverlays
-              defenderId={defenderId}
-              layoutConfigurations={layoutConfigurations}
-              gap={currentGap}
-            />
-          )}
-          {isFinished && (
-            <Pressable onPress={reset} style={styles.fullscreenPressable} testID="winner-dismiss" />
+          {storesHydrated ? (
+            <>
+              <View style={[styles.grid, { gap: currentGap, padding: currentGap }]}>
+                {renderPlayerPanels()}
+              </View>
+              <CentralMenuButton />
+              {isReceiving && defenderId !== null && (
+                <GlobalDamageOverlays
+                  defenderId={defenderId}
+                  layoutConfigurations={layoutConfigurations}
+                  gap={currentGap}
+                />
+              )}
+              {isFinished && (
+                <Pressable
+                  onPress={reset}
+                  style={styles.fullscreenPressable}
+                  testID="winner-dismiss"
+                />
+              )}
+            </>
+          ) : (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#ffffff" />
+            </View>
           )}
         </SafeAreaView>
         <RulingsSearch />
@@ -191,5 +213,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: GAP,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

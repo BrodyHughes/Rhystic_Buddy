@@ -71,32 +71,29 @@ export const useLifeStore = create<LifeStore>()(
       changeLife: (index, amount) => {
         set((state) => {
           const player = state.players[index];
+          // Clear existing timer if any
           if (player.timer) {
             clearTimeout(player.timer);
           }
 
+          // Create new timer for delta reset
+          const timer = setTimeout(() => {
+            set((s) => {
+              const newPlayers = [...s.players];
+              newPlayers[index] = { ...newPlayers[index], delta: 0, timer: undefined };
+              return { players: newPlayers };
+            });
+          }, 3000);
+
+          // Update player with new life, delta, and timer
           const newPlayers = [...state.players];
           newPlayers[index] = {
             ...player,
             life: player.life + amount,
             delta: player.delta + amount,
-            timer: undefined,
+            timer,
           };
 
-          return { players: newPlayers };
-        });
-
-        const timer = setTimeout(() => {
-          set((state) => {
-            const newPlayers = [...state.players];
-            newPlayers[index] = { ...newPlayers[index], delta: 0, timer: undefined };
-            return { players: newPlayers };
-          });
-        }, 3000);
-
-        set((state) => {
-          const newPlayers = [...state.players];
-          newPlayers[index] = { ...newPlayers[index], timer };
           return { players: newPlayers };
         });
       },
@@ -114,7 +111,13 @@ export const useLifeStore = create<LifeStore>()(
 
       setTotalPlayers: (total) =>
         set((state) => {
-          if (total < 2 || total > 6) return state;
+          // Clear all existing timers
+          state.players.forEach((p) => {
+            if (p.timer) {
+              clearTimeout(p.timer);
+            }
+          });
+
           return {
             totalPlayers: total,
             players: createPlayers(
@@ -150,16 +153,27 @@ export const useLifeStore = create<LifeStore>()(
         }),
 
       resetLife: () =>
-        set((state) => ({
-          players: state.players.map((p) => ({
-            ...p,
-            life:
-              state.totalPlayers === 2
-                ? state.startingLife2Players
-                : state.startingLifeMultiPlayers,
-            delta: 0,
-          })),
-        })),
+        set((state) => {
+          // Clear all timers before resetting
+          state.players.forEach((p) => {
+            if (p.timer) {
+              clearTimeout(p.timer);
+            }
+          });
+
+          return {
+            players: state.players.map((p) => ({
+              ...p,
+              life:
+                state.totalPlayers === 2
+                  ? state.startingLife2Players
+                  : state.startingLifeMultiPlayers,
+              delta: 0,
+              timer: undefined,
+              isDead: false,
+            })),
+          };
+        }),
     }),
     {
       name: 'rb_life_store',

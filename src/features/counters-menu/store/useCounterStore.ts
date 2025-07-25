@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 
 type CounterValueMap = Record<string, number>;
 type CounterMatrix = Record<number, CounterValueMap>;
@@ -59,5 +60,13 @@ export const useCounterStore = create<CounterStore>()((set, get) => ({
       return { counters: newCounters };
     }),
 
-  resetAll: () => set({ counters: {} }),
+  resetAll: () =>
+    set(() => {
+      const players = useLifeStore.getState().players;
+      const newCounters = players.reduce<CounterMatrix>((acc, player) => {
+        acc[player.id] = { tax: 0, charge: 0 };
+        return acc;
+      }, {});
+      return { counters: newCounters };
+    }),
 }));

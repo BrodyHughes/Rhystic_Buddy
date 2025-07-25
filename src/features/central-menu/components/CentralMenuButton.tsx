@@ -17,8 +17,6 @@ import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { Dice6, RotateCcw, Users, MoreHorizontal } from 'lucide-react-native';
 
-// Placeholder icon that renders nothing
-const NullIcon = () => null;
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
 import MoreMenu from '../modals/MoreMenu';
@@ -155,7 +153,7 @@ export default React.memo(function CentralMenuButton() {
     { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
     { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
     { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
-    { id: 'placeholder', Icon: NullIcon, label: '', color: 'transparent', action: () => {} },
+    { id: 'placeholder', Icon: null, label: '', color: 'transparent', action: () => {} },
     { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
   ];
 
@@ -196,7 +194,7 @@ export default React.memo(function CentralMenuButton() {
                 label={item.label}
                 color={item.color}
               >
-                <item.Icon color={BACKGROUND} size={30} />
+                {item.Icon && <item.Icon color={BACKGROUND} size={30} />}
               </MenuItem>
             ))}
           </View>

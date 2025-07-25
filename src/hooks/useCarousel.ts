@@ -1,154 +1,153 @@
 import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { ViewMode } from '@/features/player-panel/components/PlayerPanel';
+import { ViewMode } from '@/types/app';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { useCallback, useEffect } from 'react';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
+// Sequences define the order of REAL views in the loops
+const horizontalSequence = [ViewMode.LIFE, ViewMode.COUNTERS];
+const verticalSequence = [ViewMode.LIFE, ViewMode.COMMANDER];
+
+// --- Animation Configuration ---
+const springConfig = {
+  mass: 0.5,
+  stiffness: 200,
+  damping: 25,
+};
+
 interface UseCarouselParams {
-  numRealViews: number;
   totalPlayers: number;
-  isEvenPlayerIndexNumber: boolean;
-  isLastPlayerOddLayout?: boolean;
   panelW: number;
-  views: { type: ViewMode }[];
+  panelH: number;
   playerId: number;
+  isLastPlayerOddLayout?: boolean;
+  isEvenPlayerIndexNumber: boolean;
+  onViewChange?: (view: ViewMode) => void;
 }
 
 export const useCarousel = ({
-  numRealViews,
   totalPlayers,
-  isEvenPlayerIndexNumber,
-  isLastPlayerOddLayout,
   panelW,
-  views,
+  panelH,
   playerId,
+  isLastPlayerOddLayout,
+  isEvenPlayerIndexNumber,
+  onViewChange,
 }: UseCarouselParams) => {
-  const activeViewIndex = useSharedValue(1);
-  const isAnimating = useSharedValue(false);
+  // Indices for the horizontal and vertical tracks.
+  // We start at 1, which corresponds to the first "real" panel.
+  const hIndex = useSharedValue(1);
+  const vIndex = useSharedValue(1);
+
+  const translateX = useSharedValue(-panelW);
+  const translateY = useSharedValue(-panelH);
+
   const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
+  const hasCommanderView = totalPlayers > 2;
+
+  const flipFactor = isEvenPlayerIndexNumber ? 1 : -1;
+  const swapAxes = totalPlayers === 2 || !!isLastPlayerOddLayout;
+
+  const updateOverlay = useCallback(
+    (isCommander: boolean) => {
+      if (isCommander) {
+        startReceiving(playerId);
+      } else {
+        stopReceiving();
+      }
+    },
+    [playerId, startReceiving, stopReceiving],
+  );
 
   const reset = useCallback(() => {
     'worklet';
-    if (activeViewIndex.value === 1 || isAnimating.value) {
-      return;
-    }
-    isAnimating.value = true;
-
-    if (views[activeViewIndex.value]?.type === ViewMode.COMMANDER) {
-      runOnJS(stopReceiving)();
-    }
-    activeViewIndex.value = withSpring(
-      1,
-      {
-        damping: 12,
-        stiffness: 120,
-      },
-      (finished) => {
-        'worklet';
-        if (finished) {
-          isAnimating.value = false;
-        }
-      },
-    );
-  }, [activeViewIndex, stopReceiving, views, isAnimating]);
+    hIndex.value = 1;
+    vIndex.value = 1;
+    translateX.value = withSpring(-panelW);
+    translateY.value = withSpring(-panelH);
+    runOnJS(updateOverlay)(false);
+  }, [hIndex, vIndex, panelW, panelH, translateX, translateY, updateOverlay]);
 
   useEffect(() => {
-    const { register, unregister } = PlayerCarouselManager;
-    register(playerId, reset);
-    return () => unregister(playerId);
+    PlayerCarouselManager.register(playerId, reset);
+    return () => PlayerCarouselManager.unregister(playerId);
   }, [playerId, reset]);
 
-  const cycleView = (direction: 'left' | 'right') => {
-    'worklet';
-
-    if (isAnimating.value) {
-      return;
-    }
-
-    isAnimating.value = true;
-    const newIndex = direction === 'left' ? activeViewIndex.value + 1 : activeViewIndex.value - 1;
-
-    const nextViewIndexClamped =
-      newIndex === 0 ? numRealViews : newIndex === numRealViews + 1 ? 1 : newIndex;
-    const nextViewType = views[nextViewIndexClamped]?.type;
-    const currentViewType = views[activeViewIndex.value]?.type;
-
-    if (nextViewType === ViewMode.COMMANDER && currentViewType !== ViewMode.COMMANDER) {
-      runOnJS(startReceiving)(playerId);
-    }
-
-    activeViewIndex.value = withSpring(
-      newIndex,
-      {
-        damping: 15,
-        stiffness: 100,
-      },
-      (finished) => {
-        'worklet';
-        if (finished) {
-          if (nextViewType !== ViewMode.COMMANDER && currentViewType === ViewMode.COMMANDER) {
-            runOnJS(stopReceiving)();
-          }
-
-          if (newIndex === numRealViews + 1) {
-            activeViewIndex.value = 1;
-          } else if (newIndex === 0) {
-            activeViewIndex.value = numRealViews;
-          }
-          isAnimating.value = false;
-        }
-      },
-    );
-  };
-
-  const horizontalSwipeGesture = Gesture.Pan()
-    .cancelsTouchesInView(false)
-    .onEnd((e) => {
-      const { translationX } = e;
-      if (translationX > 50) cycleView('right');
-      else if (translationX < -50) cycleView('left');
-    });
-
-  const flippedHorizontalSwipeGesture = Gesture.Pan()
-    .cancelsTouchesInView(false)
-    .onEnd((e) => {
-      const { translationX } = e;
-      if (translationX > 50) cycleView('left');
-      else if (translationX < -50) cycleView('right');
-    });
-
-  const verticalSwipeGesture = Gesture.Pan()
+  const panGesture = Gesture.Pan()
     .cancelsTouchesInView(false)
     .onEnd((e) => {
       'worklet';
-      const { translationY } = e;
-      if (translationY < -50) cycleView('left');
-      else if (translationY > 50) cycleView('right');
-    });
+      const { translationX, translationY } = e;
 
-  const flippedVerticalSwipeGesture = Gesture.Pan()
-    .cancelsTouchesInView(false)
-    .onEnd((e) => {
-      'worklet';
-      const { translationY } = e;
-      if (translationY < -50) cycleView('right');
-      else if (translationY > 50) cycleView('left');
-    });
+      const isScreenHorizontal = Math.abs(translationX) > Math.abs(translationY);
+      const isUserSwipeHorizontal = swapAxes ? !isScreenHorizontal : isScreenHorizontal;
 
-  const gesture =
-    totalPlayers === 2 || isLastPlayerOddLayout
-      ? isEvenPlayerIndexNumber
-        ? verticalSwipeGesture
-        : flippedVerticalSwipeGesture
-      : isEvenPlayerIndexNumber
-        ? horizontalSwipeGesture
-        : flippedHorizontalSwipeGesture;
+      if (isUserSwipeHorizontal) {
+        const gestureTranslation = swapAxes ? translationY : translationX;
+        if (Math.abs(gestureTranslation) < 50 || vIndex.value !== 1) return;
+
+        const direction = (gestureTranslation < 0 ? 1 : -1) * flipFactor;
+        const nextHIndex = hIndex.value + direction;
+
+        // --- Trigger overlay update immediately based on destination ---
+        const nextView =
+          horizontalSequence[
+            (nextHIndex - 1 + horizontalSequence.length) % horizontalSequence.length
+          ];
+        runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
+        if (onViewChange) runOnJS(onViewChange)(nextView);
+
+        translateX.value = withSpring(-nextHIndex * panelW, springConfig, (isFinished) => {
+          if (isFinished) {
+            if (nextHIndex === 0) {
+              hIndex.value = horizontalSequence.length;
+              translateX.value = -hIndex.value * panelW;
+            } else if (nextHIndex === horizontalSequence.length + 1) {
+              hIndex.value = 1;
+              translateX.value = -hIndex.value * panelW;
+            } else {
+              hIndex.value = nextHIndex;
+            }
+          }
+        });
+      } else {
+        // Vertical Swipe
+        const gestureTranslation = swapAxes ? translationX : translationY;
+        if (Math.abs(gestureTranslation) < 50 || hIndex.value !== 1) return;
+        if (!hasCommanderView) return;
+
+        const direction = gestureTranslation < 0 ? 1 : -1;
+        const nextVIndex = vIndex.value + direction;
+
+        // --- Trigger overlay update immediately based on destination ---
+        const nextView =
+          verticalSequence[(nextVIndex - 1 + verticalSequence.length) % verticalSequence.length];
+        runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
+        if (onViewChange) runOnJS(onViewChange)(nextView);
+
+        translateY.value = withSpring(-nextVIndex * panelH, springConfig, (isFinished) => {
+          if (isFinished) {
+            if (nextVIndex === 0) {
+              vIndex.value = verticalSequence.length;
+              translateY.value = -vIndex.value * panelH;
+            } else if (nextVIndex === verticalSequence.length + 1) {
+              vIndex.value = 1;
+              translateY.value = -vIndex.value * panelH;
+            } else {
+              vIndex.value = nextVIndex;
+            }
+          }
+        });
+      }
+    });
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
-    flexDirection: 'row',
-    transform: [{ translateX: -activeViewIndex.value * panelW }],
+    position: 'absolute' as const,
+    width: panelW * 4,
+    height: panelH * 4,
+    transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
   }));
 
-  return { activeViewIndex, cycleView, reset, gesture, containerAnimatedStyle };
+  return { gesture: panGesture, containerAnimatedStyle };
 };

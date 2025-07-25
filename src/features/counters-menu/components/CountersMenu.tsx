@@ -1,85 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import {
-  Image as ImageIcon,
-  Crown,
-  Zap,
-  Skull,
-  Droplet,
-  Flame,
-  Leaf,
-  Sun,
-  Moon,
-  CloudLightning,
-  Skull as SkullIcon,
-} from 'lucide-react-native';
+import { Skull } from 'lucide-react-native';
 
 import CountersMenuButtons from './CountersMenuButtons';
 import BackgroundSearch from '@/features/central-menu/modals/BackgroundSearch';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import {
-  OFF_WHITE,
-  SWAMP,
-  ISLAND,
-  MOUNTAIN,
-  PLAINS,
-  FOREST,
-  TRANSPARENT_SWAMP,
-  TRANSPARENT_ISLAND,
-  TRANSPARENT_MOUNTAIN,
-  TRANSPARENT_PLAINS,
-  TRANSPARENT_FOREST,
-  TRANSPARENT_OFF_WHITE,
-} from '@/consts/consts';
+import { OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { typography } from '@/styles/global';
+import {
+  COUNTER_ICONS,
+  COUNTER_COLORS,
+  DEFAULT_COUNTERS,
+  EXTRA_COUNTERS,
+  ALL_COUNTER_TYPES,
+  CounterType,
+} from '@/consts/counters';
+
+// Stable fallback object for empty counters to keep React's useSyncExternalStore happy
+const EMPTY_COUNTERS: Record<string, number> = Object.freeze({});
 
 interface Props {
   defenderId: number;
 }
 
-const DEFAULT_COUNTERS = ['tax', 'charge'] as const;
-
-const EXTRA_COUNTERS = [
-  'poison',
-  'storm',
-  'manaWhite',
-  'manaBlue',
-  'manaBlack',
-  'manaRed',
-  'manaGreen',
-] as const;
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  background: ImageIcon,
-  tax: Crown,
-  charge: Zap,
-  poison: Skull,
-  storm: CloudLightning,
-  manaWhite: Sun,
-  manaBlue: Droplet,
-  manaBlack: Moon,
-  manaRed: Flame,
-  manaGreen: Leaf,
-};
-
-// Color map for mana counters
-const COLOR_MAP: Record<string, string> = {
-  manaWhite: TRANSPARENT_PLAINS,
-  manaBlue: TRANSPARENT_ISLAND,
-  manaBlack: TRANSPARENT_SWAMP,
-  manaRed: TRANSPARENT_MOUNTAIN,
-  manaGreen: TRANSPARENT_FOREST,
-  poison: TRANSPARENT_OFF_WHITE,
-  storm: TRANSPARENT_OFF_WHITE,
-};
-
 export default function CountersMenu({ defenderId }: Props) {
   const [bgSearchVisible, setBgSearchVisible] = useState(false);
   // Extra add menu state removed; icons are always visible
 
-  const counters = useCounterStore((s) => s.counters[defenderId] ?? {});
+  const counters = useCounterStore((s) => s.counters[defenderId] || EMPTY_COUNTERS);
   const addCounter = useCounterStore((s) => s.addCounter);
   const removeCounter = useCounterStore((s) => s.removeCounter);
   const toggleDead = useLifeStore((s) => s.toggleDead);
@@ -95,18 +45,15 @@ export default function CountersMenu({ defenderId }: Props) {
 
   const existingKeys = Object.keys(counters);
 
-  // All possible counters (always mounted)
-  const ALL_COUNTER_KEYS = ['tax', 'charge', ...EXTRA_COUNTERS];
-
   const renderBackgroundColumn = () => {
-    const Icon = ICON_MAP.background;
+    const Icon = COUNTER_ICONS.background;
     return (
       <View style={styles.backgroundSection}>
         <Pressable
           style={({ pressed }) => [styles.backgroundCard, pressed && styles.backgroundCardPressed]}
           onPress={() => setBgSearchVisible(true)}
         >
-          <Icon color={OFF_WHITE} size={48} />
+          <Icon color={OFF_WHITE} size={40} />
           <Text style={styles.backgroundLabel}>Background</Text>
         </Pressable>
         <Pressable
@@ -117,7 +64,7 @@ export default function CountersMenu({ defenderId }: Props) {
           ]}
           onPress={() => toggleDead(defenderId)}
         >
-          <SkullIcon color={isDead ? 'red' : OFF_WHITE} size={48} />
+          <Skull color={isDead ? 'red' : OFF_WHITE} size={40} />
           <Text style={styles.backgroundLabel}>Dead</Text>
         </Pressable>
       </View>
@@ -130,8 +77,10 @@ export default function CountersMenu({ defenderId }: Props) {
       <View style={styles.extraIconsContainer}>
         {EXTRA_COUNTERS.map((key) => {
           const added = existingKeys.includes(key);
-          const IconComponent = (ICON_MAP[key] ?? Crown) as React.ElementType;
-          const SOLID_COLOR_MAP: Record<string, string> = {
+          const IconComponent = COUNTER_ICONS[key];
+          const SOLID_COLOR_MAP: Record<CounterType, string> = {
+            tax: OFF_WHITE,
+            charge: OFF_WHITE,
             manaWhite: PLAINS,
             manaBlue: ISLAND,
             manaBlack: SWAMP,
@@ -140,8 +89,8 @@ export default function CountersMenu({ defenderId }: Props) {
             poison: OFF_WHITE,
             storm: OFF_WHITE,
           };
-          const baseColor = SOLID_COLOR_MAP[key] ?? OFF_WHITE;
-          const transparentColor = COLOR_MAP[key] ?? TRANSPARENT_OFF_WHITE;
+          const baseColor = SOLID_COLOR_MAP[key];
+          const transparentColor = COUNTER_COLORS[key];
           return (
             <Pressable
               key={key}
@@ -169,7 +118,7 @@ export default function CountersMenu({ defenderId }: Props) {
 
         <View style={styles.divider} />
         <View style={styles.counterContainer}>
-          {ALL_COUNTER_KEYS.map((key) => {
+          {ALL_COUNTER_TYPES.map((key) => {
             return (
               <CounterColumn
                 key={key}
@@ -197,8 +146,8 @@ const CounterColumn: React.FC<{
   existingKeys: string[];
 }> = ({ counterKey, defenderId, existingKeys }) => {
   const isActive = existingKeys.includes(counterKey);
-  const counterColor = COLOR_MAP[counterKey] || 'rgba(255, 255, 255, 0.15)';
-  const IconComponent = counterKey === 'tax' ? null : (ICON_MAP[counterKey] ?? Crown);
+  const counterColor = COUNTER_COLORS[counterKey as CounterType] || 'rgba(255, 255, 255, 0.15)';
+  const IconComponent = counterKey === 'tax' ? null : COUNTER_ICONS[counterKey as CounterType];
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -251,11 +200,11 @@ const styles = StyleSheet.create({
   },
   backgroundCard: {
     alignItems: 'center',
-    padding: 8,
+    padding: 6,
     borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    minWidth: 90,
-    width: 90,
+    minWidth: 80,
+    width: 80,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
