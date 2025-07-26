@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronRight, BookText, Heart } from 'lucide-react-native';
+import { ChevronRight, BookOpen, Info, GraduationCap } from 'lucide-react-native';
 import {
-  BACKGROUND,
   BORDER_COLOR,
   PLAINS,
-  SWAMP,
   ISLAND,
+  FOREST,
   OFF_WHITE,
   BACKGROUND_TRANSPARENT,
+  MODAL_BACKGROUND,
 } from '@/consts/consts';
 import { typography } from '@/styles/global';
 
@@ -19,7 +19,7 @@ interface MoreMenuProps {
   onClose: () => void;
   onRulingsPress: () => void;
   onAboutPress: () => void;
-  onStartingLifePress: () => void;
+  onTutorialPress: () => void;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -28,36 +28,38 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
   onClose,
   onRulingsPress,
   onAboutPress,
-  onStartingLifePress,
+  onTutorialPress,
 }) => {
   const menuItems = [
     {
       id: 'rulings',
       label: 'Rulings Search',
-      Icon: BookText,
+      Icon: BookOpen,
       color: PLAINS,
       action: onRulingsPress,
     },
     {
       id: 'about',
       label: 'About',
-      Icon: BookText,
-      color: SWAMP,
+      Icon: Info,
+      color: ISLAND,
       action: onAboutPress,
     },
     {
-      id: 'startingLife',
-      label: 'Starting Life',
-      Icon: Heart,
-      color: ISLAND,
-      action: onStartingLifePress,
+      id: 'tutorial',
+      label: 'Tutorial',
+      Icon: GraduationCap,
+      color: FOREST,
+      action: onTutorialPress,
     },
     // Future items can be pushed here
   ];
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
-      <SafeAreaView style={styles.flex}>
+      {/* Backdrop press */}
+      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      <SafeAreaView style={styles.flex} pointerEvents="box-none">
         {/* Header */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>More</Text>
@@ -75,7 +77,7 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
                   <item.Icon color={OFF_WHITE} size={22} />
                 </View>
                 <Text style={styles.itemLabel}>{item.label}</Text>
-                <ChevronRight color={BACKGROUND} size={18} style={styles.chevron} />
+                <ChevronRight color={OFF_WHITE} size={18} style={styles.chevron} />
               </TouchableOpacity>
               {index !== menuItems.length - 1 && <View style={styles.divider} />}
             </React.Fragment>
@@ -115,10 +117,8 @@ const styles = StyleSheet.create({
     fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
   card: {
-    backgroundColor: BACKGROUND,
+    backgroundColor: MODAL_BACKGROUND,
     width: '90%',
-    borderWidth: 7,
-    borderColor: BORDER_COLOR,
     borderRadius: 16,
     overflow: 'hidden',
     alignSelf: 'center',

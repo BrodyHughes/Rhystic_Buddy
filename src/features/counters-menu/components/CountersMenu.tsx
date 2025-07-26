@@ -7,7 +7,18 @@ import CountersMenuButtons from './CountersMenuButtons';
 import BackgroundSearch from '@/features/central-menu/modals/BackgroundSearch';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import { OFF_WHITE, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
+import {
+  OFF_WHITE,
+  SWAMP,
+  ISLAND,
+  MOUNTAIN,
+  PLAINS,
+  FOREST,
+  CARD_BACKGROUND_TRANSPARENT,
+  DEAD_CARD_BACKGROUND,
+  DEAD_CARD_BORDER,
+  COUNTERS_DIVIDER_COLOR,
+} from '@/consts/consts';
 import { typography } from '@/styles/global';
 import {
   COUNTER_ICONS,
@@ -202,7 +213,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 6,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: CARD_BACKGROUND_TRANSPARENT,
     minWidth: 80,
     width: 80,
     shadowColor: '#000',
@@ -212,12 +223,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   backgroundCardPressed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: CARD_BACKGROUND_TRANSPARENT,
     transform: [{ scale: 0.95 }],
   },
   deadCardActive: {
-    backgroundColor: 'rgba(255, 0, 0, 0.15)',
-    borderColor: 'rgba(255, 0, 0, 0.4)',
+    backgroundColor: DEAD_CARD_BACKGROUND,
+    borderColor: DEAD_CARD_BORDER,
   },
   counterContainer: {
     flexDirection: 'row',
@@ -275,8 +286,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 2,
     height: '70%',
-    backgroundColor: OFF_WHITE,
-    opacity: 0.3,
+    backgroundColor: COUNTERS_DIVIDER_COLOR,
     marginHorizontal: 35,
   },
 });

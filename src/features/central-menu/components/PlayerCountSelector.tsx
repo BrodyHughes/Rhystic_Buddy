@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
+import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { typography } from '@/styles/global';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND } from '@/consts/consts';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, SWAMP, OFF_WHITE } from '@/consts/consts';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
@@ -16,9 +17,12 @@ interface PlayerCountSelectorProps {
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
+  const currentTotal = useLifeStore((s) => s.totalPlayers);
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
-      <SafeAreaView style={styles.modalContainer}>
+      {/* Backdrop press */}
+      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      <SafeAreaView style={styles.modalContainer} pointerEvents="box-none">
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Select Player Count</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -27,15 +31,20 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
         </View>
         <View style={styles.contentContainer}>
           <View style={styles.pickerContainer}>
-            {[2, 3, 4, 5, 6].map((count) => (
-              <TouchableOpacity
-                key={count}
-                style={styles.selectItem}
-                onPress={() => onSelect(count as PlayerCount)}
-              >
-                <Text style={styles.selectItemText}>{count} Players</Text>
-              </TouchableOpacity>
-            ))}
+            {[2, 3, 4, 5, 6].map((count) => {
+              const selected = count === currentTotal;
+              return (
+                <TouchableOpacity
+                  key={count}
+                  style={[styles.selectItem, selected && styles.selectedItem]}
+                  onPress={() => onSelect(count as PlayerCount)}
+                >
+                  <Text style={[styles.selectItemText, selected && styles.selectedText]}>
+                    {count} Players
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </SafeAreaView>
@@ -85,9 +94,16 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
+  selectedItem: {
+    backgroundColor: SWAMP,
+  },
   selectItemText: {
     ...typography.body,
     color: '#000',
+  },
+  selectedText: {
+    color: OFF_WHITE,
+    fontWeight: '900',
   },
   closeButton: {
     padding: 10,

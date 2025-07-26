@@ -3,10 +3,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronLeft } from 'lucide-react-native';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { typography } from '@/styles/global';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND } from '@/consts/consts';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, SWAMP, OFF_WHITE } from '@/consts/consts';
 
 interface StartingLifeSelectorProps {
   onClose: () => void;
@@ -40,10 +39,10 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.modalContainer} pointerEvents="box-none">
         <View style={styles.modalHeader}>
-          <TouchableOpacity onPress={onClose} style={styles.backButton}>
-            <ChevronLeft color="#fff" size={28} />
-          </TouchableOpacity>
           <Text style={styles.title}>Starting Life</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.contentContainer}>
           <Text style={styles.sectionHeader}>Two-Player Games</Text>
@@ -51,7 +50,7 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
             {PRESET_VALUES.map((value) => (
               <TouchableOpacity
                 key={`2p-${value}`}
-                style={styles.selectItem}
+                style={[styles.selectItem, value === startingLife2Players && styles.selectedItem]}
                 onPress={() => handleSelect2(value)}
               >
                 <Text
@@ -71,7 +70,10 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
             {PRESET_VALUES.map((value) => (
               <TouchableOpacity
                 key={`mp-${value}`}
-                style={styles.selectItem}
+                style={[
+                  styles.selectItem,
+                  value === startingLifeMultiPlayers && styles.selectedItem,
+                ]}
                 onPress={() => handleSelectMulti(value)}
               >
                 <Text
@@ -108,9 +110,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
-  backButton: {
-    padding: 4,
-    marginRight: 12,
+  closeButton: {
+    padding: 10,
+  },
+  closeButtonText: {
+    ...typography.heading2,
+    fontSize: 45,
   },
   contentContainer: {
     flex: 1,
@@ -144,7 +149,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   selectedText: {
-    // textDecorationLine: 'underline',
+    color: OFF_WHITE,
+    fontWeight: '900',
+  },
+  selectedItem: {
+    backgroundColor: SWAMP,
   },
 });
 

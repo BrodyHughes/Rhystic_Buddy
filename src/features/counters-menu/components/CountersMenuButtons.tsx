@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { OFF_WHITE, PRESSED_BUTTON_COLOR } from '@/consts/consts';
+import { CARD_BACKGROUND_TRANSPARENT, OFF_WHITE, PRESSED_BUTTON_COLOR } from '@/consts/consts';
 import { typography } from '@/styles/global';
 
 type CounterKey = string;
@@ -31,7 +31,7 @@ export default function CountersMenuButtons({
         {
           width: cellW,
           height: cellH,
-          backgroundColor: backgroundColor ?? 'rgba(255, 255, 255, 0.15)',
+          backgroundColor: backgroundColor ?? CARD_BACKGROUND_TRANSPARENT,
         },
       ]}
     >
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     margin: 6,
     overflow: 'hidden',
-    aspectRatio: 1, // ensures circle retains shape regardless of parent width
+    aspectRatio: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

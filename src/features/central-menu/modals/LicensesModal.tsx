@@ -14,7 +14,12 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
 import { radius, spacing, typography } from '@/styles/global';
-import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER_COLOR, OFF_WHITE } from '@/consts/consts';
+import {
+  BACKGROUND_TRANSPARENT,
+  MODAL_BACKGROUND,
+  OFF_WHITE,
+  TRANSPARENT_OFF_WHITE,
+} from '@/consts/consts';
 import { licenses } from '@/consts/licenses';
 
 interface LicensesModalProps {
@@ -61,11 +66,14 @@ const styles = StyleSheet.create({
   panel: {
     width: '90%',
     maxHeight: '80%',
-    backgroundColor: BACKGROUND,
+    backgroundColor: MODAL_BACKGROUND,
     borderRadius: radius.lg,
     overflow: 'hidden',
-    borderWidth: 7,
-    borderColor: BORDER_COLOR,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -90,12 +98,13 @@ const styles = StyleSheet.create({
   },
   libName: {
     ...typography.body,
+    color: OFF_WHITE,
   },
   libLicense: {
     ...typography.body,
     marginTop: spacing.xs,
-    opacity: 0.7,
     fontSize: 14,
+    color: TRANSPARENT_OFF_WHITE,
   },
 });
 

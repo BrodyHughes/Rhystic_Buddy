@@ -16,6 +16,7 @@ import { useCommanderDamageModeStore } from '@/features/commander-damage/store/u
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BACKGROUND, GAP } from '@/consts/consts';
 import RulingsSearch from '@/features/central-menu/modals/RulingsSearch';
+import TutorialModal from '@/features/tutorial/components/TutorialModal';
 import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalDamageOverlays';
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -176,6 +177,7 @@ export default function App() {
                   testID="winner-dismiss"
                 />
               )}
+              <TutorialModal />
             </>
           ) : (
             <View style={styles.loaderContainer}>

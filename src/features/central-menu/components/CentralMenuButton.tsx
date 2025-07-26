@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, Pressable } from 'react-native';
 import {
   useSharedValue,
   useAnimatedStyle,
@@ -13,9 +13,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
-import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS } from '@/consts/consts';
+import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { Dice6, RotateCcw, Users, MoreHorizontal } from 'lucide-react-native';
+import { Dice6, RotateCcw, Users, MoreHorizontal, Heart } from 'lucide-react-native';
 
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
@@ -27,6 +27,7 @@ import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 import AboutModal from '../modals/AboutModal';
 import StartingLifeSelector from './StartingLifeSelector';
+import { useTutorialStore } from '@/features/tutorial/store/useTutorialStore';
 
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
@@ -59,6 +60,7 @@ export default React.memo(function CentralMenuButton() {
   const [isStartingLifeVisible, setStartingLifeVisible] = useState(false);
   const [isMoreMenuVisible, setMoreMenuVisible] = useState(false);
   const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
+  const { setIsTutorialVisible } = useTutorialStore();
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);
@@ -139,9 +141,19 @@ export default React.memo(function CentralMenuButton() {
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
   };
 
+  const handleStartingLifePress = () => {
+    handlePress();
+    setTimeout(() => setStartingLifeVisible(true), 500);
+  };
+
   const handleMorePress = () => {
     handlePress();
     setTimeout(() => setMoreMenuVisible(true), 500);
+  };
+
+  const handleTutorialPress = () => {
+    setIsTutorialVisible(true);
+    setMoreMenuVisible(false);
   };
 
   const handlePlayerCountSelect = (count: PlayerCount) => {
@@ -153,12 +165,26 @@ export default React.memo(function CentralMenuButton() {
     { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
     { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
     { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
-    { id: 'placeholder', Icon: null, label: '', color: 'transparent', action: () => {} },
+    {
+      id: 'startingLife',
+      Icon: Heart,
+      label: 'Starting Life',
+      color: FOREST,
+      action: handleStartingLifePress,
+    },
     { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
   ];
 
   return (
     <View style={[styles.container, { width: W, height: H }]}>
+      {/* Backdrop press when menu is open */}
+      {open && (
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={handlePress}
+          testID="centralmenu-backdrop"
+        />
+      )}
       <MenuLayout
         fabAnimatedStyle={[
           styles.fab,
@@ -216,7 +242,7 @@ export default React.memo(function CentralMenuButton() {
           onClose={() => setMoreMenuVisible(false)}
           onRulingsPress={() => setIsRulingsSearchVisible(true)}
           onAboutPress={() => setAboutVisible(true)}
-          onStartingLifePress={() => setStartingLifeVisible(true)}
+          onTutorialPress={handleTutorialPress}
         />
       )}
 

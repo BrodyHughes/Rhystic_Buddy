@@ -18,7 +18,7 @@ import {
   TRANSPARENT_SWAMP,
   TRANSPARENT_MOUNTAIN,
   TRANSPARENT_FOREST,
-  TRANSPARENT_OFF_WHITE,
+  CARD_BACKGROUND_TRANSPARENT,
 } from './consts';
 
 export type CounterType =
@@ -60,10 +60,10 @@ export const COUNTER_ICONS: Record<CounterType | 'background', LucideIcon> = {
 };
 
 export const COUNTER_COLORS: Record<CounterType, string> = {
-  tax: TRANSPARENT_OFF_WHITE,
-  charge: TRANSPARENT_OFF_WHITE,
-  poison: TRANSPARENT_OFF_WHITE,
-  storm: TRANSPARENT_OFF_WHITE,
+  tax: CARD_BACKGROUND_TRANSPARENT,
+  charge: CARD_BACKGROUND_TRANSPARENT,
+  poison: CARD_BACKGROUND_TRANSPARENT,
+  storm: CARD_BACKGROUND_TRANSPARENT,
   manaWhite: TRANSPARENT_PLAINS,
   manaBlue: TRANSPARENT_ISLAND,
   manaBlack: TRANSPARENT_SWAMP,

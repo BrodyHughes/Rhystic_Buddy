@@ -15,7 +15,14 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
 import { radius, spacing, typography } from '@/styles/global';
-import { BACKGROUND, BACKGROUND_TRANSPARENT, BORDER_COLOR, OFF_WHITE } from '@/consts/consts';
+import {
+  BACKGROUND_TRANSPARENT,
+  MODAL_BACKGROUND,
+  OFF_WHITE,
+  TRANSPARENT_OFF_WHITE,
+  ISLAND,
+  GITHUB_URL,
+} from '@/consts/consts';
 import LicensesModal from './LicensesModal';
 
 const APP_DESCRIPTION =
@@ -29,7 +36,7 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
   const [licensesVisible, setLicensesVisible] = useState(false);
 
   const handleOpenGithub = () => {
-    Linking.openURL('https://github.com/BrodyHughes/Rhystic_Buddy');
+    Linking.openURL(GITHUB_URL);
   };
 
   return (
@@ -87,11 +94,14 @@ const styles = StyleSheet.create({
   panel: {
     width: '90%',
     maxHeight: '80%',
-    backgroundColor: BACKGROUND,
+    backgroundColor: MODAL_BACKGROUND,
     borderRadius: radius.lg,
     overflow: 'hidden',
-    borderWidth: 7,
-    borderColor: BORDER_COLOR,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -114,10 +124,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.heading2,
     marginTop: spacing.md,
+    color: OFF_WHITE,
   },
   sectionText: {
     ...typography.body,
     marginTop: spacing.xs,
+    color: TRANSPARENT_OFF_WHITE,
   },
   licensesButton: {
     marginTop: spacing.lg,
@@ -129,12 +141,13 @@ const styles = StyleSheet.create({
   },
   licensesButtonText: {
     ...typography.button,
-    color: BACKGROUND,
+    color: MODAL_BACKGROUND,
   },
   linkText: {
     ...typography.body,
     textDecorationLine: 'underline',
     marginTop: spacing.xs,
+    color: ISLAND,
   },
 });
 
