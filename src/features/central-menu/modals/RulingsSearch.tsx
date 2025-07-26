@@ -13,8 +13,11 @@ import {
   Keyboard,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { ChevronLeft } from 'lucide-react-native';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useRulings } from '../hooks/useRulings';
+import { typography } from '@/styles/global';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, RULING_ITEM_BACKGROUND } from '@/consts/consts';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -27,7 +30,7 @@ const RulingItem = React.memo(({ item }: { item: { published_at: string; comment
 RulingItem.displayName = 'RulingItem';
 
 const RulingsSearch: React.FC = () => {
-  const { isSearchVisible, setIsSearchVisible } = useRulingsStore();
+  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
   const [cardName, setCardName] = useState('');
   const [submittedCardName, setSubmittedCardName] = useState('');
 
@@ -39,7 +42,7 @@ const RulingsSearch: React.FC = () => {
   };
 
   const handleClose = () => {
-    setIsSearchVisible(false);
+    setIsRulingsSearchVisible(false);
     setCardName('');
     setSubmittedCardName('');
   };
@@ -48,7 +51,7 @@ const RulingsSearch: React.FC = () => {
     Linking.openURL('https://scryfall.com');
   };
 
-  if (!isSearchVisible) {
+  if (!isRulingsSearchVisible) {
     return null;
   }
 
@@ -61,10 +64,10 @@ const RulingsSearch: React.FC = () => {
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <SafeAreaView style={styles.flex}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>Card Rulings</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-            <Text style={styles.closeButtonText}>×</Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleClose}>
+            <ChevronLeft color="#fff" size={28} />
           </TouchableOpacity>
+          <Text style={styles.modalTitle}>Card Rulings</Text>
         </View>
 
         <View style={styles.searchRow}>
@@ -96,7 +99,7 @@ const RulingsSearch: React.FC = () => {
         {rulings && rulings.length > 0 && (
           <View style={styles.listContainer}>
             <Text style={styles.rulingsFoundTitle}>
-              Rulings for <Text style={styles.cardName}>{searchedCard}</Text>
+              Rulings for: <Text style={styles.cardName}>{searchedCard}</Text>
             </Text>
             <FlatList
               data={rulings}
@@ -132,23 +135,19 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    zIndex: 40,
+    backgroundColor: BACKGROUND_TRANSPARENT,
+    zIndex: 50,
     paddingTop: 20,
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
     marginBottom: 20,
   },
   modalTitle: {
-    fontSize: 24,
-    fontFamily: 'Comfortaa-Bold',
-    color: '#fff',
-    fontWeight: '900',
+    ...typography.heading2,
   },
   searchRow: {
     flexDirection: 'row',
@@ -163,10 +162,10 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 50,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: BUTTON_BACKGROUND,
     borderRadius: 8,
     paddingHorizontal: 16,
-    fontSize: 16,
+    ...typography.body,
     color: '#000',
     marginRight: 10,
   },
@@ -177,51 +176,48 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   searchButtonText: {
+    ...typography.button,
     color: '#000',
-    fontSize: 16,
   },
   rulingsFoundTitle: {
-    fontSize: 22,
-    color: '#fff',
+    ...typography.heading2,
     marginBottom: 20,
     textAlign: 'center',
+    fontSize: 24,
   },
   cardName: {
-    fontStyle: 'italic',
+    fontWeight: 500, // to differentiate from the rest of the text
   },
   rulingItem: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: RULING_ITEM_BACKGROUND,
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
   },
   rulingDate: {
+    ...typography.miniCaption,
     color: '#aaa',
-    fontSize: 12,
     marginBottom: 5,
   },
   rulingText: {
-    color: '#fff',
-    fontSize: 16,
+    ...typography.body,
     lineHeight: 22,
   },
   emptyText: {
+    ...typography.body,
     color: '#aaa',
     textAlign: 'center',
     marginTop: 50,
   },
   errorText: {
+    ...typography.body,
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-    fontSize: 16,
   },
-  closeButton: {
+  backButton: {
     padding: 10,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 32,
+    marginRight: 10,
   },
   scryfallCredit: {
     position: 'absolute',
@@ -229,14 +225,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scryfallCreditText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '400',
+    ...typography.miniCaption,
   },
   scryfallCreditTextLink: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '400',
+    ...typography.miniCaption,
     textDecorationLine: 'underline',
   },
 });

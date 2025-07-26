@@ -1,47 +1,54 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { View, StyleSheet, useWindowDimensions, Image, Text } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
-import LinearGradient from 'react-native-linear-gradient';
-import { BlurView } from '@react-native-community/blur';
 
 import { LifeStore, useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { typography, spacing, radius } from '@/styles/global';
 import CountersView from './CountersView';
-import { GAP, OFF_WHITE, TEXT } from '@/consts/consts';
+import LifeView from './LifeView';
+import BackgroundImage from './BackgroundImage';
+import PanelOverlays from './PanelOverlays';
+import { ViewMode } from '@/types/app';
+import { BORDER_COLOR, OFF_WHITE, TEXT_SHADOW_COLOR } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
   usePlayerBackgroundStore,
 } from '@/features/central-menu/store/usePlayerBackgroundStore';
-import LifeView from './LifeView';
-import TurnWinnerOverlay from '../../central-menu/components/TurnWinnerOverlay';
 import { useCarousel } from '@/hooks/useCarousel';
 
-export enum ViewMode {
-  LIFE = 'life',
-  COMMANDER = 'commander',
-  COUNTERS = 'counters',
-}
 interface Props {
   index: number;
   cols: number;
   rows: number;
   isEvenPlayerIndexNumber: boolean;
+  isLastPlayerOddLayout?: boolean;
+  W: number;
+  currentGap: number;
 }
 
-function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Props) {
+function PlayerPanelComponent({
+  index,
+  cols,
+  rows,
+  isEvenPlayerIndexNumber,
+  isLastPlayerOddLayout,
+  W,
+  currentGap,
+}: Props) {
   const playerSelector = useCallback((s: LifeStore) => s.players[index], [index]);
   const player = useLifeStore(playerSelector);
 
   const totalPlayers = useLifeStore((s) => s.players.length);
 
-  const { width: W, height: H } = useWindowDimensions();
+  const { height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
   const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
 
   useEffect(() => {
     return () => {
@@ -57,34 +64,19 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
   );
   const background = usePlayerBackgroundStore(backgroundSelector);
 
-  const { views, numRealViews } = useMemo(() => {
-    const baseViews = [
-      { type: ViewMode.LIFE },
-      { type: ViewMode.COMMANDER },
-      { type: ViewMode.COUNTERS },
-    ];
-    const realViews =
-      totalPlayers === 2 ? baseViews.filter((v) => v.type !== ViewMode.COMMANDER) : baseViews;
-    const finalViews = [
-      realViews[realViews.length - 1], // Cloned last item
-      ...realViews,
-      realViews[0], // Cloned first item
-    ];
-    return { views: finalViews, numRealViews: realViews.length };
-  }, [totalPlayers]);
-
-  const usableW = W - (cols + 1) * GAP;
-  const usableH = H - top - bottom - (rows + 1) * GAP;
-  const panelW = usableW / cols;
-  const panelH = usableH / rows;
+  const usableW = W - (cols + 1) * currentGap;
+  const usableH = H - top - bottom - (rows + 1) * currentGap;
+  const panelW = isLastPlayerOddLayout ? usableH / rows : usableW / cols;
+  const panelH = isLastPlayerOddLayout ? W - currentGap * 2 : usableH / rows;
 
   const { gesture, containerAnimatedStyle } = useCarousel({
-    numRealViews,
     totalPlayers,
-    isEvenPlayerIndexNumber,
     panelW,
-    views,
+    panelH,
     playerId: player?.id ?? -1,
+    isLastPlayerOddLayout,
+    isEvenPlayerIndexNumber,
+    onViewChange: setCurrentView,
   });
 
   if (!player) {
@@ -94,24 +86,7 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
   const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
   const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
   const appliedRot = totalPlayers === 2 ? rot2 : rot;
-
-  const imageNode = background ? (
-    <Image
-      source={typeof background.url === 'string' ? { uri: background.url } : background.url}
-      style={[
-        styles.imageStyle,
-        {
-          position: 'absolute',
-          width: panelH,
-          height: panelW,
-          top: (panelH - panelW) / 2,
-          left: (panelW - panelH) / 2,
-          transform: [{ rotate: '90deg' }],
-        },
-      ]}
-      resizeMode="cover"
-    />
-  ) : null;
+  const finalRot = isLastPlayerOddLayout ? '270deg' : appliedRot;
 
   const panelBackgroundColor = background ? 'transparent' : player.backgroundColor;
 
@@ -143,59 +118,211 @@ function PlayerPanelComponent({ index, cols, rows, isEvenPlayerIndexNumber }: Pr
     }
   };
 
+  // For hub-and-spoke model, we arrange views differently
+  const hasCommanderView = totalPlayers > 2;
+
   return (
     <GestureDetector gesture={gesture}>
       <View
         style={[
           styles.shadowWrap,
-          { width: panelW, height: panelH, transform: [{ rotate: appliedRot }] },
+          {
+            width: panelW,
+            height: panelH,
+            transform: [{ rotate: finalRot }],
+          },
         ]}
       >
-        {imageNode}
-        <LinearGradient
-          colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0)']}
-          style={styles.shine}
-          useAngle={true}
-          angle={195}
+        <BackgroundImage
+          background={background || null}
+          panelW={panelW}
+          panelH={panelH}
+          isDead={player.isDead || false}
         />
-        {isSpinning && currentTurn === index && (
-          <View style={styles.turnOrderOverlay}>
-            <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
-          </View>
-        )}
-        {isFinished && currentTurn === index && (
-          <TurnWinnerOverlay panelW={panelW} panelH={panelH} />
-        )}
+        <PanelOverlays
+          isSpinning={isSpinning}
+          isFinished={isFinished}
+          isCurrentTurn={currentTurn === index}
+          panelW={panelW}
+          panelH={panelH}
+        />
         <View style={styles.roundedClip}>
-          <Animated.View style={[styles.viewsContainer, containerAnimatedStyle]}>
-            {views.map((view, i) => (
+          <Animated.View
+            style={[
+              styles.viewsContainer,
+              containerAnimatedStyle,
+              { width: panelW * 4, height: panelH * 4 },
+              // { backgroundColor: 'red' },
+            ]}
+          >
+            {/* --- HORIZONTAL TRACK --- */}
+            {/* Dummy Counters (for looping left from Life) */}
+            <View
+              style={[
+                styles.viewPanel,
+                styles.panelBorder,
+                {
+                  width: panelW,
+                  height: panelH,
+                  left: 0,
+                  top: panelH,
+                  backgroundColor: panelBackgroundColor,
+                },
+              ]}
+            >
+              <CountersView
+                menuVisible
+                menuType={ViewMode.COUNTERS}
+                index={index}
+                panelHeight={panelH}
+                panelWidth={panelW}
+                active={currentView === ViewMode.COUNTERS}
+              />
+            </View>
+
+            {/* Real Life */}
+            <View
+              style={[
+                styles.viewPanel,
+                styles.panelBorder,
+                {
+                  width: panelW,
+                  height: panelH,
+                  left: panelW,
+                  top: panelH,
+                  backgroundColor: panelBackgroundColor,
+                },
+              ]}
+            >
+              <LifeView
+                life={player.life}
+                delta={player.delta}
+                panelWidth={panelH}
+                isDead={player.isDead}
+                changeLifeByAmount={changeLifeByAmount}
+                handleLongPressStart={handleLongPressStart}
+                handlePressOut={handlePressOut}
+              />
+            </View>
+
+            {/* Real Counters */}
+            <View
+              style={[
+                styles.viewPanel,
+                styles.panelBorder,
+                {
+                  width: panelW,
+                  height: panelH,
+                  left: 2 * panelW,
+                  top: panelH,
+                  backgroundColor: panelBackgroundColor,
+                },
+              ]}
+            >
+              <CountersView
+                menuVisible
+                menuType={ViewMode.COUNTERS}
+                index={index}
+                panelHeight={panelH}
+                panelWidth={panelW}
+                active={currentView === ViewMode.COUNTERS}
+              />
+            </View>
+
+            {/* Dummy Life (for looping left from Counters) */}
+            <View
+              style={[
+                styles.viewPanel,
+                styles.panelBorder,
+                {
+                  width: panelW,
+                  height: panelH,
+                  left: 3 * panelW,
+                  top: panelH,
+                  backgroundColor: panelBackgroundColor,
+                },
+              ]}
+            >
+              <LifeView
+                life={player.life}
+                delta={player.delta}
+                panelWidth={panelH}
+                isDead={player.isDead}
+                changeLifeByAmount={changeLifeByAmount}
+                handleLongPressStart={handleLongPressStart}
+                handlePressOut={handlePressOut}
+              />
+            </View>
+
+            {/* --- VERTICAL TRACK --- */}
+            {/* Dummy Commander (for looping up from Life) */}
+            {hasCommanderView && (
               <View
-                key={i}
                 style={[
                   styles.viewPanel,
                   styles.panelBorder,
-                  { width: panelW, height: panelH, backgroundColor: panelBackgroundColor },
+                  {
+                    width: panelW,
+                    height: panelH,
+                    left: panelW,
+                    top: 0,
+                    backgroundColor: panelBackgroundColor,
+                  },
                 ]}
               >
-                {view.type === ViewMode.LIFE && (
-                  <LifeView
-                    life={player.life}
-                    delta={player.delta}
-                    changeLifeByAmount={changeLifeByAmount}
-                    handleLongPressStart={handleLongPressStart}
-                    handlePressOut={handlePressOut}
-                  />
-                )}
-                {view.type === ViewMode.COMMANDER && (
-                  <View style={{ width: panelH, transform: [{ rotate: '90deg' }] }}>
-                    <Text style={styles.panelText}>Damage Received</Text>
-                  </View>
-                )}
-                {view.type === ViewMode.COUNTERS && (
-                  <CountersView menuVisible menuType={ViewMode.COUNTERS} index={index} />
-                )}
+                <View style={{ width: panelH, transform: [{ rotate: '90deg' }] }}>
+                  <Text style={styles.panelText}>Damage Received</Text>
+                </View>
               </View>
-            ))}
+            )}
+
+            {/* Real Life (at the intersection) is already rendered above */}
+
+            {/* Real Commander */}
+            {hasCommanderView && (
+              <View
+                style={[
+                  styles.viewPanel,
+                  styles.panelBorder,
+                  {
+                    width: panelW,
+                    height: panelH,
+                    left: panelW,
+                    top: 2 * panelH,
+                    backgroundColor: panelBackgroundColor,
+                  },
+                ]}
+              >
+                <View style={{ width: panelH, transform: [{ rotate: '90deg' }] }}>
+                  <Text style={styles.panelText}>Damage Received</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Dummy Life (for looping up from Commander) */}
+            <View
+              style={[
+                styles.viewPanel,
+                styles.panelBorder,
+                {
+                  width: panelW,
+                  height: panelH,
+                  left: panelW,
+                  top: 3 * panelH,
+                  backgroundColor: panelBackgroundColor,
+                },
+              ]}
+            >
+              <LifeView
+                life={player.life}
+                delta={player.delta}
+                panelWidth={panelH}
+                isDead={player.isDead}
+                changeLifeByAmount={changeLifeByAmount}
+                handleLongPressStart={handleLongPressStart}
+                handlePressOut={handlePressOut}
+              />
+            </View>
           </Animated.View>
         </View>
       </View>
@@ -213,35 +340,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 4,
   },
-  shine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: '100%',
-    zIndex: 1,
-    pointerEvents: 'none',
-    overflow: 'hidden',
-    borderRadius: radius.sm,
-  },
-  imageStyle: {
-    opacity: 0.35,
-    borderRadius: radius.sm,
-  },
-  turnOrderOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 100,
-    overflow: 'hidden',
-    borderRadius: radius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 7,
-    borderColor: 'rgba(0, 0, 0, 0.55)',
-  },
   roundedClip: {
     flex: 1,
     borderRadius: radius.sm,
@@ -254,12 +352,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   viewsContainer: {
-    flex: 1,
+    position: 'absolute',
+    width: '200%',
+    height: '200%',
   },
   viewPanel: {
-    height: '100%',
-    alignItems: 'center',
+    position: 'absolute',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   lifeBlock: {
     flexDirection: 'row',
@@ -273,11 +373,10 @@ const styles = StyleSheet.create({
     ...typography.heading1,
     color: OFF_WHITE,
     marginRight: spacing.xs,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     paddingHorizontal: 20,
-    fontVariant: ['tabular-nums'],
   },
   delta: {
     ...typography.caption,
@@ -294,28 +393,22 @@ const styles = StyleSheet.create({
   dec: { left: 0 },
   btnText: {
     ...typography.heading2,
-    fontSize: 32,
-    color: TEXT,
     transform: [{ rotate: '90deg' }],
   },
   panelBorder: {
     borderWidth: 7,
-    borderColor: 'rgba(223, 223, 223, 0.2)',
+    borderColor: BORDER_COLOR,
   },
   lifeTxt: {
     ...typography.heading1,
-    fontSize: 88,
     color: OFF_WHITE,
-    fontVariant: ['tabular-nums'],
   },
   btnTxt: {
     ...typography.body,
-    fontSize: 28,
     color: '#fff',
   },
   panelText: {
     ...typography.heading2,
-    color: OFF_WHITE,
     textAlign: 'center',
     padding: spacing.md,
   },

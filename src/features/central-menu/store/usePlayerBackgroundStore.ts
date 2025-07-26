@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface PlayerBackground {
   url: string | number;
@@ -34,30 +36,38 @@ const stockImages = [
   },
 ];
 
-export const usePlayerBackgroundStore = create<PlayerBackgroundState>((set) => {
-  const shuffledImages = [...stockImages].sort(() => Math.random() - 0.5);
-  const initialBackgrounds: Record<number, PlayerBackground> = {};
-  for (let i = 0; i < 6; i++) {
-    initialBackgrounds[i] = shuffledImages[i % shuffledImages.length];
-  }
+export const usePlayerBackgroundStore = create<PlayerBackgroundState>()(
+  persist(
+    (set) => {
+      const shuffledImages = [...stockImages].sort(() => Math.random() - 0.5);
+      const initialBackgrounds: Record<number, PlayerBackground> = {};
+      for (let i = 0; i < 6; i++) {
+        initialBackgrounds[i] = shuffledImages[i % shuffledImages.length];
+      }
 
-  return {
-    backgrounds: initialBackgrounds,
-    setBackground: (playerId, background) => {
-      set((state) => ({
-        backgrounds: {
-          ...state.backgrounds,
-          [playerId]: background,
+      return {
+        backgrounds: initialBackgrounds,
+        setBackground: (playerId, background) => {
+          set((state) => ({
+            backgrounds: {
+              ...state.backgrounds,
+              [playerId]: background,
+            },
+          }));
         },
-      }));
-    },
-    removeBackground: (playerId) => {
-      set((state) => ({
-        backgrounds: {
-          ...state.backgrounds,
-          [playerId]: null,
+        removeBackground: (playerId) => {
+          set((state) => ({
+            backgrounds: {
+              ...state.backgrounds,
+              [playerId]: null,
+            },
+          }));
         },
-      }));
+      };
     },
-  };
-});
+    {
+      name: 'rb_player_backgrounds',
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);

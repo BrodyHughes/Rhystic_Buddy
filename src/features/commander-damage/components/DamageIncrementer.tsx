@@ -4,7 +4,11 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
-import { OFF_WHITE } from '@/consts/consts';
+import {
+  DAMAGE_INCREMENTER_BUTTON_COLOR,
+  OFF_WHITE,
+  TURN_WINNER_OVERLAY_BORDER_COLOR,
+} from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
 import { BlurView } from '@react-native-community/blur';
 
@@ -58,7 +62,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     overflow: 'hidden',
     borderWidth: 7,
-    borderColor: 'rgba(0, 0, 0, 0.55)',
+    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   damageBlock: {
     flexDirection: 'row',
@@ -69,12 +73,7 @@ const styles = StyleSheet.create({
   },
   damageText: {
     ...typography.heading1,
-    fontSize: 88,
     color: OFF_WHITE,
-    fontVariant: ['tabular-nums'],
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
   },
   button: {
     position: 'absolute',
@@ -85,12 +84,12 @@ const styles = StyleSheet.create({
   },
   topButton: {
     top: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: DAMAGE_INCREMENTER_BUTTON_COLOR,
     borderRadius: radius.sm,
   },
   bottomButton: {
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: DAMAGE_INCREMENTER_BUTTON_COLOR,
     borderRadius: radius.sm,
   },
 });

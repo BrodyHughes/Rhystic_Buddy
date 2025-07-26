@@ -1,40 +1,55 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { BORDER_COLOR } from '@/consts/consts';
+import { CARD_BACKGROUND_TRANSPARENT, OFF_WHITE, PRESSED_BUTTON_COLOR } from '@/consts/consts';
+import { typography } from '@/styles/global';
 
-type CounterKey = 'storm' | 'poison' | 'mana';
+type CounterKey = string;
 
 interface Props {
   defenderId: number;
   counter: CounterKey;
   cellW: number;
   cellH: number;
+  backgroundColor?: string;
 }
 
-export default function CountersMenuButtons({ defenderId, counter, cellW, cellH }: Props) {
+export default function CountersMenuButtons({
+  defenderId,
+  counter,
+  cellW,
+  cellH,
+  backgroundColor,
+}: Props) {
   const value = useCounterStore((s) => s.counters[defenderId]?.[counter] ?? 0);
   const changeCounter = useCounterStore((s) => s.changeCounter);
 
   return (
-    <View style={[styles.square, { width: `${cellW - 2}%`, height: `${cellH - 4}%` }]}>
+    <View
+      style={[
+        styles.square,
+        {
+          width: cellW,
+          height: cellH,
+          backgroundColor: backgroundColor ?? CARD_BACKGROUND_TRANSPARENT,
+        },
+      ]}
+    >
       <Text style={styles.total}>{value}</Text>
 
       <View style={styles.btnRow}>
-        <TouchableOpacity
-          style={[styles.btn]}
+        <Pressable
+          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
           onPress={() => changeCounter(defenderId, counter, 1)}
-          activeOpacity={1}
         >
           <Text style={[styles.btnTxt, { marginBottom: 9 }]}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btn]}
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
           onPress={() => changeCounter(defenderId, counter, -1)}
-          activeOpacity={1}
         >
           <Text style={[styles.btnTxt, { marginTop: 9 }]}>‑</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -44,20 +59,24 @@ const styles = StyleSheet.create({
   square: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    margin: 3,
+    borderRadius: 15,
+    margin: 6,
     overflow: 'hidden',
-    borderWidth: 7,
-    borderColor: BORDER_COLOR,
-    backgroundColor: 'rgba(214, 214, 214, 0.13)',
+    aspectRatio: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
   total: {
-    color: '#fff',
-    fontSize: 40,
-    fontFamily: 'Comfortaa-Bold',
+    ...typography.heading2,
+    fontFamily: 'Comfortaa',
+    fontSize: 34,
+    fontWeight: '700',
+    marginTop: 9,
     zIndex: 1,
     pointerEvents: 'box-none',
-    marginTop: 5,
   },
   btnRow: {
     position: 'absolute',
@@ -72,5 +91,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btnTxt: { color: '#fff', fontSize: 18, fontWeight: 200, fontFamily: 'Comfortaa-Bold' },
+  pressed: {
+    backgroundColor: PRESSED_BUTTON_COLOR,
+  },
+  btnTxt: { ...typography.button, color: OFF_WHITE, fontSize: 22 },
 });

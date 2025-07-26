@@ -1,3 +1,4 @@
+import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
 import { StyleSheet, Platform, TextStyle } from 'react-native';
 
 /**
@@ -6,13 +7,13 @@ import { StyleSheet, Platform, TextStyle } from 'react-native';
  */
 export const palette = {
   primary: '#5E60CE',
-  primaryDark: '#4E52B6',
-  secondary: '#48BFE3',
-  accent: '#FFC300',
-  background: '#F5F7FA',
-  surface: '#FFFFFF',
-  textPrimary: '#1E1E1E',
-  textSecondary: '#5A5A5A',
+  primaryDark: OFF_WHITE,
+  secondary: OFF_WHITE,
+  accent: OFF_WHITE,
+  background: BACKGROUND,
+  surface: OFF_WHITE,
+  textPrimary: OFF_WHITE,
+  textSecondary: OFF_WHITE,
   border: '#E0E6ED',
   danger: '#EF476F',
   success: '#06D6A0',
@@ -34,36 +35,49 @@ export const radius = {
   full: '100%',
 };
 
-export type TypographyVariant = 'heading1' | 'heading2' | 'body' | 'caption' | 'button';
+export type TypographyVariant =
+  | 'heading1'
+  | 'heading2'
+  | 'body'
+  | 'caption'
+  | 'button'
+  | 'miniCaption';
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
-    fontFamily: 'Comfortaa-Bold',
-    fontWeight: '900',
-    fontSize: 90,
+    marginTop: 10,
+    fontFamily: 'Comfortaa',
+    fontWeight: 900,
+    fontSize: 95,
     color: palette.textPrimary,
   },
   heading2: {
-    fontFamily: 'Comfortaa',
-    fontWeight: '600',
+    fontFamily: 'Asap',
+    fontWeight: 900,
     fontSize: 30,
     color: palette.textPrimary,
   },
   body: {
-    fontFamily: 'Comfortaa',
-    fontWeight: '400',
-    fontSize: 16,
+    fontFamily: 'Asap',
+    fontWeight: 600,
+    fontSize: 22,
     color: palette.textSecondary,
   },
   caption: {
-    fontFamily: 'Comfortaa',
-    fontWeight: '400',
-    fontSize: 24,
+    fontFamily: 'Asap',
+    fontWeight: 600,
+    fontSize: 30,
+    color: palette.textSecondary,
+  },
+  miniCaption: {
+    fontFamily: 'Asap',
+    fontWeight: 500,
+    fontSize: 16,
     color: palette.textSecondary,
   },
   button: {
-    fontFamily: 'Comfortaa',
-    fontWeight: '600',
+    fontFamily: 'Asap',
+    fontWeight: 600,
     fontSize: 16,
   },
 };
@@ -110,7 +124,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: palette.primary,
+    backgroundColor: OFF_WHITE,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,

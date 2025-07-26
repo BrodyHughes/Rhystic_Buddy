@@ -16,19 +16,92 @@ interface Props {
 
 function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) {
   const players = useLifeStore((s) => s.players);
-  const playerIds = useMemo(() => players.map((p) => p.id), [players]);
-
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
-
   const totalPlayersCount = players.length;
-  const currentLayout = layoutConfigurations[totalPlayersCount] || layoutConfigurations[4];
-  const { columns, rows } = currentLayout;
 
-  const usableW = W - (columns + 1) * gap;
-  const usableH = H - top - bottom - (rows + 1) * gap;
-  const panelW = usableW / columns;
-  const panelH = usableH / rows;
+  const layouts = useMemo(() => {
+    const layoutMap: {
+      [playerId: number]: { style: any; rot: string; isEven: boolean };
+    } = {};
+    if (!totalPlayersCount) return layoutMap;
+
+    const currentLayout = layoutConfigurations[totalPlayersCount] || layoutConfigurations[4];
+    const { columns, rows } = currentLayout;
+    const usableW = W - (columns + 1) * gap;
+    const usableH = H - top - bottom - (rows + 1) * gap;
+    const regularPanelW = usableW / columns;
+    const regularPanelH = usableH / rows;
+
+    switch (totalPlayersCount) {
+      case 3:
+      case 5: {
+        const widePanelW = usableH / rows; // Pre-rotation height
+        const widePanelH = W - gap * 2; // Pre-rotation width
+
+        players.forEach((player, index) => {
+          const isLastPlayerOddLayout =
+            (totalPlayersCount === 3 && index === 2) || (totalPlayersCount === 5 && index === 4);
+
+          const panelW = isLastPlayerOddLayout ? widePanelW : regularPanelW;
+          const panelH = isLastPlayerOddLayout ? widePanelH : regularPanelH;
+          const isEven = isLastPlayerOddLayout ? false : index % 2 === 0;
+
+          const rot = isEven ? '0deg' : '180deg';
+          const containerRot = isLastPlayerOddLayout ? '180deg' : '90deg';
+
+          let gridCellTop: number;
+          let gridCellLeft: number;
+          let cellH: number;
+          let cellW: number;
+
+          if (isLastPlayerOddLayout) {
+            const rowIndex = Math.floor(index / 2);
+            gridCellTop = rowIndex * (regularPanelH + gap) + gap + top;
+            gridCellLeft = gap;
+            cellH = regularPanelH;
+            cellW = W - 2 * gap;
+          } else {
+            gridCellTop = Math.floor(index / columns) * (regularPanelH + gap) + gap + top;
+            gridCellLeft = (index % columns) * (regularPanelW + gap) + gap;
+            cellH = regularPanelH;
+            cellW = regularPanelW;
+          }
+
+          const style = {
+            position: 'absolute' as const,
+            width: panelH,
+            height: panelW,
+            top: gridCellTop + (cellH - panelW) / 2,
+            left: gridCellLeft + (cellW - panelH) / 2,
+            transform: [{ rotate: containerRot }],
+          };
+          layoutMap[player.id] = { style, rot, isEven };
+        });
+        break;
+      }
+      default:
+        players.forEach((player, index) => {
+          const isEven = index % 2 === 0;
+          const panelRot = isEven ? '0deg' : '180deg';
+          const twoPlayerPanelRot = isEven ? '90deg' : '270deg';
+          const rot = totalPlayersCount === 2 ? twoPlayerPanelRot : panelRot;
+          const gridCellTop = Math.floor(index / columns) * (regularPanelH + gap) + gap + top;
+          const gridCellLeft = (index % columns) * (regularPanelW + gap) + gap;
+
+          const style = {
+            position: 'absolute' as const,
+            width: regularPanelH,
+            height: regularPanelW,
+            top: gridCellTop + (regularPanelH - regularPanelW) / 2,
+            left: gridCellLeft + (regularPanelW - regularPanelH) / 2,
+            transform: [{ rotate: '90deg' }],
+          };
+          layoutMap[player.id] = { style, rot, isEven };
+        });
+    }
+    return layoutMap;
+  }, [players, totalPlayersCount, layoutConfigurations, W, H, top, bottom, gap]);
 
   return (
     <Animated.View
@@ -36,34 +109,17 @@ function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) 
       entering={FadeIn.duration(150)}
       exiting={FadeOut.duration(150)}
     >
-      {playerIds.map((playerId, index) => {
-        if (playerId === defenderId) {
+      {Object.entries(layouts).map(([playerId, { style, rot, isEven }]) => {
+        if (Number(playerId) === defenderId) {
           return null;
         }
 
-        // The original panel is rotated 0 or 180. The DamageIncrementer needs this value to counter-rotate its content.
-        const isEvenPlayerIndexNumber = index % 2 === 0;
-        const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
-
-        // The overlay itself is rotated 90deg to match the panel's internal content flow.
-        const gridCellTop = Math.floor(index / columns) * (panelH + gap) + gap + top;
-        const gridCellLeft = (index % columns) * (panelW + gap) + gap;
-
-        const panelStyle = {
-          position: 'absolute' as const,
-          width: panelH, // Swapped with height bc its rotated 90deg
-          height: panelW, // Swapped with width bc its rotated 90deg
-          top: gridCellTop + (panelH - panelW) / 2, // Center vertically
-          left: gridCellLeft + (panelW - panelH) / 2, // Center horizontally
-          transform: [{ rotate: '90deg' }],
-        };
-
         return (
-          <View key={playerId} style={panelStyle}>
+          <View key={playerId} style={style}>
             <DamageIncrementer
-              dealerId={playerId}
+              dealerId={Number(playerId)}
               appliedRot={rot}
-              isEvenPlayerIndexNumber={isEvenPlayerIndexNumber}
+              isEvenPlayerIndexNumber={isEven}
             />
           </View>
         );

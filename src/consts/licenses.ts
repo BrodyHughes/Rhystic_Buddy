@@ -12,11 +12,6 @@ export const licenses = [
     license: 'MIT',
   },
   {
-    name: 'immer',
-    version: '10.1.1',
-    license: 'MIT',
-  },
-  {
     name: 'lucide-react-native',
     version: '0.525.0',
     license: 'ISC',
@@ -54,7 +49,7 @@ export const licenses = [
   {
     name: 'react-native-svg',
     version: '15.12.0',
-    _license: 'MIT',
+    license: 'MIT',
   },
   {
     name: 'zustand',

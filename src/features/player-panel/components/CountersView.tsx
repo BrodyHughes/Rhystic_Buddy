@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { ViewMode } from './PlayerPanel';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { ViewMode } from '@/types/app';
 import CountersMenu from '@/features/counters-menu/components/CountersMenu';
 
 interface Props {
   menuVisible: boolean;
   menuType: ViewMode;
   index: number;
+  panelHeight: number;
+  panelWidth: number;
+  active?: boolean;
 }
 
-export default function CountersView({ menuVisible, menuType, index }: Props) {
+export default function CountersView({
+  menuVisible,
+  menuType,
+  index,
+  panelHeight,
+  panelWidth,
+  active = false,
+}: Props) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+
+  const [scrollKey, setScrollKey] = useState(0);
+
+  useEffect(() => {
+    if (active) {
+      // force remount of ScrollView -> fresh offset at 0, no snap
+      setScrollKey((k) => k + 1);
+    }
+  }, [active]);
 
   if (!menuVisible) {
     return null;
@@ -30,14 +49,23 @@ export default function CountersView({ menuVisible, menuType, index }: Props) {
         <View
           style={[
             styles.content,
-            dims && {
-              width: dims.h,
-              height: dims.w,
+            {
+              width: panelHeight, // rotated: width becomes original height
+              maxHeight: panelWidth, // height becomes original width
               transform: [{ rotate: '90deg' }],
             },
           ]}
         >
-          <CountersMenu defenderId={index} />
+          <ScrollView
+            key={`${index}-${scrollKey}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentOffset={{ x: 0, y: 0 }}
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <CountersMenu defenderId={index} />
+          </ScrollView>
         </View>
       )}
     </View>
@@ -52,6 +80,11 @@ const styles = StyleSheet.create({
   },
   content: {
     justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  scrollContent: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 });

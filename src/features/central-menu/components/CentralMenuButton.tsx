@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, Pressable } from 'react-native';
 import {
   useSharedValue,
   useAnimatedStyle,
@@ -15,15 +15,19 @@ import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLife
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { BookText, Dice6, Image, RotateCcw, Users } from 'lucide-react-native';
+import { Dice6, RotateCcw, Users, MoreHorizontal, Heart } from 'lucide-react-native';
+
 import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
+import MoreMenu from '../modals/MoreMenu';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useTurnOrder } from '../hooks/useTurnOrder';
 import { MenuLayout } from './MenuLayout';
 import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 import AboutModal from '../modals/AboutModal';
+import StartingLifeSelector from './StartingLifeSelector';
+import { useTutorialStore } from '@/features/tutorial/store/useTutorialStore';
 
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
@@ -50,12 +54,17 @@ const PENTAGON_PATH = getRegularPolygonPath();
 
 export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
-  const [isSearchVisible, setSearchVisible] = useState(false);
+  const [isBackgroundSearchVisible, setBackgroundSearchVisible] = useState(false);
   const [isPlayerCountSelectorVisible, setPlayerCountSelectorVisible] = useState(false);
   const [isAboutVisible, setAboutVisible] = useState(false);
+  const [isStartingLifeVisible, setStartingLifeVisible] = useState(false);
+  const [isMoreMenuVisible, setMoreMenuVisible] = useState(false);
+  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
+  const { setIsTutorialVisible } = useTutorialStore();
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);
+  // starting life setters now handled inside selector
   const resetCommanderDamage = useCommanderDamageStore((state) => state.resetAll);
   const resetCounters = useCounterStore((state) => state.resetAll);
 
@@ -127,19 +136,24 @@ export default React.memo(function CentralMenuButton() {
     setTimeout(startTurnOrder, 500);
   };
 
-  const handleBackgroundPress = () => {
-    handlePress();
-    setTimeout(() => setSearchVisible(true), 500);
-  };
-
   const handlePlayersPress = () => {
     handlePress();
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
   };
 
-  const handleRulingsPress = () => {
+  const handleStartingLifePress = () => {
     handlePress();
-    setTimeout(() => setIsSearchVisible(true), 500);
+    setTimeout(() => setStartingLifeVisible(true), 500);
+  };
+
+  const handleMorePress = () => {
+    handlePress();
+    setTimeout(() => setMoreMenuVisible(true), 500);
+  };
+
+  const handleTutorialPress = () => {
+    setIsTutorialVisible(true);
+    setMoreMenuVisible(false);
   };
 
   const handlePlayerCountSelect = (count: PlayerCount) => {
@@ -147,24 +161,30 @@ export default React.memo(function CentralMenuButton() {
     setPlayerCountSelectorVisible(false);
   };
 
-  const setIsSearchVisible = useRulingsStore((s) => s.setIsSearchVisible);
-
   const menuItems = [
     { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
     { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
     { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
     {
-      id: 'background',
-      Icon: Image,
-      label: 'Background',
+      id: 'startingLife',
+      Icon: Heart,
+      label: 'Starting Life',
       color: FOREST,
-      action: handleBackgroundPress,
+      action: handleStartingLifePress,
     },
-    { id: 'rulings', Icon: BookText, label: 'Rulings', color: PLAINS, action: handleRulingsPress },
+    { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
   ];
 
   return (
     <View style={[styles.container, { width: W, height: H }]}>
+      {/* Backdrop press when menu is open */}
+      {open && (
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={handlePress}
+          testID="centralmenu-backdrop"
+        />
+      )}
       <MenuLayout
         fabAnimatedStyle={[
           styles.fab,
@@ -178,41 +198,57 @@ export default React.memo(function CentralMenuButton() {
         pentagonPath={PENTAGON_PATH}
       />
 
-      {!isSearchVisible && !isPlayerCountSelectorVisible && (
-        <View
-          style={[
-            styles.menuItemsWrapper,
-            {
-              paddingTop: top - bottom,
-            },
-          ]}
-        >
-          {menuItems.map((item, index) => (
-            <MenuItem
-              key={item.id}
-              index={index}
-              progress={progress}
-              onPress={item.action}
-              radius={menuItemRadius}
-              label={item.label}
-              color={item.color}
-            >
-              <item.Icon color={BACKGROUND} size={30} />
-            </MenuItem>
-          ))}
-        </View>
-      )}
+      {!isBackgroundSearchVisible &&
+        !isPlayerCountSelectorVisible &&
+        !isRulingsSearchVisible &&
+        !isMoreMenuVisible && (
+          <View
+            style={[
+              styles.menuItemsWrapper,
+              {
+                paddingTop: top - bottom,
+              },
+            ]}
+          >
+            {menuItems.map((item, index) => (
+              <MenuItem
+                key={item.id}
+                index={index}
+                progress={progress}
+                onPress={item.action}
+                radius={menuItemRadius}
+                label={item.label}
+                color={item.color}
+              >
+                {item.Icon && <item.Icon color={BACKGROUND} size={30} />}
+              </MenuItem>
+            ))}
+          </View>
+        )}
 
       {isPlayerCountSelectorVisible && (
         <PlayerCountSelector
           onSelect={handlePlayerCountSelect}
           onClose={() => setPlayerCountSelectorVisible(false)}
-          onInfoPress={() => setAboutVisible(true)}
         />
       )}
 
-      {isSearchVisible && <BackgroundSearch onClose={() => setSearchVisible(false)} />}
+      {isBackgroundSearchVisible && (
+        <BackgroundSearch onClose={() => setBackgroundSearchVisible(false)} />
+      )}
       {isAboutVisible && <AboutModal onClose={() => setAboutVisible(false)} />}
+      {isMoreMenuVisible && (
+        <MoreMenu
+          onClose={() => setMoreMenuVisible(false)}
+          onRulingsPress={() => setIsRulingsSearchVisible(true)}
+          onAboutPress={() => setAboutVisible(true)}
+          onTutorialPress={handleTutorialPress}
+        />
+      )}
+
+      {isStartingLifeVisible && (
+        <StartingLifeSelector onClose={() => setStartingLifeVisible(false)} />
+      )}
     </View>
   );
 });
