@@ -5,7 +5,13 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Pressable } fro
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { typography } from '@/styles/global';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, SWAMP, OFF_WHITE } from '@/consts/consts';
+import {
+  BACKGROUND_TRANSPARENT,
+  BUTTON_BACKGROUND,
+  LIGHT_GREY,
+  BORDER_COLOR,
+  BACKGROUND,
+} from '@/consts/consts';
 
 interface StartingLifeSelectorProps {
   onClose: () => void;
@@ -111,15 +117,18 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   closeButton: {
-    padding: 10,
+    paddingHorizontal: 5,
   },
   closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
     ...typography.heading2,
-    fontSize: 45,
+    lineHeight: 45,
+    fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   pickerContainer: {
@@ -128,7 +137,8 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     ...typography.body,
-    marginBottom: 8,
+    marginVertical: 10,
+    fontWeight: '600',
   },
   title: {
     ...typography.heading2,
@@ -137,7 +147,7 @@ const styles = StyleSheet.create({
   },
   selectItem: {
     backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     marginVertical: 5,
@@ -147,13 +157,18 @@ const styles = StyleSheet.create({
   selectItemText: {
     ...typography.body,
     color: '#000',
+    marginBottom: 0,
+    fontWeight: '600',
+    fontSize: 20,
   },
   selectedText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontWeight: '900',
   },
   selectedItem: {
-    backgroundColor: SWAMP,
+    backgroundColor: BACKGROUND,
+    borderWidth: 2,
+    borderColor: BORDER_COLOR,
   },
 });
 

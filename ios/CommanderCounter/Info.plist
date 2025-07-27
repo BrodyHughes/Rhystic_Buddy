@@ -54,5 +54,7 @@
 		<string>Asap-VariableFont_wdth,wght.ttf</string>
 		<string>Comfortaa-VariableFont_wght.ttf</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

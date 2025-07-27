@@ -10,10 +10,16 @@ const horizontalSequence = [ViewMode.LIFE, ViewMode.COUNTERS];
 const verticalSequence = [ViewMode.LIFE, ViewMode.COMMANDER];
 
 // --- Animation Configuration ---
-const springConfig = {
+const slideSpringConfig = {
   mass: 0.5,
-  stiffness: 200,
-  damping: 25,
+  stiffness: 500,
+  damping: 50,
+};
+
+const resetSpringConfig = {
+  mass: 0.5,
+  stiffness: 500,
+  damping: 50,
 };
 
 interface UseCarouselParams {
@@ -43,6 +49,8 @@ export const useCarousel = ({
   const translateX = useSharedValue(-panelW);
   const translateY = useSharedValue(-panelH);
 
+  const isAnimating = useSharedValue(false);
+
   const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
   const hasCommanderView = totalPlayers > 2;
 
@@ -64,10 +72,11 @@ export const useCarousel = ({
     'worklet';
     hIndex.value = 1;
     vIndex.value = 1;
-    translateX.value = withSpring(-panelW);
-    translateY.value = withSpring(-panelH);
+    translateX.value = withSpring(-panelW, resetSpringConfig);
+    translateY.value = withSpring(-panelH, resetSpringConfig);
     runOnJS(updateOverlay)(false);
-  }, [hIndex, vIndex, panelW, panelH, translateX, translateY, updateOverlay]);
+    if (onViewChange) runOnJS(onViewChange)(ViewMode.LIFE);
+  }, [hIndex, vIndex, panelW, panelH, translateX, translateY, updateOverlay, onViewChange]);
 
   useEffect(() => {
     PlayerCarouselManager.register(playerId, reset);
@@ -78,6 +87,9 @@ export const useCarousel = ({
     .cancelsTouchesInView(false)
     .onEnd((e) => {
       'worklet';
+      if (isAnimating.value) {
+        return;
+      }
       const { translationX, translationY } = e;
 
       const isScreenHorizontal = Math.abs(translationX) > Math.abs(translationY);
@@ -98,7 +110,8 @@ export const useCarousel = ({
         runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
         if (onViewChange) runOnJS(onViewChange)(nextView);
 
-        translateX.value = withSpring(-nextHIndex * panelW, springConfig, (isFinished) => {
+        isAnimating.value = true;
+        translateX.value = withSpring(-nextHIndex * panelW, slideSpringConfig, (isFinished) => {
           if (isFinished) {
             if (nextHIndex === 0) {
               hIndex.value = horizontalSequence.length;
@@ -110,6 +123,7 @@ export const useCarousel = ({
               hIndex.value = nextHIndex;
             }
           }
+          isAnimating.value = false;
         });
       } else {
         // Vertical Swipe
@@ -117,7 +131,11 @@ export const useCarousel = ({
         if (Math.abs(gestureTranslation) < 50 || hIndex.value !== 1) return;
         if (!hasCommanderView) return;
 
-        const direction = gestureTranslation < 0 ? 1 : -1;
+        // The flipFactor needs to be adjusted for the last player in an odd-numbered
+        // layout, since its rotation (270deg) differs from the standard
+        // upside-down panels (180deg), inverting the vertical swipe.
+        const verticalFlipFactor = isLastPlayerOddLayout ? flipFactor * -1 : flipFactor;
+        const direction = (gestureTranslation < 0 ? 1 : -1) * verticalFlipFactor;
         const nextVIndex = vIndex.value + direction;
 
         // --- Trigger overlay update immediately based on destination ---
@@ -126,7 +144,8 @@ export const useCarousel = ({
         runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
         if (onViewChange) runOnJS(onViewChange)(nextView);
 
-        translateY.value = withSpring(-nextVIndex * panelH, springConfig, (isFinished) => {
+        isAnimating.value = true;
+        translateY.value = withSpring(-nextVIndex * panelH, slideSpringConfig, (isFinished) => {
           if (isFinished) {
             if (nextVIndex === 0) {
               vIndex.value = verticalSequence.length;
@@ -138,6 +157,7 @@ export const useCarousel = ({
               vIndex.value = nextVIndex;
             }
           }
+          isAnimating.value = false;
         });
       }
     });

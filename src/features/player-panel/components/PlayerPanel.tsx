@@ -11,7 +11,7 @@ import LifeView from './LifeView';
 import BackgroundImage from './BackgroundImage';
 import PanelOverlays from './PanelOverlays';
 import { ViewMode } from '@/types/app';
-import { BORDER_COLOR, OFF_WHITE, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { BORDER_COLOR, BORDER_WIDTH, LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -152,7 +152,6 @@ function PlayerPanelComponent({
               styles.viewsContainer,
               containerAnimatedStyle,
               { width: panelW * 4, height: panelH * 4 },
-              // { backgroundColor: 'red' },
             ]}
           >
             {/* --- HORIZONTAL TRACK --- */}
@@ -371,7 +370,7 @@ const styles = StyleSheet.create({
   },
   life: {
     ...typography.heading1,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     marginRight: spacing.xs,
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
   },
   delta: {
     ...typography.caption,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   button: {
     position: 'absolute',
@@ -396,12 +395,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '90deg' }],
   },
   panelBorder: {
-    borderWidth: 7,
+    borderWidth: BORDER_WIDTH,
     borderColor: BORDER_COLOR,
   },
   lifeTxt: {
     ...typography.heading1,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   btnTxt: {
     ...typography.body,

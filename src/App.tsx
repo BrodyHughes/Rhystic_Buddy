@@ -14,7 +14,7 @@ import CentralMenuButton from '@/features/central-menu/components/CentralMenuBut
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { BACKGROUND, GAP } from '@/consts/consts';
+import { APP_BACKGROUND, GAP } from '@/consts/consts';
 import RulingsSearch from '@/features/central-menu/modals/RulingsSearch';
 import TutorialModal from '@/features/tutorial/components/TutorialModal';
 import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalDamageOverlays';
@@ -47,8 +47,34 @@ export default function App() {
   const usableH = H - top - bottom - (rows + 1) * currentGap;
   const panelRowHeight = usableH / rows;
 
+  const twoPlayerStyle = {
+    flex: 1,
+    gap: currentGap * 1.2,
+  };
+
   const renderPlayerPanels = () => {
     switch (totalPlayersCount) {
+      case 2:
+        return (
+          <View style={twoPlayerStyle}>
+            <PlayerPanel
+              index={0}
+              cols={columns}
+              rows={rows}
+              isEvenPlayerIndexNumber
+              W={W}
+              currentGap={currentGap}
+            />
+            <PlayerPanel
+              index={1}
+              cols={columns}
+              rows={rows}
+              isEvenPlayerIndexNumber={false}
+              W={W}
+              currentGap={currentGap}
+            />
+          </View>
+        );
       case 3:
         return (
           <View style={styles.flex}>
@@ -192,7 +218,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: BACKGROUND },
+  screen: { flex: 1, backgroundColor: APP_BACKGROUND },
   grid: {
     flex: 1,
     flexDirection: 'row',

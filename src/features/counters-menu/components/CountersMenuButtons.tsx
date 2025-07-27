@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { CARD_BACKGROUND_TRANSPARENT, OFF_WHITE, PRESSED_BUTTON_COLOR } from '@/consts/consts';
+import { CARD_BACKGROUND_TRANSPARENT, LIGHT_GREY, PRESSED_BUTTON_COLOR } from '@/consts/consts';
 import { typography } from '@/styles/global';
 
 type CounterKey = string;
@@ -94,5 +94,5 @@ const styles = StyleSheet.create({
   pressed: {
     backgroundColor: PRESSED_BUTTON_COLOR,
   },
-  btnTxt: { ...typography.button, color: OFF_WHITE, fontSize: 22 },
+  btnTxt: { ...typography.button, color: LIGHT_GREY, fontSize: 22 },
 });

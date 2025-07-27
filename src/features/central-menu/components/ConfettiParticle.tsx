@@ -34,6 +34,7 @@ export const ConfettiParticle = ({ index, width, height }: Props) => {
 
   useEffect(() => {
     const delay = Math.random() * 4000;
+    const spinDirection = Math.random() > 0.5 ? 1 : -1;
 
     // Fade in the particle as its animation starts
     opacity.value = withDelay(delay, withTiming(1, { duration: 100 }));
@@ -45,7 +46,10 @@ export const ConfettiParticle = ({ index, width, height }: Props) => {
     rotate.value = withDelay(
       delay,
       withRepeat(
-        withTiming(rotate.value + 360, { duration: spinDuration, easing: Easing.linear }),
+        withTiming(rotate.value + spinDirection * 360, {
+          duration: spinDuration,
+          easing: Easing.linear,
+        }),
         -1,
         false,
       ),

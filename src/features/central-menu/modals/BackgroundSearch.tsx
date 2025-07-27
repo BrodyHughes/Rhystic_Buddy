@@ -22,7 +22,7 @@ import {
   usePlayerBackgroundStore,
 } from '@/features/central-menu/store/usePlayerBackgroundStore';
 import { useCardPrintings } from '../hooks/useCardPrintings';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, LIGHT_GREY, PLAINS } from '@/consts/consts';
 import { typography } from '@/styles/global';
 
 interface BackgroundSearchProps {
@@ -258,39 +258,42 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginVertical: 20,
   },
   searchInput: {
     flex: 1,
-    height: 50,
     backgroundColor: BUTTON_BACKGROUND,
     borderRadius: 8,
     paddingHorizontal: 16,
+    paddingVertical: 12,
     marginRight: 10,
     ...typography.body,
+    marginBottom: 0,
     color: '#000', // Okay to use here bc input color should be different
   },
   searchButton: {
     backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 12,
     paddingHorizontal: 30,
+    paddingVertical: 12,
     borderRadius: 8,
   },
   searchButtonText: {
     ...typography.body,
+    marginBottom: 0,
     color: '#000',
   },
   closeButton: {
-    padding: 10,
+    paddingHorizontal: 5,
   },
   closeButtonText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontFamily: 'Dosis',
     ...typography.heading2,
+    lineHeight: 45,
     fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
   confirmText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     ...typography.body,
     textAlign: 'center',
     marginBottom: 10,
@@ -323,13 +326,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scryfallCreditText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     ...typography.miniCaption,
   },
   scryfallCreditTextLink: {
-    color: OFF_WHITE,
     ...typography.miniCaption,
     textDecorationLine: 'underline',
+    color: PLAINS,
   },
   emptyText: {
     ...typography.body,

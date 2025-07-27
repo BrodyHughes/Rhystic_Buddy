@@ -9,7 +9,7 @@ import {
   PLAINS,
   ISLAND,
   FOREST,
-  OFF_WHITE,
+  LIGHT_GREY,
   BACKGROUND_TRANSPARENT,
   MODAL_BACKGROUND,
 } from '@/consts/consts';
@@ -74,10 +74,10 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
             <React.Fragment key={item.id}>
               <TouchableOpacity style={styles.itemRow} onPress={item.action}>
                 <View style={[styles.itemIconRounded, { backgroundColor: item.color }]}>
-                  <item.Icon color={OFF_WHITE} size={22} />
+                  <item.Icon color={LIGHT_GREY} size={22} />
                 </View>
                 <Text style={styles.itemLabel}>{item.label}</Text>
-                <ChevronRight color={OFF_WHITE} size={18} style={styles.chevron} />
+                <ChevronRight color={LIGHT_GREY} size={18} style={styles.chevron} />
               </TouchableOpacity>
               {index !== menuItems.length - 1 && <View style={styles.divider} />}
             </React.Fragment>
@@ -110,10 +110,13 @@ const styles = StyleSheet.create({
     ...typography.heading2,
   },
   closeButton: {
-    padding: 10,
+    paddingHorizontal: 5,
   },
   closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
     ...typography.heading2,
+    lineHeight: 45,
     fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
   card: {
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
   itemLabel: {
     flex: 1,
     ...typography.body,
+    marginBottom: 0,
   },
   chevron: {
     marginLeft: 8,

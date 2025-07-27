@@ -76,13 +76,15 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 45,
     height: 45,
-    borderRadius: 14,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   menuItemText: {
     ...typography.body,
-    paddingBottom: 12,
+    paddingTop: 5,
+    fontSize: 20,
+    fontWeight: 600,
   },
 });

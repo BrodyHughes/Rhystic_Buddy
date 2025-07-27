@@ -1,34 +1,42 @@
 import { useTurnStore } from '../store/useTurnStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 
+// Spinning settings – tweak here for global effect
+const LOOPS = 3; // number of full rotations before stopping
+const INTERVAL_MS = 30; // shorter delay (30ms) -> visibly faster spin
+
 export const useTurnOrder = () => {
   const { startSpin, set, finishSpin } = useTurnStore.getState();
-  const players = useLifeStore.getState().players;
+
+  const shuffle = (length: number): number[] => {
+    const arr = Array.from({ length }, (_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
 
   const start = () => {
+    const players = useLifeStore.getState().players;
     if (players.length === 0) return;
 
     startSpin();
 
-    const playersArray = Array.from({ length: players.length }, (_, i) => i);
-    // Fisher-Yates shuffle
-    for (let i = playersArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [playersArray[i], playersArray[j]] = [playersArray[j], playersArray[i]];
-    }
-    const order = playersArray;
+    const order = shuffle(players.length);
     const winner = order[order.length - 1];
-    const loops = 3;
-    const flashDelay = 100;
+
+    const totalTicks = order.length * LOOPS;
     let tick = 0;
+
     const spin = setInterval(() => {
       set(order[tick % order.length]);
       tick++;
-      if (tick === order.length * loops + 1) {
+      if (tick > totalTicks) {
         clearInterval(spin);
         finishSpin(winner);
       }
-    }, flashDelay);
+    }, INTERVAL_MS);
   };
 
   return { start };

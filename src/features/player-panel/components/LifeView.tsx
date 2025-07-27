@@ -2,8 +2,8 @@ import React, { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native';
 import { Skull } from 'lucide-react-native';
 
-import { typography, spacing } from '@/styles/global';
-import { OFF_WHITE, PRESSED_BUTTON_COLOR, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { typography } from '@/styles/global';
+import { LIGHT_GREY, PRESSED_BUTTON_COLOR, TEXT_SHADOW_COLOR } from '@/consts/consts';
 
 interface LifeViewProps {
   life: number;
@@ -47,18 +47,33 @@ const LifeView: React.FC<LifeViewProps> = ({
     <>
       <View style={[styles.lifeBlock, { width: panelWidth }, rotateStyle]}>
         {isDead ? (
-          <Skull color={OFF_WHITE} size={100} style={styles.deadSkull} />
+          <Skull color={LIGHT_GREY} size={100} style={styles.deadSkull} />
         ) : (
-          <>
-            <Text style={styles.life} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-              {life}
-            </Text>
-            {delta !== 0 && (
-              <Text style={[styles.delta, { color: delta > 0 ? green : red }]}>
-                {delta > 0 ? `+${delta}` : delta}
+          <View style={styles.lifeWrapper}>
+            {/* Left spacer to balance the delta on the right, ensuring life total stays centered */}
+            <View style={{ width: '20%' }} />
+            <View style={styles.lifeContainer}>
+              <Text
+                style={styles.life}
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                minimumFontScale={0.5}
+              >
+                {life}
               </Text>
-            )}
-          </>
+            </View>
+            <View style={[styles.deltaContainer, { width: '20%' }]}>
+              {delta !== 0 && (
+                <Text
+                  style={[styles.delta, { color: delta > 0 ? green : red }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {delta > 0 ? `+${delta}` : delta}
+                </Text>
+              )}
+            </View>
+          </View>
         )}
       </View>
       <Pressable
@@ -115,22 +130,32 @@ const LifeView: React.FC<LifeViewProps> = ({
 
 const styles = StyleSheet.create({
   lifeBlock: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
     pointerEvents: 'none',
     flex: 1,
   },
+  lifeWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  lifeContainer: {
+    width: '60%',
+  },
+  deltaContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: 15,
+  },
   life: {
     ...typography.heading1,
-    color: OFF_WHITE,
-    marginRight: spacing.xs,
+    color: LIGHT_GREY,
+    textAlign: 'center',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
-    paddingHorizontal: 20,
-    marginTop: 10,
   },
   delta: {
     ...typography.caption,

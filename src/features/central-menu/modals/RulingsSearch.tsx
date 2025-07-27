@@ -17,7 +17,12 @@ import { ChevronLeft } from 'lucide-react-native';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useRulings } from '../hooks/useRulings';
 import { typography } from '@/styles/global';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, RULING_ITEM_BACKGROUND } from '@/consts/consts';
+import {
+  BACKGROUND_TRANSPARENT,
+  BUTTON_BACKGROUND,
+  PLAINS,
+  RULING_ITEM_BACKGROUND,
+} from '@/consts/consts';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -130,7 +135,7 @@ const RulingsSearch: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, width: '100%' },
+  flex: { flex: 1, width: '100%', alignItems: 'center' },
   container: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-start',
@@ -149,34 +154,38 @@ const styles = StyleSheet.create({
   modalTitle: {
     ...typography.heading2,
   },
-  searchRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
   listContainer: {
     flex: 1,
     paddingHorizontal: 20,
     marginTop: 20,
   },
+  searchRow: {
+    flexDirection: 'row',
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 0,
+  },
   searchInput: {
     flex: 1,
-    height: 50,
     backgroundColor: BUTTON_BACKGROUND,
     borderRadius: 8,
     paddingHorizontal: 16,
-    ...typography.body,
-    color: '#000',
+    paddingVertical: 12,
     marginRight: 10,
+    ...typography.body,
+    marginBottom: 0,
+    color: '#000', // Okay to use here bc input color should be different
   },
   searchButton: {
-    backgroundColor: '#fff',
+    backgroundColor: BUTTON_BACKGROUND,
+    paddingHorizontal: 30,
     paddingVertical: 12,
-    paddingHorizontal: 20,
     borderRadius: 8,
   },
   searchButtonText: {
-    ...typography.button,
+    ...typography.body,
+    marginBottom: 0,
     color: '#000',
   },
   rulingsFoundTitle: {
@@ -229,6 +238,7 @@ const styles = StyleSheet.create({
   },
   scryfallCreditTextLink: {
     ...typography.miniCaption,
+    color: PLAINS,
     textDecorationLine: 'underline',
   },
 });

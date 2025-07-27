@@ -92,9 +92,9 @@ export default React.memo(function CentralMenuButton() {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const scaleFactor = currentSize / FAB_SIZE;
     const baseStrokeWidth = 7;
-    const minStrokeWidth = 3;
+    const minStrokeWidth = 7;
     const strokeWidth =
-      baseStrokeWidth / scaleFactor > minStrokeWidth
+      baseStrokeWidth / scaleFactor < minStrokeWidth
         ? baseStrokeWidth / scaleFactor
         : minStrokeWidth;
     return {
@@ -220,7 +220,7 @@ export default React.memo(function CentralMenuButton() {
                 label={item.label}
                 color={item.color}
               >
-                {item.Icon && <item.Icon color={BACKGROUND} size={30} />}
+                {item.Icon && <item.Icon color={BACKGROUND} size={35} />}
               </MenuItem>
             ))}
           </View>
@@ -267,14 +267,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    // shadow... disabled it for now
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0,
+    // },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 10,
+    // elevation: 8,
   },
   iconContainer: {
     ...StyleSheet.absoluteFillObject,

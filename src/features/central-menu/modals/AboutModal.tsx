@@ -18,10 +18,9 @@ import { radius, spacing, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
   MODAL_BACKGROUND,
-  OFF_WHITE,
-  TRANSPARENT_OFF_WHITE,
-  ISLAND,
+  LIGHT_GREY,
   GITHUB_URL,
+  PLAINS,
 } from '@/consts/consts';
 import LicensesModal from './LicensesModal';
 
@@ -47,12 +46,11 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
         <View style={styles.panel}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <ChevronLeft color={OFF_WHITE} size={28} />
+              <ChevronLeft color={LIGHT_GREY} size={28} />
             </TouchableOpacity>
             <Text style={styles.title}>About</Text>
           </View>
           <ScrollView style={styles.content}>
-            <Text style={styles.sectionTitle}>About Rhystic Buddy</Text>
             <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
             <Text style={styles.sectionTitle}>GitHub</Text>
             <TouchableOpacity onPress={handleOpenGithub}>
@@ -124,17 +122,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.heading2,
     marginTop: spacing.md,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   sectionText: {
     ...typography.body,
-    marginTop: spacing.xs,
-    color: TRANSPARENT_OFF_WHITE,
+    marginTop: spacing.md,
+    textAlign: 'left',
+    lineHeight: 24,
   },
   licensesButton: {
     marginTop: spacing.lg,
     padding: spacing.md,
-    backgroundColor: OFF_WHITE,
+    backgroundColor: LIGHT_GREY,
     borderRadius: radius.md,
     alignItems: 'center',
     marginBottom: 20,
@@ -147,7 +146,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     textDecorationLine: 'underline',
     marginTop: spacing.xs,
-    color: ISLAND,
+    color: PLAINS,
+    textAlign: 'left',
   },
 });
 

@@ -12,7 +12,7 @@ import Animated, {
 import { BlurView } from '@react-native-community/blur';
 import { typography, radius, palette } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
-import { TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
+import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
 
 const confettiCount = 70;
 
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.sm,
     overflow: 'hidden',
-    borderWidth: 7,
+    borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   rotatedContainer: {
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    textShadowRadius: 10,
+    fontSize: 45,
   },
 });
