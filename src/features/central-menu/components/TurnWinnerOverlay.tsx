@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -41,13 +41,17 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
     opacity: opacity.value,
   }));
 
+  const confettiParticles = useMemo(() => {
+    return Array.from({ length: confettiCount }).map((_, i) => (
+      <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
+    ));
+  }, [panelH, panelW]);
+
   return (
     <Animated.View style={styles.container} exiting={FadeOut.duration(150)}>
       <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
-        {Array.from({ length: confettiCount }).map((_, i) => (
-          <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
-        ))}
+        {confettiParticles}
         <View style={[styles.textWrapper, { width: panelH }]}>
           <Text style={styles.text}>You Win!</Text>
         </View>

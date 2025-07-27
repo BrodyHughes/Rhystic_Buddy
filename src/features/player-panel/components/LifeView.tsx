@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native';
+import React, { useRef, useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { Skull } from 'lucide-react-native';
 
 import { typography } from '@/styles/global';
-import { LIGHT_GREY, PRESSED_BUTTON_COLOR, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
 
 interface LifeViewProps {
   life: number;
@@ -43,8 +45,70 @@ const LifeView: React.FC<LifeViewProps> = ({
 
   const rotateStyle = { transform: [{ rotate: '90deg' }] } as const;
 
+  // Stable callbacks
+  const triggerIncFeedback = useCallback(() => triggerFeedback(incOpacity), [incOpacity]);
+  const triggerDecFeedback = useCallback(() => triggerFeedback(decOpacity), [decOpacity]);
+
+  // Memoised gesture objects so they are not recreated every render
+  const incGesture = useMemo(() => {
+    const tap = Gesture.Tap().onEnd((_e, success) => {
+      'worklet';
+      if (success && !isDead) {
+        runOnJS(changeLifeByAmount)(1);
+        runOnJS(triggerIncFeedback)();
+      }
+    });
+
+    const longPress = Gesture.LongPress()
+      .minDuration(1000)
+      .onStart(() => {
+        'worklet';
+        if (!isDead) {
+          runOnJS(handleLongPressStart)('inc');
+          runOnJS(triggerIncFeedback)();
+        }
+      })
+      .onEnd(() => {
+        'worklet';
+        if (!isDead) {
+          runOnJS(handlePressOut)();
+        }
+      });
+
+    return Gesture.Race(longPress, tap);
+  }, [isDead, changeLifeByAmount, handleLongPressStart, handlePressOut, triggerIncFeedback]);
+
+  const decGesture = useMemo(() => {
+    const tap = Gesture.Tap().onEnd((_e, success) => {
+      'worklet';
+      if (success && !isDead) {
+        runOnJS(changeLifeByAmount)(-1);
+        runOnJS(triggerDecFeedback)();
+      }
+    });
+
+    const longPress = Gesture.LongPress()
+      .minDuration(1000)
+      .onStart(() => {
+        'worklet';
+        if (!isDead) {
+          runOnJS(handleLongPressStart)('dec');
+          runOnJS(triggerDecFeedback)();
+        }
+      })
+      .onEnd(() => {
+        'worklet';
+        if (!isDead) {
+          runOnJS(handlePressOut)();
+        }
+      });
+
+    return Gesture.Race(longPress, tap);
+  }, [isDead, changeLifeByAmount, handleLongPressStart, handlePressOut, triggerDecFeedback]);
+
   return (
     <>
+      {/* Central life / delta display */}
       <View style={[styles.lifeBlock, { width: panelWidth }, rotateStyle]}>
         {isDead ? (
           <Skull color={LIGHT_GREY} size={100} style={styles.deadSkull} />
@@ -76,54 +140,24 @@ const LifeView: React.FC<LifeViewProps> = ({
           </View>
         )}
       </View>
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          styles.inc,
-          pressed && !isDead && { backgroundColor: PRESSED_BUTTON_COLOR },
-        ]}
-        onPress={() => {
-          if (isDead) return;
-          changeLifeByAmount(1);
-          triggerFeedback(incOpacity);
-        }}
-        onLongPress={() => {
-          if (isDead) return;
-          handleLongPressStart('inc');
-          triggerFeedback(incOpacity);
-        }}
-        onPressOut={handlePressOut}
-        delayLongPress={1000}
-        disabled={isDead}
-      >
-        <Animated.View style={[{ marginLeft: 30 }, rotateStyle, { opacity: incOpacity }]}>
-          <Text style={[styles.feedbackTextBase]}>+</Text>
-        </Animated.View>
-      </Pressable>
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          styles.dec,
-          pressed && !isDead && { backgroundColor: PRESSED_BUTTON_COLOR },
-        ]}
-        onPress={() => {
-          if (isDead) return;
-          changeLifeByAmount(-1);
-          triggerFeedback(decOpacity);
-        }}
-        onLongPress={() => {
-          if (isDead) return;
-          handleLongPressStart('dec');
-          triggerFeedback(decOpacity);
-        }}
-        onPressOut={handlePressOut}
-        delayLongPress={1000}
-        disabled={isDead}
-      >
-        <Animated.View style={[{ marginRight: 30 }, rotateStyle, { opacity: decOpacity }]}>
-          <Text style={[styles.feedbackTextBase]}>-</Text>
-        </Animated.View>
-      </Pressable>
+
+      {/* Increment half */}
+      <GestureDetector gesture={incGesture}>
+        <View style={[styles.button, styles.inc]}>
+          <Animated.View style={[{ marginLeft: 30 }, rotateStyle, { opacity: incOpacity }]}>
+            <Text style={styles.feedbackTextBase}>+</Text>
+          </Animated.View>
+        </View>
+      </GestureDetector>
+
+      {/* Decrement half */}
+      <GestureDetector gesture={decGesture}>
+        <View style={[styles.button, styles.dec]}>
+          <Animated.View style={[{ marginRight: 30 }, rotateStyle, { opacity: decOpacity }]}>
+            <Text style={styles.feedbackTextBase}>-</Text>
+          </Animated.View>
+        </View>
+      </GestureDetector>
     </>
   );
 };
