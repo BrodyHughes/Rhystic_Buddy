@@ -17,7 +17,7 @@ import { radius, spacing, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
   MODAL_BACKGROUND,
-  OFF_WHITE,
+  LIGHT_GREY,
   TRANSPARENT_OFF_WHITE,
 } from '@/consts/consts';
 import { licenses } from '@/consts/licenses';
@@ -34,7 +34,7 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
         <View style={styles.panel}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <ChevronLeft color={OFF_WHITE} size={28} />
+              <ChevronLeft color={LIGHT_GREY} size={28} />
             </TouchableOpacity>
             <Text style={styles.title}>Open Source Licenses</Text>
           </View>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     width: '90%',
     maxHeight: '80%',
     backgroundColor: MODAL_BACKGROUND,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   libName: {
     ...typography.body,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   libLicense: {
     ...typography.body,

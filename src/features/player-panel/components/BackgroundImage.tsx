@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Image, StyleSheet, ImageSourcePropType } from 'react-native';
 import { radius } from '@/styles/global';
 import { PlayerBackground } from '@/features/central-menu/store/usePlayerBackgroundStore';
 
@@ -11,6 +11,11 @@ interface Props {
 }
 
 export default function BackgroundImage({ background, panelW, panelH, isDead }: Props) {
+  const imageSource = useMemo(() => {
+    if (!background) return null;
+    return typeof background.url === 'string' ? { uri: background.url } : background.url;
+  }, [background]);
+
   if (!background) return null;
 
   return (
@@ -28,7 +33,7 @@ export default function BackgroundImage({ background, panelW, panelH, isDead }: 
       ]}
     >
       <Image
-        source={typeof background.url === 'string' ? { uri: background.url } : background.url}
+        source={imageSource as ImageSourcePropType}
         style={styles.imageCrop}
         resizeMode="cover"
       />

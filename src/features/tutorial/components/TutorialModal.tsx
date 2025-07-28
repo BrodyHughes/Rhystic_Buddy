@@ -19,13 +19,12 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 
 import {
   BACKGROUND_TRANSPARENT,
-  OFF_WHITE,
+  LIGHT_GREY,
   MODAL_BACKGROUND,
-  TRANSPARENT_OFF_WHITE,
   GITHUB_URL,
-  ISLAND,
+  PLAINS,
 } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import { useTutorialStore } from '../store/useTutorialStore';
 
 const STORAGE_KEY = 'rb_seen_tutorial';
@@ -94,6 +93,7 @@ export default function TutorialModal() {
   const { width: W } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // One-time launch check
   useEffect(() => {
@@ -130,8 +130,10 @@ export default function TutorialModal() {
   };
 
   const handleNext = () => {
+    if (isTransitioning) return;
     const nextIndex = currentIndex + 1;
     if (nextIndex < slides.length) {
+      setIsTransitioning(true);
       scrollRef.current?.scrollTo({ x: nextIndex * W, animated: true });
       setCurrentIndex(nextIndex);
     } else {
@@ -140,8 +142,10 @@ export default function TutorialModal() {
   };
 
   const handlePrev = () => {
+    if (isTransitioning) return;
     const prevIndex = currentIndex - 1;
     if (prevIndex >= 0) {
+      setIsTransitioning(true);
       scrollRef.current?.scrollTo({ x: prevIndex * W, animated: true });
       setCurrentIndex(prevIndex);
     }
@@ -150,6 +154,7 @@ export default function TutorialModal() {
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / W);
     if (index !== currentIndex) setCurrentIndex(index);
+    setIsTransitioning(false);
   };
 
   return (
@@ -160,7 +165,7 @@ export default function TutorialModal() {
         {/* Header */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={handleClose} style={styles.headerBtn} testID="tutorial-close">
-            <X color={OFF_WHITE} size={28} />
+            <X color={LIGHT_GREY} size={28} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Tutorial</Text>
         </View>
@@ -261,25 +266,21 @@ const styles = StyleSheet.create({
   },
   slide: {
     backgroundColor: MODAL_BACKGROUND,
-    borderRadius: 16,
+    borderRadius: radius.md,
     padding: 20,
     marginHorizontal: 20,
     alignSelf: 'center',
   },
   slideTitle: {
     ...typography.heading2,
-    color: OFF_WHITE,
-    marginBottom: 10,
+    color: LIGHT_GREY,
     textAlign: 'center',
     marginTop: 15,
     fontSize: 24,
   },
   slideDesc: {
     ...typography.body,
-    color: TRANSPARENT_OFF_WHITE,
     textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 20,
   },
   imagesRow: {
     flexDirection: 'row',
@@ -313,17 +314,17 @@ const styles = StyleSheet.create({
   dot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
+    borderRadius: radius.sm,
     backgroundColor: 'rgba(255,255,255,0.3)',
   },
   dotActive: {
-    backgroundColor: OFF_WHITE,
+    backgroundColor: LIGHT_GREY,
   },
   primaryBtn: {
-    backgroundColor: OFF_WHITE,
+    backgroundColor: LIGHT_GREY,
     paddingVertical: 12,
     paddingHorizontal: 35,
-    borderRadius: 20,
+    borderRadius: radius.md,
     alignSelf: 'center',
     marginTop: 25,
   },
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
   },
   link: {
     ...typography.body,
-    color: ISLAND,
+    color: PLAINS,
     textDecorationLine: 'underline',
     marginTop: 8,
     textAlign: 'center',

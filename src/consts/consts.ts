@@ -2,11 +2,14 @@
 // Layout & Global Colors
 // -----------------------------------------------------------------------------
 export const GAP = 8;
+export const BORDER_WIDTH = 0;
 
+export const APP_BACKGROUND = 'rgba(15, 15, 16, 1)';
 export const BACKGROUND = 'rgb(32, 32, 35)';
 export const MODAL_BACKGROUND = 'rgb(42, 42, 45)';
 export const BACKGROUND_TRANSPARENT = 'rgba(20, 20, 20, 0.95)';
 export const SURFACE = 'rgba(99, 99, 103, 1)';
+export const LIGHT_GREY = 'rgb(211, 211, 216)';
 export const OFF_WHITE = 'rgba(225, 220, 212, 1)';
 export const TRANSPARENT_OFF_WHITE = 'rgba(225, 220, 212, 0.6)';
 

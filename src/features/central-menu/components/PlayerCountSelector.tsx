@@ -6,8 +6,15 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import { typography } from '@/styles/global';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, SWAMP, OFF_WHITE } from '@/consts/consts';
+import { radius, typography } from '@/styles/global';
+import {
+  BACKGROUND_TRANSPARENT,
+  BUTTON_BACKGROUND,
+  LIGHT_GREY,
+  BACKGROUND,
+  BORDER_COLOR,
+} from '@/consts/consts';
+import { useResetAllCarousels } from '@/hooks/useResetAllCarousels';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
@@ -18,6 +25,13 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
   const currentTotal = useLifeStore((s) => s.totalPlayers);
+  const { resetAll } = useResetAllCarousels();
+
+  const handleSelect = (count: PlayerCount) => {
+    onSelect(count);
+    setTimeout(() => resetAll(), 500);
+  };
+
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       {/* Backdrop press */}
@@ -37,7 +51,7 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
                 <TouchableOpacity
                   key={count}
                   style={[styles.selectItem, selected && styles.selectedItem]}
-                  onPress={() => onSelect(count as PlayerCount)}
+                  onPress={() => handleSelect(count as PlayerCount)}
                 >
                   <Text style={[styles.selectItemText, selected && styles.selectedText]}>
                     {count} Players
@@ -56,7 +70,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: BACKGROUND_TRANSPARENT,
-    zIndex: 30,
+    zIndex: 50,
   },
   modalContainer: {
     flex: 1,
@@ -64,7 +78,6 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -72,44 +85,52 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   pickerContainer: {
+    marginTop: 10,
     width: '80%',
     alignItems: 'center',
   },
   title: {
     ...typography.heading2,
-    color: '#fff',
     textAlign: 'left',
     flex: 1,
   },
   selectItem: {
     backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: radius.md,
     marginVertical: 5,
     width: '100%',
     alignItems: 'center',
   },
   selectedItem: {
-    backgroundColor: SWAMP,
+    backgroundColor: BACKGROUND,
+    borderWidth: 2,
+    borderColor: BORDER_COLOR,
   },
   selectItemText: {
     ...typography.body,
     color: '#000',
+    marginBottom: 0,
+    fontWeight: '600',
+    fontSize: 20,
   },
   selectedText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontWeight: '900',
   },
   closeButton: {
-    padding: 10,
+    paddingHorizontal: 5,
   },
   closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
     ...typography.heading2,
+    lineHeight: 45,
     fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
 });

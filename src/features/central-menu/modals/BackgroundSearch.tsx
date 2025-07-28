@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -22,8 +22,8 @@ import {
   usePlayerBackgroundStore,
 } from '@/features/central-menu/store/usePlayerBackgroundStore';
 import { useCardPrintings } from '../hooks/useCardPrintings';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, OFF_WHITE } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, LIGHT_GREY, PLAINS } from '@/consts/consts';
+import { radius, typography } from '@/styles/global';
 
 interface BackgroundSearchProps {
   onClose: () => void;
@@ -72,14 +72,17 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
   //   onClose();
   // };
 
-  const handleSetBackground = (background: PlayerBackground) => {
-    if (selectedPlayerId === null) return;
-    setPlayerBackground(selectedPlayerId, background);
-    setCardName('');
-    setSubmittedCardName('');
-    setSelectedPlayerId(null);
-    onClose();
-  };
+  const handleSetBackground = useCallback(
+    (background: PlayerBackground) => {
+      if (selectedPlayerId === null) return;
+      setPlayerBackground(selectedPlayerId, background);
+      setCardName('');
+      setSubmittedCardName('');
+      setSelectedPlayerId(null);
+      onClose();
+    },
+    [selectedPlayerId, setPlayerBackground, onClose],
+  );
 
   const handleClosePress = () => {
     setSelectedPlayerId(null);
@@ -95,6 +98,15 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
   // This logic mirrors the main app layout for consistency.
   const numColumns = players.length > 2 ? 2 : players.length;
   // const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
+
+  const keyExtractor = useCallback((item: { url: string }) => String(item.url), []);
+
+  const renderCardItem = useCallback(
+    ({ item }: { item: { url: string; artist: string } }) => (
+      <CardImage item={item} onPress={() => handleSetBackground(item)} />
+    ),
+    [handleSetBackground],
+  );
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
@@ -163,11 +175,9 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
                     <Text style={styles.confirmText}>Tap card image to confirm</Text>
                     <FlatList
                       data={fetchedCards}
-                      keyExtractor={(item) => String(item.url)}
+                      keyExtractor={keyExtractor}
                       numColumns={2}
-                      renderItem={({ item }) => (
-                        <CardImage item={item} onPress={() => handleSetBackground(item)} />
-                      )}
+                      renderItem={renderCardItem}
                       initialNumToRender={4}
                       maxToRenderPerBatch={4}
                       windowSize={5}
@@ -242,7 +252,7 @@ const styles = StyleSheet.create({
     backgroundColor: BUTTON_BACKGROUND,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: radius.md,
     margin: 5,
     height: 60,
     width: 140,
@@ -258,39 +268,42 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginVertical: 20,
   },
   searchInput: {
     flex: 1,
-    height: 50,
     backgroundColor: BUTTON_BACKGROUND,
-    borderRadius: 8,
+    borderRadius: radius.md,
     paddingHorizontal: 16,
+    paddingVertical: 12,
     marginRight: 10,
     ...typography.body,
+    marginBottom: 0,
     color: '#000', // Okay to use here bc input color should be different
   },
   searchButton: {
     backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 12,
     paddingHorizontal: 30,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: radius.md,
   },
   searchButtonText: {
     ...typography.body,
+    marginBottom: 0,
     color: '#000',
   },
   closeButton: {
-    padding: 10,
+    paddingHorizontal: 5,
   },
   closeButtonText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontFamily: 'Dosis',
     ...typography.heading2,
+    lineHeight: 45,
     fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
   confirmText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     ...typography.body,
     textAlign: 'center',
     marginBottom: 10,
@@ -304,7 +317,7 @@ const styles = StyleSheet.create({
     width: 160,
     height: 80,
     overflow: 'hidden',
-    borderRadius: 10,
+    borderRadius: radius.md,
     marginBottom: 4,
   },
   imageTopCrop: {
@@ -323,13 +336,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scryfallCreditText: {
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     ...typography.miniCaption,
   },
   scryfallCreditTextLink: {
-    color: OFF_WHITE,
     ...typography.miniCaption,
     textDecorationLine: 'underline',
+    color: PLAINS,
   },
   emptyText: {
     ...typography.body,

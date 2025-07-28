@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
@@ -11,7 +11,7 @@ import LifeView from './LifeView';
 import BackgroundImage from './BackgroundImage';
 import PanelOverlays from './PanelOverlays';
 import { ViewMode } from '@/types/app';
-import { BORDER_COLOR, OFF_WHITE, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { BORDER_COLOR, BORDER_WIDTH, LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -50,6 +50,15 @@ function PlayerPanelComponent({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
 
+  // Clear any active continuous-life-change interval when the player count changes to
+  // avoid timers running after panels are re-created/re-positioned.
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [totalPlayers]);
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -64,10 +73,15 @@ function PlayerPanelComponent({
   );
   const background = usePlayerBackgroundStore(backgroundSelector);
 
-  const usableW = W - (cols + 1) * currentGap;
-  const usableH = H - top - bottom - (rows + 1) * currentGap;
-  const panelW = isLastPlayerOddLayout ? usableH / rows : usableW / cols;
-  const panelH = isLastPlayerOddLayout ? W - currentGap * 2 : usableH / rows;
+  // Memoise layout calculations
+  const { panelW, panelH } = useMemo(() => {
+    const usableW = W - (cols + 1) * currentGap;
+    const usableH = H - top - bottom - (rows + 1) * currentGap;
+    return {
+      panelW: isLastPlayerOddLayout ? usableH / rows : usableW / cols,
+      panelH: isLastPlayerOddLayout ? W - currentGap * 2 : usableH / rows,
+    };
+  }, [W, H, top, bottom, cols, rows, currentGap, isLastPlayerOddLayout]);
 
   const { gesture, containerAnimatedStyle } = useCarousel({
     totalPlayers,
@@ -79,44 +93,58 @@ function PlayerPanelComponent({
     onViewChange: setCurrentView,
   });
 
-  if (!player) {
-    return null;
-  }
+  const { finalRot, panelBackgroundColor } = useMemo(() => {
+    const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
+    const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
+    const appliedRot = totalPlayers === 2 ? rot2 : rot;
+    return {
+      finalRot: isLastPlayerOddLayout ? '270deg' : appliedRot,
+      panelBackgroundColor: background ? 'transparent' : (player?.backgroundColor ?? 'transparent'),
+    };
+  }, [
+    isEvenPlayerIndexNumber,
+    totalPlayers,
+    isLastPlayerOddLayout,
+    background,
+    player?.backgroundColor,
+  ]);
 
-  const rot = isEvenPlayerIndexNumber ? '0deg' : '180deg';
-  const rot2 = isEvenPlayerIndexNumber ? '90deg' : '270deg';
-  const appliedRot = totalPlayers === 2 ? rot2 : rot;
-  const finalRot = isLastPlayerOddLayout ? '270deg' : appliedRot;
+  const changeLifeByAmount = useCallback(
+    (amount: number) => {
+      changeLife(index, amount);
+    },
+    [changeLife, index],
+  );
 
-  const panelBackgroundColor = background ? 'transparent' : player.backgroundColor;
+  const handleContinuousChange = useCallback(
+    (direction: 'inc' | 'dec') => {
+      const amount = direction === 'inc' ? 5 : -5;
+      runOnJS(changeLifeByAmount)(amount);
+    },
+    [changeLifeByAmount],
+  );
 
-  const changeLifeByAmount = (amount: number) => {
-    changeLife(index, amount);
-  };
-
-  const handleContinuousChange = (direction: 'inc' | 'dec') => {
-    const amount = direction === 'inc' ? 5 : -5;
-    runOnJS(changeLifeByAmount)(amount);
-  };
-
-  const handleLongPressStart = (direction: 'inc' | 'dec') => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    // Initial change
-    handleContinuousChange(direction);
-    // Start interval for continuous change
-    intervalRef.current = setInterval(() => {
+  const handleLongPressStart = useCallback(
+    (direction: 'inc' | 'dec') => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      // Initial change
       handleContinuousChange(direction);
-    }, 400);
-  };
+      // Start interval for continuous change
+      intervalRef.current = setInterval(() => {
+        handleContinuousChange(direction);
+      }, 400);
+    },
+    [handleContinuousChange],
+  );
 
-  const handlePressOut = () => {
+  const handlePressOut = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  };
+  }, []);
 
   // For hub-and-spoke model, we arrange views differently
   const hasCommanderView = totalPlayers > 2;
@@ -152,7 +180,6 @@ function PlayerPanelComponent({
               styles.viewsContainer,
               containerAnimatedStyle,
               { width: panelW * 4, height: panelH * 4 },
-              // { backgroundColor: 'red' },
             ]}
           >
             {/* --- HORIZONTAL TRACK --- */}
@@ -371,7 +398,7 @@ const styles = StyleSheet.create({
   },
   life: {
     ...typography.heading1,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     marginRight: spacing.xs,
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
@@ -380,7 +407,7 @@ const styles = StyleSheet.create({
   },
   delta: {
     ...typography.caption,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   button: {
     position: 'absolute',
@@ -396,12 +423,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '90deg' }],
   },
   panelBorder: {
-    borderWidth: 7,
+    borderWidth: BORDER_WIDTH,
     borderColor: BORDER_COLOR,
   },
   lifeTxt: {
     ...typography.heading1,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   btnTxt: {
     ...typography.body,

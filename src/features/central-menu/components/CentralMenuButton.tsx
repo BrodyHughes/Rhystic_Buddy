@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View, Pressable } from 'react-native';
 import {
   useSharedValue,
@@ -92,9 +92,9 @@ export default React.memo(function CentralMenuButton() {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const scaleFactor = currentSize / FAB_SIZE;
     const baseStrokeWidth = 7;
-    const minStrokeWidth = 3;
+    const minStrokeWidth = 7;
     const strokeWidth =
-      baseStrokeWidth / scaleFactor > minStrokeWidth
+      baseStrokeWidth / scaleFactor < minStrokeWidth
         ? baseStrokeWidth / scaleFactor
         : minStrokeWidth;
     return {
@@ -110,7 +110,9 @@ export default React.memo(function CentralMenuButton() {
     opacity: progress.value,
   }));
 
-  const handlePress = () => {
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePress = useCallback(() => {
     cancelAnimation(progress);
     const toValue = open ? 0 : 1;
     progress.value = withSpring(toValue, {
@@ -119,61 +121,77 @@ export default React.memo(function CentralMenuButton() {
       mass: 0.5,
     });
     setOpen(!open);
-    setTimeout(() => PlayerCarouselManager.resetAll(), 250);
-  };
+    // Clear any existing queued reset
+    if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+    resetTimeoutRef.current = setTimeout(() => PlayerCarouselManager.resetAll(), 250);
+  }, [open, progress]);
+
+  // Cleanup timeout on unmount
+  useEffect(
+    () => () => {
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+    },
+    [],
+  );
 
   const { start: startTurnOrder } = useTurnOrder();
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     resetLife();
     resetCommanderDamage();
     resetCounters();
     handlePress();
-  };
+  }, [resetLife, resetCommanderDamage, resetCounters, handlePress]);
 
-  const handleTurnOrder = () => {
+  const handleTurnOrder = useCallback(() => {
     handlePress();
     setTimeout(startTurnOrder, 500);
-  };
+  }, [handlePress, startTurnOrder]);
 
-  const handlePlayersPress = () => {
+  const handlePlayersPress = useCallback(() => {
     handlePress();
     setTimeout(() => setPlayerCountSelectorVisible(true), 500);
-  };
+  }, [handlePress]);
 
-  const handleStartingLifePress = () => {
+  const handleStartingLifePress = useCallback(() => {
     handlePress();
     setTimeout(() => setStartingLifeVisible(true), 500);
-  };
+  }, [handlePress]);
 
-  const handleMorePress = () => {
+  const handleMorePress = useCallback(() => {
     handlePress();
     setTimeout(() => setMoreMenuVisible(true), 500);
-  };
+  }, [handlePress]);
 
-  const handleTutorialPress = () => {
+  const handleTutorialPress = useCallback(() => {
     setIsTutorialVisible(true);
     setMoreMenuVisible(false);
-  };
+  }, [setIsTutorialVisible]);
 
-  const handlePlayerCountSelect = (count: PlayerCount) => {
-    setTotalPlayers(count);
-    setPlayerCountSelectorVisible(false);
-  };
-
-  const menuItems = [
-    { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
-    { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
-    { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
-    {
-      id: 'startingLife',
-      Icon: Heart,
-      label: 'Starting Life',
-      color: FOREST,
-      action: handleStartingLifePress,
+  const handlePlayerCountSelect = useCallback(
+    (count: PlayerCount) => {
+      setTotalPlayers(count);
+      setPlayerCountSelectorVisible(false);
     },
-    { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
-  ];
+    [setTotalPlayers],
+  );
+
+  const menuItems = useMemo(
+    () => [
+      { id: 'players', Icon: Users, label: 'Players', color: ISLAND, action: handlePlayersPress },
+      { id: 'turn', Icon: Dice6, label: 'Turn Order', color: SWAMP, action: handleTurnOrder },
+      { id: 'reset', Icon: RotateCcw, label: 'Reset', color: MOUNTAIN, action: handleReset },
+      {
+        id: 'startingLife',
+        Icon: Heart,
+        label: 'Starting Life',
+        color: FOREST,
+        action: handleStartingLifePress,
+      },
+      { id: 'more', Icon: MoreHorizontal, label: 'More', color: PLAINS, action: handleMorePress },
+    ],
+    [handlePlayersPress, handleTurnOrder, handleReset, handleStartingLifePress, handleMorePress],
+  );
 
   return (
     <View style={[styles.container, { width: W, height: H }]}>
@@ -220,7 +238,7 @@ export default React.memo(function CentralMenuButton() {
                 label={item.label}
                 color={item.color}
               >
-                {item.Icon && <item.Icon color={BACKGROUND} size={30} />}
+                {item.Icon && <item.Icon color={BACKGROUND} size={35} />}
               </MenuItem>
             ))}
           </View>
@@ -267,14 +285,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    // shadow... disabled it for now
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0,
+    // },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 10,
+    // elevation: 8,
   },
   iconContainer: {
     ...StyleSheet.absoluteFillObject,

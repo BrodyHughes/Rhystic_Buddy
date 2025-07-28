@@ -1,0 +1,8 @@
+{
+  "ignores": [
+    "@babel/runtime",
+    "@react-native-community/cli",
+    "@react-native-community/cli-platform-android",
+    "@react-native-community/cli-platform-ios"
+  ]
+}

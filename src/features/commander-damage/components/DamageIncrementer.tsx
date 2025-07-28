@@ -5,8 +5,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import {
+  BORDER_WIDTH,
   DAMAGE_INCREMENTER_BUTTON_COLOR,
-  OFF_WHITE,
+  LIGHT_GREY,
   TURN_WINNER_OVERLAY_BORDER_COLOR,
 } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.sm,
     overflow: 'hidden',
-    borderWidth: 7,
+    borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   damageBlock: {
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
   },
   damageText: {
     ...typography.heading1,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
   },
   button: {
     position: 'absolute',

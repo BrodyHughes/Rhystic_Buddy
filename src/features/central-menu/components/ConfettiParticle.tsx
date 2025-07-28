@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   Easing,
   withDelay,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 
@@ -21,11 +22,25 @@ interface Props {
 }
 
 export const ConfettiParticle = ({ index, width, height }: Props) => {
-  const fallDuration = 3000 + Math.random() * 2000;
-  const spinDuration = 700 + Math.random() * 600;
-  const initialX = Math.random() * width;
-  const startY = -height / 2;
-  const endY = height / 2;
+  const { fallDuration, spinDuration, initialX, startY, endY, spinDirection, randomShape } =
+    React.useMemo(() => {
+      const _fallDuration = 3000 + Math.random() * 2000;
+      const _spinDuration = 700 + Math.random() * 600;
+      const _initialX = Math.random() * width;
+      const _startY = -height / 2;
+      const _endY = height / 2;
+      const _spinDirection = Math.random() > 0.5 ? 1 : -1;
+      const _randomShape = Math.random();
+      return {
+        fallDuration: _fallDuration,
+        spinDuration: _spinDuration,
+        initialX: _initialX,
+        startY: _startY,
+        endY: _endY,
+        spinDirection: _spinDirection,
+        randomShape: _randomShape,
+      } as const;
+    }, [width, height]);
 
   const translateY = useSharedValue(startY);
   const translateX = useSharedValue(initialX - width / 2);
@@ -35,7 +50,6 @@ export const ConfettiParticle = ({ index, width, height }: Props) => {
   useEffect(() => {
     const delay = Math.random() * 4000;
 
-    // Fade in the particle as its animation starts
     opacity.value = withDelay(delay, withTiming(1, { duration: 100 }));
 
     translateY.value = withDelay(
@@ -45,11 +59,19 @@ export const ConfettiParticle = ({ index, width, height }: Props) => {
     rotate.value = withDelay(
       delay,
       withRepeat(
-        withTiming(rotate.value + 360, { duration: spinDuration, easing: Easing.linear }),
+        withTiming(rotate.value + spinDirection * 360, {
+          duration: spinDuration,
+          easing: Easing.linear,
+        }),
         -1,
         false,
       ),
     );
+    return () => {
+      cancelAnimation(translateY);
+      cancelAnimation(rotate);
+      cancelAnimation(opacity);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -63,7 +85,6 @@ export const ConfettiParticle = ({ index, width, height }: Props) => {
   }));
 
   const color = CONFETTI_COLORS[index % CONFETTI_COLORS.length];
-  const randomShape = Math.random();
   let shapeStyle;
   if (randomShape > 0.66) {
     // Circle

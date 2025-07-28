@@ -8,7 +8,7 @@ import BackgroundSearch from '@/features/central-menu/modals/BackgroundSearch';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import {
-  OFF_WHITE,
+  LIGHT_GREY,
   SWAMP,
   ISLAND,
   MOUNTAIN,
@@ -19,7 +19,7 @@ import {
   DEAD_CARD_BORDER,
   COUNTERS_DIVIDER_COLOR,
 } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import {
   COUNTER_ICONS,
   COUNTER_COLORS,
@@ -28,6 +28,7 @@ import {
   ALL_COUNTER_TYPES,
   CounterType,
 } from '@/consts/counters';
+import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
 // Stable fallback object for empty counters to keep React's useSyncExternalStore happy
 const EMPTY_COUNTERS: Record<string, number> = Object.freeze({});
@@ -64,7 +65,7 @@ export default function CountersMenu({ defenderId }: Props) {
           style={({ pressed }) => [styles.backgroundCard, pressed && styles.backgroundCardPressed]}
           onPress={() => setBgSearchVisible(true)}
         >
-          <Icon color={OFF_WHITE} size={40} />
+          <Icon color={LIGHT_GREY} size={40} />
           <Text style={styles.backgroundLabel}>Background</Text>
         </Pressable>
         <Pressable
@@ -73,9 +74,12 @@ export default function CountersMenu({ defenderId }: Props) {
             isDead && styles.deadCardActive,
             pressed && styles.backgroundCardPressed,
           ]}
-          onPress={() => toggleDead(defenderId)}
+          onPress={() => {
+            toggleDead(defenderId);
+            setTimeout(() => PlayerCarouselManager.resetPlayer(defenderId), 250);
+          }}
         >
-          <Skull color={isDead ? 'red' : OFF_WHITE} size={40} />
+          <Skull color={isDead ? 'red' : LIGHT_GREY} size={40} />
           <Text style={styles.backgroundLabel}>Dead</Text>
         </Pressable>
       </View>
@@ -90,15 +94,15 @@ export default function CountersMenu({ defenderId }: Props) {
           const added = existingKeys.includes(key);
           const IconComponent = COUNTER_ICONS[key];
           const SOLID_COLOR_MAP: Record<CounterType, string> = {
-            tax: OFF_WHITE,
-            charge: OFF_WHITE,
+            tax: LIGHT_GREY,
+            charge: LIGHT_GREY,
             manaWhite: PLAINS,
             manaBlue: ISLAND,
             manaBlack: SWAMP,
             manaRed: MOUNTAIN,
             manaGreen: FOREST,
-            poison: OFF_WHITE,
-            storm: OFF_WHITE,
+            poison: LIGHT_GREY,
+            storm: LIGHT_GREY,
           };
           const baseColor = SOLID_COLOR_MAP[key];
           const transparentColor = COUNTER_COLORS[key];
@@ -114,7 +118,7 @@ export default function CountersMenu({ defenderId }: Props) {
                 }
               }}
             >
-              <IconComponent color={added ? 'rgba(0, 0, 0, 0.7)' : OFF_WHITE} size={24} />
+              <IconComponent color={added ? 'rgba(0, 0, 0, 0.7)' : LIGHT_GREY} size={24} />
             </Pressable>
           );
         })}
@@ -175,7 +179,7 @@ const CounterColumn: React.FC<{
         {counterKey === 'tax' ? (
           <Text style={styles.taxLabel}>Tax</Text>
         ) : (
-          IconComponent && <IconComponent color={OFF_WHITE} size={32} />
+          IconComponent && <IconComponent color={LIGHT_GREY} size={32} />
         )}
       </View>
       <CountersMenuButtons
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
   },
   backgroundLabel: {
     ...typography.button,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontSize: 12,
     marginTop: 4,
   },
@@ -212,7 +216,7 @@ const styles = StyleSheet.create({
   backgroundCard: {
     alignItems: 'center',
     padding: 6,
-    borderRadius: 10,
+    borderRadius: radius.md,
     backgroundColor: CARD_BACKGROUND_TRANSPARENT,
     minWidth: 80,
     width: 80,
@@ -241,7 +245,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   counterWrapper: {
-    borderRadius: 15,
+    borderRadius: radius.md,
     overflow: 'hidden',
     alignItems: 'center',
   },
@@ -252,7 +256,7 @@ const styles = StyleSheet.create({
   },
   taxLabel: {
     ...typography.button,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     fontSize: 25,
     fontWeight: 900,
   },
@@ -264,7 +268,7 @@ const styles = StyleSheet.create({
     ...typography.button,
     fontSize: 24,
     fontWeight: 900,
-    color: OFF_WHITE,
+    color: LIGHT_GREY,
     marginBottom: 8,
     opacity: 0.8,
   },
@@ -278,7 +282,7 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 50,
     height: 50,
-    borderRadius: 15,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,

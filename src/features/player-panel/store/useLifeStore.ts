@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
+import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 
 /* ── Types ───────────────────────────────────────── */
 export interface PlayerState {
@@ -62,7 +63,7 @@ const storageBackend = {
 /* ── Store ───────────────────────────────────────── */
 export const useLifeStore = create<LifeStore>()(
   persist(
-    (set, _get) => ({
+    (set, get) => ({
       totalPlayers: 4,
       startingLife2Players: 20,
       startingLifeMultiPlayers: 40,
@@ -99,6 +100,7 @@ export const useLifeStore = create<LifeStore>()(
       },
 
       toggleDead: (index) => {
+        // First, update state synchronously for immediate UI feedback
         set((state) => {
           const newPlayers = [...state.players];
           newPlayers[index] = {
@@ -107,6 +109,17 @@ export const useLifeStore = create<LifeStore>()(
           };
           return { players: newPlayers };
         });
+
+        // Evaluate winner after a slight delay to allow animations and state updates to settle
+        setTimeout(() => {
+          const players = get().players;
+          const alivePlayers = players.filter((p: PlayerState) => !p.isDead);
+          if (alivePlayers.length === 1) {
+            useTurnStore.getState().finishSpin(alivePlayers[0].id);
+          } else {
+            useTurnStore.getState().reset();
+          }
+        }, 300);
       },
 
       setTotalPlayers: (total) =>

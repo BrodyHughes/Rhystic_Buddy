@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -12,9 +12,9 @@ import Animated, {
 import { BlurView } from '@react-native-community/blur';
 import { typography, radius, palette } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
-import { TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
+import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
 
-const confettiCount = 70;
+const confettiCount = 50;
 
 interface Props {
   panelW: number;
@@ -41,13 +41,17 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
     opacity: opacity.value,
   }));
 
+  const confettiParticles = useMemo(() => {
+    return Array.from({ length: confettiCount }).map((_, i) => (
+      <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
+    ));
+  }, [panelH, panelW]);
+
   return (
     <Animated.View style={styles.container} exiting={FadeOut.duration(150)}>
       <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
-        {Array.from({ length: confettiCount }).map((_, i) => (
-          <ConfettiParticle key={i} index={i} width={panelH} height={panelW} />
-        ))}
+        {confettiParticles}
         <View style={[styles.textWrapper, { width: panelH }]}>
           <Text style={styles.text}>You Win!</Text>
         </View>
@@ -64,7 +68,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.sm,
     overflow: 'hidden',
-    borderWidth: 7,
+    borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   rotatedContainer: {
@@ -84,6 +88,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    textShadowRadius: 10,
+    fontSize: 45,
   },
 });

@@ -1,4 +1,4 @@
-import { BACKGROUND, OFF_WHITE } from '@/consts/consts';
+import { BACKGROUND, LIGHT_GREY } from '@/consts/consts';
 import { StyleSheet, Platform, TextStyle } from 'react-native';
 
 /**
@@ -7,13 +7,14 @@ import { StyleSheet, Platform, TextStyle } from 'react-native';
  */
 export const palette = {
   primary: '#5E60CE',
-  primaryDark: OFF_WHITE,
-  secondary: OFF_WHITE,
-  accent: OFF_WHITE,
+  primaryDark: LIGHT_GREY,
+  secondary: LIGHT_GREY,
+  accent: LIGHT_GREY,
   background: BACKGROUND,
-  surface: OFF_WHITE,
-  textPrimary: OFF_WHITE,
-  textSecondary: OFF_WHITE,
+  surface: LIGHT_GREY,
+  textPrimary: LIGHT_GREY,
+  textSecondary: LIGHT_GREY,
+  textTertiary: '#fff',
   border: '#E0E6ED',
   danger: '#EF476F',
   success: '#06D6A0',
@@ -28,7 +29,7 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 4,
+  sm: 2,
   md: 8,
   lg: 16,
   pill: 999,
@@ -54,14 +55,18 @@ export const typography: Record<TypographyVariant, TextStyle> = {
   heading2: {
     fontFamily: 'Asap',
     fontWeight: 900,
-    fontSize: 30,
+    fontSize: 28,
     color: palette.textPrimary,
+    letterSpacing: 1.5,
   },
   body: {
     fontFamily: 'Asap',
-    fontWeight: 600,
-    fontSize: 22,
-    color: palette.textSecondary,
+    letterSpacing: 1,
+    color: palette.textTertiary,
+    textAlign: 'left',
+    fontSize: 18,
+    fontWeight: 400,
+    marginBottom: 20,
   },
   caption: {
     fontFamily: 'Asap',
@@ -124,7 +129,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: OFF_WHITE,
+    backgroundColor: LIGHT_GREY,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
