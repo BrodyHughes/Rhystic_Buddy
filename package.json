@@ -15,6 +15,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
+    "optimize:assets": "node scripts/optimize-images.js",
     "check-unused": "depcheck",
     "prepare": "husky install"
   },
@@ -50,7 +51,13 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.0.0",
     "prettier": "^3.5.3",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "imagemin": "9.0.1",
+    "imagemin-jpegtran": "^7.0.0",
+    "imagemin-optipng": "^8.0.0",
+    "fast-glob": "^3.3.2",
+    "imagemin-pngquant": "^9.0.0",
+    "depcheck": "^1.4.3"
   },
   "engines": {
     "node": ">=18"
