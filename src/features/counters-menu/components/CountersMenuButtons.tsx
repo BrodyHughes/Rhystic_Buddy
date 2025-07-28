@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { CARD_BACKGROUND_TRANSPARENT, LIGHT_GREY, PRESSED_BUTTON_COLOR } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 
 type CounterKey = string;
 
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   square: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 15,
+    borderRadius: radius.md,
     margin: 6,
     overflow: 'hidden',
     aspectRatio: 1,

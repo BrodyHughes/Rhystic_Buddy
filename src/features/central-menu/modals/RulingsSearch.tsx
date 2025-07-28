@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useRulings } from '../hooks/useRulings';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
   BUTTON_BACKGROUND,
@@ -56,14 +56,24 @@ const RulingsSearch: React.FC = () => {
     Linking.openURL('https://scryfall.com');
   };
 
-  if (!isRulingsSearchVisible) {
-    return null;
-  }
-
   const rulings = rulingsData?.rulings;
   const searchedCard = rulingsData?.cardName;
   const noRulingsFound = !isLoading && rulings && rulings.length === 0;
   const cardNotFound = isError || (rulingsData === undefined && !!submittedCardName);
+
+  const keyExtractor = useCallback(
+    (item: { published_at: string; comment: string }) => item.published_at + item.comment,
+    [],
+  );
+
+  const renderRulingItem = useCallback(
+    ({ item }: { item: { published_at: string; comment: string } }) => <RulingItem item={item} />,
+    [],
+  );
+
+  if (!isRulingsSearchVisible) {
+    return null;
+  }
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
@@ -108,8 +118,8 @@ const RulingsSearch: React.FC = () => {
             </Text>
             <FlatList
               data={rulings}
-              keyExtractor={(item) => item.published_at + item.comment}
-              renderItem={({ item }) => <RulingItem item={item} />}
+              keyExtractor={keyExtractor}
+              renderItem={renderRulingItem}
               initialNumToRender={10}
               maxToRenderPerBatch={10}
               windowSize={11}
@@ -169,7 +179,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     backgroundColor: BUTTON_BACKGROUND,
-    borderRadius: 8,
+    borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginRight: 10,
@@ -181,7 +191,7 @@ const styles = StyleSheet.create({
     backgroundColor: BUTTON_BACKGROUND,
     paddingHorizontal: 30,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: radius.md,
   },
   searchButtonText: {
     ...typography.body,
@@ -199,7 +209,7 @@ const styles = StyleSheet.create({
   },
   rulingItem: {
     backgroundColor: RULING_ITEM_BACKGROUND,
-    borderRadius: 8,
+    borderRadius: radius.md,
     padding: 15,
     marginBottom: 10,
   },

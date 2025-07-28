@@ -14,7 +14,7 @@ import { typography, radius, palette } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
 import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
 
-const confettiCount = 70;
+const confettiCount = 50;
 
 interface Props {
   panelW: number;

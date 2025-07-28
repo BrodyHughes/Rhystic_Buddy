@@ -6,7 +6,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
   BUTTON_BACKGROUND,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     backgroundColor: BUTTON_BACKGROUND,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: radius.md,
     marginVertical: 5,
     width: '100%',
     alignItems: 'center',

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     width: '90%',
     maxHeight: '80%',
     backgroundColor: MODAL_BACKGROUND,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

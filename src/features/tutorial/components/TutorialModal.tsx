@@ -24,7 +24,7 @@ import {
   GITHUB_URL,
   PLAINS,
 } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import { useTutorialStore } from '../store/useTutorialStore';
 
 const STORAGE_KEY = 'rb_seen_tutorial';
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   slide: {
     backgroundColor: MODAL_BACKGROUND,
-    borderRadius: 16,
+    borderRadius: radius.md,
     padding: 20,
     marginHorizontal: 20,
     alignSelf: 'center',
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   dot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
+    borderRadius: radius.sm,
     backgroundColor: 'rgba(255,255,255,0.3)',
   },
   dotActive: {
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     backgroundColor: LIGHT_GREY,
     paddingVertical: 12,
     paddingHorizontal: 35,
-    borderRadius: 10,
+    borderRadius: radius.md,
     alignSelf: 'center',
     marginTop: 25,
   },

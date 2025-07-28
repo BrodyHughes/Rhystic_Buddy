@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -51,6 +51,8 @@ export default function App() {
     flex: 1,
     gap: currentGap * 1.2,
   };
+
+  const playerIndexes = useMemo(() => [...Array(totalPlayersCount).keys()], [totalPlayersCount]);
 
   const renderPlayerPanels = () => {
     switch (totalPlayersCount) {
@@ -162,7 +164,7 @@ export default function App() {
           </View>
         );
       default:
-        return [...Array(totalPlayersCount).keys()].map((index) => (
+        return playerIndexes.map((index) => (
           <PlayerPanel
             key={index}
             index={index}

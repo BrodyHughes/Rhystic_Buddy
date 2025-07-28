@@ -50,6 +50,15 @@ function PlayerPanelComponent({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
 
+  // Clear any active continuous-life-change interval when the player count changes to
+  // avoid timers running after panels are re-created/re-positioned.
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [totalPlayers]);
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {

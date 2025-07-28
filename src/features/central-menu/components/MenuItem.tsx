@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 45,
     height: 45,
-    borderRadius: 12,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,

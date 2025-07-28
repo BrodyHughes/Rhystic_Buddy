@@ -13,7 +13,7 @@ import {
   BACKGROUND_TRANSPARENT,
   MODAL_BACKGROUND,
 } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 
 interface MoreMenuProps {
   onClose: () => void;
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: MODAL_BACKGROUND,
     width: '90%',
-    borderRadius: 16,
+    borderRadius: radius.md,
     overflow: 'hidden',
     alignSelf: 'center',
     shadowColor: '#000',
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   itemIconRounded: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,

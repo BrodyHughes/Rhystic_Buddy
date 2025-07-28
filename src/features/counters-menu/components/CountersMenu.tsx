@@ -19,7 +19,7 @@ import {
   DEAD_CARD_BORDER,
   COUNTERS_DIVIDER_COLOR,
 } from '@/consts/consts';
-import { typography } from '@/styles/global';
+import { radius, typography } from '@/styles/global';
 import {
   COUNTER_ICONS,
   COUNTER_COLORS,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   backgroundCard: {
     alignItems: 'center',
     padding: 6,
-    borderRadius: 10,
+    borderRadius: radius.md,
     backgroundColor: CARD_BACKGROUND_TRANSPARENT,
     minWidth: 80,
     width: 80,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   counterWrapper: {
-    borderRadius: 15,
+    borderRadius: radius.md,
     overflow: 'hidden',
     alignItems: 'center',
   },
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 50,
     height: 50,
-    borderRadius: 15,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,

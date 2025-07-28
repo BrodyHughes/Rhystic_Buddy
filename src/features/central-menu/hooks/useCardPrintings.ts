@@ -8,5 +8,8 @@ export const useCardPrintings = (cardName: string) => {
     enabled: !!cardName,
     retry: false,
     refetchOnWindowFocus: false,
+    // Aggressive GC: purge after 30 s of inactivity; mark stale after 30 s.
+    gcTime: 30 * 1000,
+    staleTime: 30 * 1000,
   });
 };

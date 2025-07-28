@@ -5,8 +5,11 @@ export const useRulings = (cardName: string) => {
   return useQuery({
     queryKey: ['rulings', cardName],
     queryFn: () => fetchRulingsByName(cardName),
-    enabled: !!cardName, // Only run the query if cardName is not an empty string
-    retry: false, // Optional: disable retries for 404s etc.
-    refetchOnWindowFocus: false, // Optional: disable refetching on window focus
+    enabled: !!cardName,
+    retry: false,
+    refetchOnWindowFocus: false,
+    // Aggressive GC for rulings as well.
+    gcTime: 30 * 1000,
+    staleTime: 30 * 1000,
   });
 };
