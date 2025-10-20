@@ -1,15 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Pressable } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
@@ -38,7 +31,7 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
             </TouchableOpacity>
             <Text style={styles.title}>Open Source Licenses</Text>
           </View>
-          <ScrollView style={styles.content}>
+          <ScrollView style={styles.content} nestedScrollEnabled={true}>
             {licenses.map((lib) => (
               <View key={lib.name} style={styles.licenseItem}>
                 <Text style={styles.libName}>

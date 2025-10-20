@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   useWindowDimensions,
   SafeAreaView,
   NativeScrollEvent,
@@ -13,6 +12,7 @@ import {
   Linking,
   Pressable,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
@@ -178,6 +178,7 @@ export default function TutorialModal() {
           ref={scrollRef}
           onMomentumScrollEnd={onScroll}
           contentContainerStyle={{ alignItems: 'center' }}
+          nestedScrollEnabled={true}
         >
           {slides.map((s) => (
             <View key={s.title} style={[styles.slide, { width: W - 40 }] /* account for padding */}>

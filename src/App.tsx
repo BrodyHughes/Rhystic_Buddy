@@ -49,7 +49,7 @@ export default function App() {
 
   const twoPlayerStyle = {
     flex: 1,
-    gap: currentGap * 1.2,
+    gap: currentGap,
   };
 
   const playerIndexes = useMemo(() => [...Array(totalPlayersCount).keys()], [totalPlayersCount]);

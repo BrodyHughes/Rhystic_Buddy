@@ -7,10 +7,10 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
   Pressable,
   Linking,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
@@ -50,7 +50,7 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
             </TouchableOpacity>
             <Text style={styles.title}>About</Text>
           </View>
-          <ScrollView style={styles.content}>
+          <ScrollView style={styles.content} nestedScrollEnabled={true}>
             <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
             <Text style={styles.sectionTitle}>GitHub</Text>
             <TouchableOpacity onPress={handleOpenGithub}>
