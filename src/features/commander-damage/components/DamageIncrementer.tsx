@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   androidBackground: {
-    backgroundColor: 'rgba(62, 62, 86, 0.95)',
+    backgroundColor: 'rgba(24, 24, 29, 0.95)',
   },
   damageBlock: {
     flexDirection: 'row',

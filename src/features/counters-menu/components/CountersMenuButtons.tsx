@@ -35,7 +35,9 @@ export default function CountersMenuButtons({
         },
       ]}
     >
-      <Text style={styles.total}>{value}</Text>
+      <Text pointerEvents="none" style={styles.total}>
+        {value}
+      </Text>
 
       <View style={styles.btnRow}>
         <Pressable
@@ -71,7 +73,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 9,
     zIndex: 1,
-    pointerEvents: 'box-none',
   },
   btnRow: {
     position: 'absolute',
