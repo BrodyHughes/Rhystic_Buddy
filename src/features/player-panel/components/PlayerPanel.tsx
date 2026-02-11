@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Text, Platform } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS } from 'react-native-reanimated';
 
@@ -148,6 +148,8 @@ function PlayerPanelComponent({
 
   // For hub-and-spoke model, we arrange views differently
   const hasCommanderView = totalPlayers > 2;
+  const twoPlayerAndroidWidth = Platform.OS === 'android' ? panelW * 1.07 : panelW;
+  const functionalWidth = totalPlayers === 2 ? twoPlayerAndroidWidth : panelW;
 
   return (
     <GestureDetector gesture={gesture}>
@@ -155,7 +157,7 @@ function PlayerPanelComponent({
         style={[
           styles.shadowWrap,
           {
-            width: panelW,
+            width: functionalWidth,
             height: panelH,
             transform: [{ rotate: finalRot }],
           },
@@ -163,7 +165,7 @@ function PlayerPanelComponent({
       >
         <BackgroundImage
           background={background || null}
-          panelW={panelW}
+          panelW={functionalWidth}
           panelH={panelH}
           isDead={player.isDead || false}
         />
@@ -171,7 +173,7 @@ function PlayerPanelComponent({
           isSpinning={isSpinning}
           isFinished={isFinished}
           isCurrentTurn={currentTurn === index}
-          panelW={panelW}
+          panelW={functionalWidth}
           panelH={panelH}
         />
         <View style={styles.roundedClip}>
@@ -179,7 +181,7 @@ function PlayerPanelComponent({
             style={[
               styles.viewsContainer,
               containerAnimatedStyle,
-              { width: panelW * 4, height: panelH * 4 },
+              { width: functionalWidth * 4, height: panelH * 4 },
             ]}
           >
             {/* --- HORIZONTAL TRACK --- */}
@@ -189,7 +191,7 @@ function PlayerPanelComponent({
                 styles.viewPanel,
                 styles.panelBorder,
                 {
-                  width: panelW,
+                  width: functionalWidth,
                   height: panelH,
                   left: 0,
                   top: panelH,
@@ -202,7 +204,7 @@ function PlayerPanelComponent({
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}
-                panelWidth={panelW}
+                panelWidth={functionalWidth}
                 active={currentView === ViewMode.COUNTERS}
               />
             </View>
@@ -213,9 +215,9 @@ function PlayerPanelComponent({
                 styles.viewPanel,
                 styles.panelBorder,
                 {
-                  width: panelW,
+                  width: functionalWidth,
                   height: panelH,
-                  left: panelW,
+                  left: functionalWidth,
                   top: panelH,
                   backgroundColor: panelBackgroundColor,
                 },
@@ -238,9 +240,9 @@ function PlayerPanelComponent({
                 styles.viewPanel,
                 styles.panelBorder,
                 {
-                  width: panelW,
+                  width: functionalWidth,
                   height: panelH,
-                  left: 2 * panelW,
+                  left: 2 * functionalWidth,
                   top: panelH,
                   backgroundColor: panelBackgroundColor,
                 },
@@ -251,7 +253,7 @@ function PlayerPanelComponent({
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}
-                panelWidth={panelW}
+                panelWidth={functionalWidth}
                 active={currentView === ViewMode.COUNTERS}
               />
             </View>
@@ -262,9 +264,9 @@ function PlayerPanelComponent({
                 styles.viewPanel,
                 styles.panelBorder,
                 {
-                  width: panelW,
+                  width: functionalWidth,
                   height: panelH,
-                  left: 3 * panelW,
+                  left: 3 * functionalWidth,
                   top: panelH,
                   backgroundColor: panelBackgroundColor,
                 },
@@ -289,9 +291,9 @@ function PlayerPanelComponent({
                   styles.viewPanel,
                   styles.panelBorder,
                   {
-                    width: panelW,
+                    width: functionalWidth,
                     height: panelH,
-                    left: panelW,
+                    left: functionalWidth,
                     top: 0,
                     backgroundColor: panelBackgroundColor,
                   },
@@ -312,9 +314,9 @@ function PlayerPanelComponent({
                   styles.viewPanel,
                   styles.panelBorder,
                   {
-                    width: panelW,
+                    width: functionalWidth,
                     height: panelH,
-                    left: panelW,
+                    left: functionalWidth,
                     top: 2 * panelH,
                     backgroundColor: panelBackgroundColor,
                   },
@@ -332,9 +334,9 @@ function PlayerPanelComponent({
                 styles.viewPanel,
                 styles.panelBorder,
                 {
-                  width: panelW,
+                  width: functionalWidth,
                   height: panelH,
-                  left: panelW,
+                  left: functionalWidth,
                   top: 3 * panelH,
                   backgroundColor: panelBackgroundColor,
                 },

@@ -1,14 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
-import {
-  SafeAreaView,
-  View,
-  StatusBar,
-  StyleSheet,
-  Pressable,
-  ActivityIndicator,
-} from 'react-native';
+import { View, StatusBar, StyleSheet, Pressable, ActivityIndicator, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PlayerPanel from '@/features/player-panel/components/PlayerPanel';
 import CentralMenuButton from '@/features/central-menu/components/CentralMenuButton';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
@@ -29,7 +23,7 @@ export default function App() {
   const totalPlayersCount = useLifeStore((s) => s.players.length);
   const { isReceiving, defenderId } = useCommanderDamageModeStore();
   const { isFinished, reset } = useTurnStore();
-  const currentGap = totalPlayersCount === 2 ? GAP * 1.5 : GAP;
+  const currentGap = totalPlayersCount === 2 ? (Platform.OS === 'android' ? GAP : GAP * 1.5) : GAP;
 
   const layoutConfigurations: { [count: number]: { columns: number; rows: number } } = {
     2: { columns: 1, rows: 2 },
@@ -48,7 +42,7 @@ export default function App() {
   const panelRowHeight = usableH / rows;
 
   const twoPlayerStyle = {
-    flex: 1,
+    flexDirection: 'column' as const,
     gap: currentGap,
   };
 
