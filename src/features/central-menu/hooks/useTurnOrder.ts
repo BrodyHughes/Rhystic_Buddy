@@ -3,9 +3,9 @@ import { useTurnStore } from '../store/useTurnStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 
 // ============ ANIMATION SETTINGS - ADJUST THESE ============
-const TOTAL_STEPS = 50; // How many times it changes player
+const TOTAL_STEPS = 20; // How many times it changes player
 const START_DELAY_MS = 10; // Start: 0.01 seconds per step
-const END_DELAY_MS = 500; // End: 0.5 seconds per step
+const END_DELAY_MS = 200; // End: 0.2 seconds per step
 const EASING_POWER = 2; // Slowdown curve (2 = quadratic, 3 = cubic, etc.)
 // ===========================================================
 
