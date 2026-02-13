@@ -5,13 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
-  SafeAreaView,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Image,
   Linking,
   Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';

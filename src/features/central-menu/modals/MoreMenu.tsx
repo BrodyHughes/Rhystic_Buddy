@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronRight, BookOpen, Info, GraduationCap } from 'lucide-react-native';
 import {

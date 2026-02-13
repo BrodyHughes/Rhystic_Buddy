@@ -11,9 +11,9 @@ import {
   Linking,
   Keyboard,
   FlatList,
-  SafeAreaView,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
