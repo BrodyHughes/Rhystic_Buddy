@@ -77,11 +77,31 @@ function PlayerPanelComponent({
   const { panelW, panelH } = useMemo(() => {
     const usableW = W - (cols + 1) * currentGap;
     const usableH = H - top - bottom - (rows + 1) * currentGap;
-    return {
-      panelW: isLastPlayerOddLayout ? usableH / rows : usableW / cols,
-      panelH: isLastPlayerOddLayout ? W - currentGap * 2 : usableH / rows,
-    };
-  }, [W, H, top, bottom, cols, rows, currentGap, isLastPlayerOddLayout]);
+
+    // For 2-player mode, panels are rotated 90°. We need to swap dimensions so that
+    // after rotation, the visual size matches the flexbox allocation:
+    // - Pre-rotation width becomes visual height
+    // - Pre-rotation height becomes visual width
+    const is2Player = totalPlayers === 2;
+
+    if (isLastPlayerOddLayout) {
+      return {
+        panelW: usableH / rows,
+        panelH: W - currentGap * 2,
+      };
+    } else if (is2Player) {
+      // Swap: panelW = desired visual height, panelH = desired visual width
+      return {
+        panelW: usableH / rows,
+        panelH: usableW / cols,
+      };
+    } else {
+      return {
+        panelW: usableW / cols,
+        panelH: usableH / rows,
+      };
+    }
+  }, [W, H, top, bottom, cols, rows, currentGap, isLastPlayerOddLayout, totalPlayers]);
 
   const { gesture, containerAnimatedStyle } = useCarousel({
     totalPlayers,
@@ -149,6 +169,11 @@ function PlayerPanelComponent({
   // For hub-and-spoke model, we arrange views differently
   const hasCommanderView = totalPlayers > 2;
 
+  // For 2-player rotated panels, the visual height (panelW) exceeds the flexbox
+  // allocation (panelH). Add margin to prevent overlap.
+  const is2Player = totalPlayers === 2;
+  const rotationMargin = is2Player ? (panelW - panelH) / 2 : 0;
+
   return (
     <GestureDetector gesture={gesture}>
       <View
@@ -157,6 +182,7 @@ function PlayerPanelComponent({
           {
             width: panelW,
             height: panelH,
+            marginVertical: rotationMargin,
             transform: [{ rotate: finalRot }],
           },
         ]}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { ViewMode } from '@/types/app';
 import CountersMenu from '@/features/counters-menu/components/CountersMenu';
 
@@ -63,6 +64,7 @@ export default function CountersView({
             contentOffset={{ x: 0, y: 0 }}
             style={{ flex: 1 }}
             contentContainerStyle={styles.scrollContent}
+            nestedScrollEnabled={true}
           >
             <CountersMenu defenderId={index} />
           </ScrollView>

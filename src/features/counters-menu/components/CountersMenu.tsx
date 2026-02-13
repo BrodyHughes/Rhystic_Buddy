@@ -16,7 +16,6 @@ import {
   FOREST,
   CARD_BACKGROUND_TRANSPARENT,
   DEAD_CARD_BACKGROUND,
-  DEAD_CARD_BORDER,
   COUNTERS_DIVIDER_COLOR,
 } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
@@ -220,11 +219,6 @@ const styles = StyleSheet.create({
     backgroundColor: CARD_BACKGROUND_TRANSPARENT,
     minWidth: 80,
     width: 80,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
   },
   backgroundCardPressed: {
     backgroundColor: CARD_BACKGROUND_TRANSPARENT,
@@ -232,7 +226,6 @@ const styles = StyleSheet.create({
   },
   deadCardActive: {
     backgroundColor: DEAD_CARD_BACKGROUND,
-    borderColor: DEAD_CARD_BORDER,
   },
   counterContainer: {
     flexDirection: 'row',

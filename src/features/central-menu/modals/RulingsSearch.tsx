@@ -8,10 +8,10 @@ import {
   StyleSheet,
   TextInput,
   FlatList,
-  SafeAreaView,
   Linking,
   Keyboard,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRulingsStore } from '../store/useRulingsStore';

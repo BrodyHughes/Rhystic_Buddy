@@ -194,7 +194,7 @@ export default React.memo(function CentralMenuButton() {
   );
 
   return (
-    <View style={[styles.container, { width: W, height: H }]}>
+    <View style={[styles.container, { width: W, height: H }]} pointerEvents="box-none">
       {/* Backdrop press when menu is open */}
       {open && (
         <Pressable

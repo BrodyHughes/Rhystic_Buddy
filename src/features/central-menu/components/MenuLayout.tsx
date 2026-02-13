@@ -29,7 +29,18 @@ export const MenuLayout = React.memo(
     pentagonPath,
   }: MenuLayoutProps) => {
     return (
-      <AnimatedTouchable style={fabAnimatedStyle} onPress={onPress} activeOpacity={1}>
+      <AnimatedTouchable
+        style={[
+          fabAnimatedStyle,
+          {
+            backgroundColor: 'rgba(0,0,0,0.01)', // Slightly opaque to block touches on Android
+          },
+        ]}
+        onPress={onPress}
+        activeOpacity={1}
+        // onStartShouldSetResponder={() => true}
+        // onResponderGrant={() => {}}
+      >
         <Svg height="100%" width="100%" viewBox="0 0 100 100">
           <Defs>
             <RadialGradient id="grad" cx="50%" cy="50%" r="50%">

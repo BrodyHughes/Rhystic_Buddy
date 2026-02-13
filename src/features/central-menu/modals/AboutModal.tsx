@@ -1,16 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  Pressable,
-  Linking,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
@@ -50,7 +43,7 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
             </TouchableOpacity>
             <Text style={styles.title}>About</Text>
           </View>
-          <ScrollView style={styles.content}>
+          <ScrollView style={styles.content} nestedScrollEnabled={true}>
             <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
             <Text style={styles.sectionTitle}>GitHub</Text>
             <TouchableOpacity onPress={handleOpenGithub}>

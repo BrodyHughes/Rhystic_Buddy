@@ -1,33 +1,68 @@
 import { useEffect, useState } from 'react';
 
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
+import { usePlayerBackgroundStore } from '@/features/central-menu/store/usePlayerBackgroundStore';
+
+type PersistedStore = {
+  hasHydrated: () => boolean;
+  onFinishHydration: (cb: () => void) => () => void;
+};
 
 /**
  * Returns `true` once all persisted Zustand stores have finished hydrating from AsyncStorage.
- * Currently we only track `useLifeStore`, but you can add additional stores here when you
- * introduce more persisted ones.
  */
 export default function useStoresHydrated(): boolean {
-  // `persist.hasHydrated()` might not exist until after the first call, so we
-  // lazily access it.
-  const lifeStorePersist = useLifeStore.persist as unknown as {
-    hasHydrated: () => boolean;
-    onFinishHydration: (cb: () => void) => () => void;
-  };
+  const lifeStorePersist = useLifeStore.persist as unknown as PersistedStore;
+  const commanderDamageStorePersist = useCommanderDamageStore.persist as unknown as PersistedStore;
+  const playerBackgroundStorePersist =
+    usePlayerBackgroundStore.persist as unknown as PersistedStore;
 
-  const [hydrated, setHydrated] = useState<boolean>(lifeStorePersist?.hasHydrated?.() ?? false);
+  const [hydrated, setHydrated] = useState<boolean>(() => {
+    return (
+      (lifeStorePersist?.hasHydrated?.() ?? false) &&
+      (commanderDamageStorePersist?.hasHydrated?.() ?? false) &&
+      (playerBackgroundStorePersist?.hasHydrated?.() ?? false)
+    );
+  });
 
   useEffect(() => {
     if (hydrated) return;
 
-    const unsub = lifeStorePersist?.onFinishHydration?.(() => {
-      setHydrated(true);
+    let lifeHydrated = lifeStorePersist?.hasHydrated?.() ?? false;
+    let commanderDamageHydrated = commanderDamageStorePersist?.hasHydrated?.() ?? false;
+    let playerBackgroundHydrated = playerBackgroundStorePersist?.hasHydrated?.() ?? false;
+
+    const checkAllHydrated = () => {
+      if (lifeHydrated && commanderDamageHydrated && playerBackgroundHydrated) {
+        setHydrated(true);
+      }
+    };
+
+    // Check immediately in case stores already hydrated before effect ran
+    checkAllHydrated();
+
+    const unsubLife = lifeStorePersist?.onFinishHydration?.(() => {
+      lifeHydrated = true;
+      checkAllHydrated();
+    });
+
+    const unsubCommanderDamage = commanderDamageStorePersist?.onFinishHydration?.(() => {
+      commanderDamageHydrated = true;
+      checkAllHydrated();
+    });
+
+    const unsubPlayerBackground = playerBackgroundStorePersist?.onFinishHydration?.(() => {
+      playerBackgroundHydrated = true;
+      checkAllHydrated();
     });
 
     return () => {
-      if (unsub) unsub();
+      unsubLife?.();
+      unsubCommanderDamage?.();
+      unsubPlayerBackground?.();
     };
-  }, [hydrated, lifeStorePersist]);
+  }, [hydrated, lifeStorePersist, commanderDamageStorePersist, playerBackgroundStorePersist]);
 
   return hydrated;
 }

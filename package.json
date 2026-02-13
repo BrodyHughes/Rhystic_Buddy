@@ -7,6 +7,7 @@
     "how to run these?": "run `yarn + the command you want to run`",
     "+-+": "",
     "android": "react-native run-android",
+    "android:apk": "cd android && ./gradlew assembleRelease && cd .. && echo '✅ APK built at: android/app/build/outputs/apk/release/app-release.apk'",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "install-all": "yarn install && bundle install && cd ios && pod install && cd ..",

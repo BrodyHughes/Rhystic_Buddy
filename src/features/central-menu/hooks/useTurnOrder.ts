@@ -2,16 +2,18 @@ import { useEffect, useRef } from 'react';
 import { useTurnStore } from '../store/useTurnStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 
-// Spinning settings – tweak here for global effect
-const LOOPS = 3; // number of full rotations before stopping
-const INTERVAL_MS = 30; // shorter delay (30ms) -> visibly faster spin
+// ============ ANIMATION SETTINGS - ADJUST THESE ============
+const TOTAL_STEPS = 20; // How many times it changes player
+const START_DELAY_MS = 10; // Start: 0.01 seconds per step
+const END_DELAY_MS = 200; // End: 0.2 seconds per step
+const EASING_POWER = 2; // Slowdown curve (2 = quadratic, 3 = cubic, etc.)
+// ===========================================================
 
 export const useTurnOrder = () => {
   const { startSpin, set, finishSpin, reset: resetTurnOrder } = useTurnStore.getState();
 
-  // Keep track of the active interval so we can clean it up if the
-  // component that invoked this hook unmounts or if start() is called again.
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRef = useRef<number | null>(null);
+  const isRunningRef = useRef(false);
 
   const shuffle = (length: number): number[] => {
     const arr = Array.from({ length }, (_, i) => i);
@@ -23,51 +25,79 @@ export const useTurnOrder = () => {
   };
 
   const start = () => {
-    // If a spin is already happening, reset it first
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    // Cancel any existing animation
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     }
 
     const players = useLifeStore.getState().players;
     if (players.length === 0) return;
 
     startSpin();
+    isRunningRef.current = true;
 
+    // Shuffle to get random order and winner
     const order = shuffle(players.length);
     const winner = order[order.length - 1];
 
-    const totalTicks = order.length * LOOPS;
-    let tick = 0;
+    let currentIndex = 0;
+    let stepCount = 0;
+    let lastStepTime = performance.now();
 
-    intervalRef.current = setInterval(() => {
-      set(order[tick % order.length]);
-      tick++;
-      if (tick > totalTicks) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+    // Calculate initial delay
+    const getDelay = (step: number): number => {
+      const progress = step / TOTAL_STEPS;
+      return START_DELAY_MS + Math.pow(progress, EASING_POWER) * (END_DELAY_MS - START_DELAY_MS);
+    };
+
+    let nextStepDelay = getDelay(0);
+
+    const animate = (currentTime: number) => {
+      if (!isRunningRef.current) return;
+
+      const elapsed = currentTime - lastStepTime;
+
+      // Time to show next step?
+      if (elapsed >= nextStepDelay) {
+        set(order[currentIndex]);
+
+        currentIndex = (currentIndex + 1) % order.length;
+        stepCount++;
+        lastStepTime = currentTime;
+
+        if (stepCount >= TOTAL_STEPS) {
+          finishSpin(winner);
+          return;
         }
-        finishSpin(winner);
+
+        // Calculate delay for next step
+        nextStepDelay = getDelay(stepCount);
       }
-    }, INTERVAL_MS);
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Ensure we don’t leave timers running if the invoking component unmounts.
+  // Ensure we don't leave animations running if the invoking component unmounts.
   useEffect(() => {
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
+      isRunningRef.current = false;
     };
   }, []);
 
   const stop = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     }
+    isRunningRef.current = false;
     resetTurnOrder();
   };
 
