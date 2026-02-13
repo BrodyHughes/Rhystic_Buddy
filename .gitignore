@@ -71,3 +71,7 @@ package-lock.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Android release keystore
+*.keystore
+!android/app/debug.keystore
