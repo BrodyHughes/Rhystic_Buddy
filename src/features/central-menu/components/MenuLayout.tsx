@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Svg, { Path, Defs, Stop, RadialGradient } from 'react-native-svg';
+import Svg, { Path, Defs, Stop, RadialGradient, PathProps } from 'react-native-svg';
 import { Menu, X } from 'lucide-react-native';
 import { APP_BACKGROUND } from '@/consts/consts';
 
@@ -12,7 +12,7 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface MenuLayoutProps {
   fabAnimatedStyle: StyleProp<ViewStyle>;
-  animatedStrokeProps: any;
+  animatedStrokeProps: Partial<PathProps>;
   hamburgerIconStyle: StyleProp<ViewStyle>;
   xIconStyle: StyleProp<ViewStyle>;
   onPress: () => void;

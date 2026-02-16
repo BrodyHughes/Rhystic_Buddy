@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -22,7 +22,7 @@ function GlobalDamageOverlays({ defenderId, layoutConfigurations, gap }: Props) 
 
   const layouts = useMemo(() => {
     const layoutMap: {
-      [playerId: number]: { style: any; rot: string; isEven: boolean };
+      [playerId: number]: { style: ViewStyle; rot: string; isEven: boolean };
     } = {};
     if (!totalPlayersCount) return layoutMap;
 
