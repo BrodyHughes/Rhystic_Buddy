@@ -5,8 +5,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronLeft } from 'lucide-react-native';
-
 import { radius, spacing, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
@@ -27,17 +25,16 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
         <View style={styles.panel}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <ChevronLeft color={LIGHT_GREY} size={28} />
-            </TouchableOpacity>
             <Text style={styles.title}>Open Source Licenses</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
           </View>
           <ScrollView style={styles.content} nestedScrollEnabled={true}>
             {licenses.map((lib) => (
               <View key={lib.name} style={styles.licenseItem}>
-                <Text style={styles.libName}>
-                  {lib.name} ({lib.version})
-                </Text>
+                <Text style={styles.libName}>{lib.name}</Text>
+                <Text style={styles.libLicense}>{lib.version}</Text>
                 <Text style={styles.libLicense}>{lib.license}</Text>
               </View>
             ))}
@@ -52,14 +49,12 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: BACKGROUND_TRANSPARENT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 60, // Higher zIndex to ensure it's on top
+    zIndex: 50,
   },
   safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   panel: {
-    width: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '100%',
     backgroundColor: MODAL_BACKGROUND,
     borderRadius: radius.md,
     overflow: 'hidden',
@@ -71,7 +66,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -79,24 +74,34 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.heading2,
-    marginLeft: 10,
+    fontSize: 20,
   },
-  backButton: {
-    padding: spacing.xs,
+  closeButton: {
+    paddingHorizontal: 5,
+  },
+  closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
+    ...typography.heading2,
+    lineHeight: 45,
+    fontSize: 45,
   },
   content: {
     paddingHorizontal: 20,
   },
   licenseItem: {
-    paddingVertical: spacing.sm,
+    paddingVertical: 0,
   },
   libName: {
     ...typography.body,
     color: LIGHT_GREY,
+    marginBottom: spacing.xs,
+    marginTop: spacing.xs,
   },
   libLicense: {
     ...typography.body,
-    marginTop: spacing.xs,
+    marginTop: 0,
+    marginBottom: spacing.xs,
     fontSize: 14,
     color: TRANSPARENT_OFF_WHITE,
   },

@@ -45,7 +45,7 @@ export default function BackgroundImage({ background, panelW, panelH, isDead }: 
 const styles = StyleSheet.create({
   imageWrapper: {
     overflow: 'hidden',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
   },
   imageCrop: {
     width: '100%',

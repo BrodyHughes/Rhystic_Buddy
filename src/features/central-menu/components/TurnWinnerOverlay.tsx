@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     zIndex: 110,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,

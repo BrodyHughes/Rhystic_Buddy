@@ -47,20 +47,20 @@ export type TypographyVariant =
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
     marginTop: 10,
-    fontFamily: 'Comfortaa',
+    // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 95,
     color: palette.textPrimary,
   },
   heading2: {
-    fontFamily: 'Asap',
+    // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 28,
     color: palette.textPrimary,
     letterSpacing: 1.5,
   },
   body: {
-    fontFamily: 'Asap',
+    // fontFamily: 'Asap',
     letterSpacing: 1,
     color: palette.textTertiary,
     textAlign: 'left',
@@ -69,19 +69,19 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     marginBottom: 20,
   },
   caption: {
-    fontFamily: 'Asap',
+    // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 30,
     color: palette.textSecondary,
   },
   miniCaption: {
-    fontFamily: 'Asap',
+    // fontFamily: 'Asap',
     fontWeight: 500,
     fontSize: 16,
     color: palette.textSecondary,
   },
   button: {
-    fontFamily: 'Asap',
+    // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 16,
   },

@@ -49,62 +49,47 @@ const LifeView: React.FC<LifeViewProps> = ({
   const triggerIncFeedback = useCallback(() => triggerFeedback(incOpacity), [incOpacity]);
   const triggerDecFeedback = useCallback(() => triggerFeedback(decOpacity), [decOpacity]);
 
-  // Memoised gesture objects so they are not recreated every render
-  const incGesture = useMemo(() => {
-    const tap = Gesture.Tap().onEnd((_e, success) => {
-      'worklet';
-      if (success && !isDead) {
-        runOnJS(changeLifeByAmount)(1);
-        runOnJS(triggerIncFeedback)();
-      }
-    });
-
-    const longPress = Gesture.LongPress()
-      .minDuration(1000)
-      .onStart(() => {
+  // Factory function to create life adjustment gestures
+  const createLifeGesture = useCallback(
+    (amount: number, direction: 'inc' | 'dec', feedback: () => void) => {
+      const tap = Gesture.Tap().onEnd((_e, success) => {
         'worklet';
-        if (!isDead) {
-          runOnJS(handleLongPressStart)('inc');
-          runOnJS(triggerIncFeedback)();
-        }
-      })
-      .onEnd(() => {
-        'worklet';
-        if (!isDead) {
-          runOnJS(handlePressOut)();
+        if (success && !isDead) {
+          runOnJS(changeLifeByAmount)(amount);
+          runOnJS(feedback)();
         }
       });
 
-    return Gesture.Race(longPress, tap);
-  }, [isDead, changeLifeByAmount, handleLongPressStart, handlePressOut, triggerIncFeedback]);
+      const longPress = Gesture.LongPress()
+        .minDuration(1000)
+        .onStart(() => {
+          'worklet';
+          if (!isDead) {
+            runOnJS(handleLongPressStart)(direction);
+            runOnJS(feedback)();
+          }
+        })
+        .onEnd(() => {
+          'worklet';
+          if (!isDead) {
+            runOnJS(handlePressOut)();
+          }
+        });
 
-  const decGesture = useMemo(() => {
-    const tap = Gesture.Tap().onEnd((_e, success) => {
-      'worklet';
-      if (success && !isDead) {
-        runOnJS(changeLifeByAmount)(-1);
-        runOnJS(triggerDecFeedback)();
-      }
-    });
+      return Gesture.Race(longPress, tap);
+    },
+    [isDead, changeLifeByAmount, handleLongPressStart, handlePressOut],
+  );
 
-    const longPress = Gesture.LongPress()
-      .minDuration(1000)
-      .onStart(() => {
-        'worklet';
-        if (!isDead) {
-          runOnJS(handleLongPressStart)('dec');
-          runOnJS(triggerDecFeedback)();
-        }
-      })
-      .onEnd(() => {
-        'worklet';
-        if (!isDead) {
-          runOnJS(handlePressOut)();
-        }
-      });
+  const incGesture = useMemo(
+    () => createLifeGesture(1, 'inc', triggerIncFeedback),
+    [createLifeGesture, triggerIncFeedback],
+  );
 
-    return Gesture.Race(longPress, tap);
-  }, [isDead, changeLifeByAmount, handleLongPressStart, handlePressOut, triggerDecFeedback]);
+  const decGesture = useMemo(
+    () => createLifeGesture(-1, 'dec', triggerDecFeedback),
+    [createLifeGesture, triggerDecFeedback],
+  );
 
   return (
     <>
@@ -193,7 +178,7 @@ const styles = StyleSheet.create({
   },
   delta: {
     ...typography.caption,
-    fontFamily: 'Comfortaa',
+    // fontFamily: 'Comfortaa',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 5, height: 1 },
     textShadowRadius: 20,

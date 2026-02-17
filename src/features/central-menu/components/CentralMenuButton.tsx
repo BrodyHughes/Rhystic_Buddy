@@ -91,8 +91,8 @@ export default React.memo(function CentralMenuButton() {
   const animatedStrokeProps = useAnimatedProps(() => {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const scaleFactor = currentSize / FAB_SIZE;
-    const baseStrokeWidth = 7;
-    const minStrokeWidth = 7;
+    const baseStrokeWidth = 10;
+    const minStrokeWidth = 8;
     const strokeWidth =
       baseStrokeWidth / scaleFactor < minStrokeWidth
         ? baseStrokeWidth / scaleFactor
