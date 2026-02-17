@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
   topButton: {
     top: 0,
     backgroundColor: DAMAGE_INCREMENTER_BUTTON_COLOR,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
   },
   bottomButton: {
     bottom: 0,
     backgroundColor: DAMAGE_INCREMENTER_BUTTON_COLOR,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
   },
 });

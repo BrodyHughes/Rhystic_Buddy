@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   backgroundLabel: {
     ...typography.button,
     color: LIGHT_GREY,
-    fontSize: 12,
+    fontSize: 10,
     marginTop: 4,
   },
   backgroundSection: {

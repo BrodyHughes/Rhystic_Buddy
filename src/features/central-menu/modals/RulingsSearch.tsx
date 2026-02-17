@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronLeft } from 'lucide-react-native';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useRulings } from '../hooks/useRulings';
 import { radius, typography } from '@/styles/global';
@@ -79,10 +78,10 @@ const RulingsSearch: React.FC = () => {
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <SafeAreaView style={styles.flex}>
         <View style={styles.modalHeader}>
-          <TouchableOpacity style={styles.backButton} onPress={handleClose}>
-            <ChevronLeft color="#fff" size={28} />
-          </TouchableOpacity>
           <Text style={styles.modalTitle}>Card Rulings</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.searchRow}>
@@ -156,6 +155,7 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
@@ -163,6 +163,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...typography.heading2,
+  },
+  closeButton: {
+    paddingHorizontal: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontFamily: 'Dosis',
+    ...typography.heading2,
+    lineHeight: 45,
+    fontSize: 45,
   },
   listContainer: {
     flex: 1,
@@ -233,10 +243,6 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-  },
-  backButton: {
-    padding: 10,
-    marginRight: 10,
   },
   scryfallCredit: {
     position: 'absolute',

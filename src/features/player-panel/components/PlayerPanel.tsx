@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   roundedClip: {
     flex: 1,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     overflow: 'hidden',
   },
   content: {

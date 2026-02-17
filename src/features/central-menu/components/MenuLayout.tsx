@@ -44,15 +44,15 @@ export const MenuLayout = React.memo(
         <Svg height="100%" width="100%" viewBox="0 0 100 100">
           <Defs>
             <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
-              <Stop offset="1" stopColor="rgb(30, 30, 31)" stopOpacity="1" />
-              <Stop offset="0" stopColor="rgb(67, 67, 70)" stopOpacity="1" />
+              <Stop offset="1" stopColor="rgb(20, 20, 20)" stopOpacity="1" />
+              <Stop offset="0" stopColor="rgb(35, 35, 36)" stopOpacity="1" />
             </RadialGradient>
           </Defs>
           <AnimatedPath
             d={pentagonPath}
             fill="url(#grad)"
             stroke={APP_BACKGROUND}
-            strokeLinejoin="round"
+            strokeLinejoin="bevel"
             animatedProps={animatedStrokeProps}
           />
         </Svg>

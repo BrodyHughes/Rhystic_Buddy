@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import {
   BACKGROUND_TRANSPARENT,
@@ -164,10 +164,14 @@ export default function TutorialModal() {
       <SafeAreaView style={styles.flex} pointerEvents="box-none">
         {/* Header */}
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={handleClose} style={styles.headerBtn} testID="tutorial-close">
-            <X color={LIGHT_GREY} size={28} />
-          </TouchableOpacity>
           <Text style={styles.headerTitle}>Tutorial</Text>
+          <TouchableOpacity
+            onPress={handleClose}
+            style={styles.closeButton}
+            testID="tutorial-close"
+          >
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Slides */}
@@ -253,17 +257,24 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
     marginBottom: 20,
   },
-  headerBtn: {
-    padding: 10,
-    marginRight: 10,
-  },
   headerTitle: {
     ...typography.heading2,
+  },
+  closeButton: {
+    paddingHorizontal: 5,
+  },
+  closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
+    ...typography.heading2,
+    lineHeight: 45,
+    fontSize: 45,
   },
   slide: {
     backgroundColor: MODAL_BACKGROUND,

@@ -5,8 +5,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Pressable, Linking } from 're
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronLeft } from 'lucide-react-native';
-
 import { radius, spacing, typography } from '@/styles/global';
 import {
   BACKGROUND_TRANSPARENT,
@@ -38,10 +36,10 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
         <View style={styles.panel}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <ChevronLeft color={LIGHT_GREY} size={28} />
-            </TouchableOpacity>
             <Text style={styles.title}>About</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
           </View>
           <ScrollView style={styles.content} nestedScrollEnabled={true}>
             <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
@@ -83,8 +81,8 @@ const styles = StyleSheet.create({
   },
   safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   panel: {
-    width: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '100%',
     backgroundColor: MODAL_BACKGROUND,
     borderRadius: radius.md,
     overflow: 'hidden',
@@ -96,7 +94,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -104,10 +102,16 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.heading2,
-    marginLeft: 10,
   },
-  backButton: {
-    padding: spacing.xs,
+  closeButton: {
+    paddingHorizontal: 5,
+  },
+  closeButtonText: {
+    color: LIGHT_GREY,
+    fontFamily: 'Dosis',
+    ...typography.heading2,
+    lineHeight: 45,
+    fontSize: 45,
   },
   content: {
     paddingHorizontal: 20,
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     padding: spacing.md,
     backgroundColor: LIGHT_GREY,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     alignItems: 'center',
     marginBottom: 20,
   },

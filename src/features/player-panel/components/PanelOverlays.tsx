@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     pointerEvents: 'none',
     overflow: 'hidden',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
   },
   turnOrderOverlay: {
     position: 'absolute',
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 100,
     overflow: 'hidden',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: BORDER_WIDTH,
