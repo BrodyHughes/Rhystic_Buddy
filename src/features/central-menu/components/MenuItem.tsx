@@ -28,20 +28,20 @@ interface MenuItemProps {
   progress: Animated.SharedValue<number>;
   children: React.ReactNode;
   onPress: () => void;
-  radius: number;
+  menuRadius: number;
   label: string;
   color: string;
 }
 
 // Circular menu item
 export const MenuItem = React.memo(
-  ({ index, progress, children, onPress, radius, label, color }: MenuItemProps) => {
+  ({ index, progress, children, onPress, menuRadius, label, color }: MenuItemProps) => {
     const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
     const angle = itemAngles[index];
 
     const animatedStyle = useAnimatedStyle(() => {
-      const translateX = progress.value * radius * Math.cos(angle);
-      const translateY = progress.value * radius * Math.sin(angle);
+      const translateX = progress.value * menuRadius * Math.cos(angle);
+      const translateY = progress.value * menuRadius * Math.sin(angle);
       const rotation = (angle * 180) / Math.PI - 90;
 
       return {

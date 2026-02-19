@@ -13,7 +13,7 @@ import {
   FlatList,
   Modal,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
@@ -47,6 +47,7 @@ const CardImage = React.memo(
 CardImage.displayName = 'CardImage';
 
 const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }) => {
+  const insets = useSafeAreaInsets();
   const [cardName, setCardName] = useState('');
   const [submittedCardName, setSubmittedCardName] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(playerId ?? null);
@@ -111,10 +112,12 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
-        <SafeAreaView style={styles.modalContainer}>
+        <View
+          style={[styles.modalContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+        >
           <View style={styles.modalHeader}>
             <Text style={styles.title}>
-              {selectedPlayerId === null ? 'Select a Player' : 'Search for a Background'}
+              {selectedPlayerId === null ? 'Select a Player' : 'Background Search'}
             </Text>
             <TouchableOpacity style={styles.closeButton} onPress={handleClosePress}>
               <Text style={styles.closeButtonText}>×</Text>
@@ -196,7 +199,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
               </Text>
             </Text>
           </View>
-        </SafeAreaView>
+        </View>
       </AnimatedView>
     </Modal>
   );
@@ -213,13 +216,13 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     width: '100%',
-    paddingTop: 20,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
+    paddingTop: 10,
     paddingBottom: 10,
   },
   pickerContainer: {
