@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/ICON_NO_BCKGRND.png" alt="Rhystic Buddy Logo" width="150" />
   <h1>Rhystic Buddy</h1>
-  <p>A life counter and game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
+  <p>A life counter & game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
   
   <!-- Badges -->
   <p>
@@ -13,7 +13,7 @@
 
 ---
 
-**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It features life tracking and offers a suite of tools to manage board states and streamline gameplay, all wrapped in a clean, gesture-driven interface.
+**Rhystic Buddy** is an app designed to be a simple, but feature-rich companion for your Commander games. It features life tracking & offers a suite of tools to manage board states & streamline gameplay, all wrapped in a clean, gesture-driven interface.
 
 ## ✨ Key Features
 
@@ -21,8 +21,8 @@
 - **Commander Damage**: Dedicated interface to track commander damage dealt by each player to their opponents.
 - **Turn Order Randomizer**: Quickly determine who goes first with a single tap.
 - **In-App Rulings**: Integrated Scryfall search to look up card rulings without leaving the app.
-- **Customizable Backgrounds**: Personalize your player panel by searching for and setting your favorite Magic card art as a background.
-- **Counter Tracking**: Easily manage counters like poison, energy, and floating mana.
+- **Customizable Backgrounds**: Personalize your player panel by searching for & setting your favorite Magic card art as a background.
+- **Counter Tracking**: Easily manage counters like poison, energy, & floating mana.
 - **Intuitive Gestures**: A smooth, carousel-based UI for navigating between different utility views.
 
 ## 🛠️ Tech Stack
@@ -35,7 +35,7 @@
 
 ## 📂 Project Structure
 
-The project uses a feature-sliced architecture to keep the codebase modular, scalable, and easy to navigate.
+The project uses a feature-sliced architecture to keep the codebase modular, scalable, & easy to navigate.
 
 ```
 src/
@@ -47,8 +47,8 @@ src/
 │   └── player-panel/
 ├── helpers/        # Utility functions (e.g., API helpers)
 ├── hooks/          # Shared custom React Hooks
-├── lib/            # Core libraries and managers (e.g., queryClient)
-├── styles/         # Global styles and design tokens
+├── lib/            # Core libraries & managers (e.g., queryClient)
+├── styles/         # Global styles & design tokens
 └── types/          # Shared TypeScript type definitions
 ```
 
@@ -73,7 +73,7 @@ src/
     ```
 
 2.  **Install all dependencies:**
-    This command handles Yarn packages, Ruby gems, and CocoaPods in one go.
+    This command handles Yarn packages, Ruby gems, & CocoaPods in one go.
 
     ```sh
     yarn install-all
@@ -98,30 +98,30 @@ src/
 
 ## 📜 Available Scripts
 
-| Command            | Description                                               |
-| :----------------- | :-------------------------------------------------------- |
-| `yarn start`       | Starts the Metro bundler.                                 |
-| `yarn ios`         | Builds and runs the app on the iOS Simulator.             |
-| `yarn android`     | Builds and runs the app on an Android emulator or device. |
-| `yarn install-all` | Installs all JS, Ruby, and CocoaPods dependencies.        |
-| `yarn lint`        | Lints the codebase with ESLint.                           |
-| `yarn lint:fix`    | Lints and automatically fixes issues.                     |
-| `yarn typecheck`   | Runs the TypeScript compiler to check for type errors.    |
-| `yarn format`      | Formats code with Prettier.                               |
-| `yarn clean`       | Removes all generated files and caches.                   |
+| Command            | Description                                             |
+| :----------------- | :------------------------------------------------------ |
+| `yarn start`       | Starts the Metro bundler.                               |
+| `yarn ios`         | Builds & runs the app on the iOS Simulator.             |
+| `yarn android`     | Builds & runs the app on an Android emulator or device. |
+| `yarn install-all` | Installs all JS, Ruby, & CocoaPods dependencies.        |
+| `yarn lint`        | Lints the codebase with ESLint.                         |
+| `yarn lint:fix`    | Lints & automatically fixes issues.                     |
+| `yarn typecheck`   | Runs the TypeScript compiler to check for type errors.  |
+| `yarn format`      | Formats code with Prettier.                             |
+| `yarn clean`       | Removes all generated files & caches.                   |
 
 ## 🤝 Contributing
 
 Contributions are welcome! Whether it's a bug report, a new feature, or a suggestion, please feel free to open an issue or submit a pull request.
 
-1.  **Fork the repository** and create your feature branch:
+1.  **Fork the repository** & create your feature branch:
     `git checkout -b <your-username>/<short-description>`
 2.  **Make your changes.**
 3.  **Ensure your code passes local checks** before pushing:
     ```sh
     yarn lint:fix && yarn typecheck
     ```
-4.  **Push your branch** and open a Pull Request against the `main` branch.
+4.  **Push your branch** & open a Pull Request against the `main` branch.
 
 ## 📄 License
 
@@ -130,7 +130,7 @@ This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE
 ## 🙏 Acknowledgements
 
 - Icons by [Lucide](https://lucide.dev/)
-- Card data and images via the [Scryfall API](https://scryfall.com/docs/api)
+- Card data & images via the [Scryfall API](https://scryfall.com/docs/api)
 
 ## ⚖️ Disclaimer
 
