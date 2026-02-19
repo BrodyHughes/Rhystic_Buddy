@@ -234,7 +234,7 @@ export default React.memo(function CentralMenuButton() {
                 index={index}
                 progress={progress}
                 onPress={item.action}
-                radius={menuItemRadius}
+                menuRadius={menuItemRadius}
                 label={item.label}
                 color={item.color}
               >
