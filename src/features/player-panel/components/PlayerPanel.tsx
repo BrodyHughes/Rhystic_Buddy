@@ -47,7 +47,7 @@ function PlayerPanelComponent({
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
   const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
 
   // Clear any active continuous-life-change interval when the player count changes to

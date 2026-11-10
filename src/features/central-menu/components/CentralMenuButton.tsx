@@ -110,7 +110,7 @@ export default React.memo(function CentralMenuButton() {
     opacity: progress.value,
   }));
 
-  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handlePress = useCallback(() => {
     cancelAnimation(progress);

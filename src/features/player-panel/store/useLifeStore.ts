@@ -9,7 +9,7 @@ export interface PlayerState {
   id: number;
   life: number;
   delta: number;
-  timer?: NodeJS.Timeout;
+  timer?: ReturnType<typeof setTimeout>;
   backgroundColor: string;
   isDead?: boolean;
 }
