@@ -37,12 +37,7 @@ export const radius = {
 };
 
 export type TypographyVariant =
-  | 'heading1'
-  | 'heading2'
-  | 'body'
-  | 'caption'
-  | 'button'
-  | 'miniCaption';
+  'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption';
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {

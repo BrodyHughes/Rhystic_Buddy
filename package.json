@@ -23,16 +23,16 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/blur": "^4.4.1",
-    "@tanstack/react-query": "^5.81.5",
+    "@tanstack/react-query": "^5.107.1",
     "lucide-react-native": "^0.525.0",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-reanimated": "^3.17.5",
-    "react-native-safe-area-context": "^5.4.0",
+    "react-native-safe-area-context": "^5.11.1",
     "react-native-svg": "^15.12.0",
-    "zustand": "^5.0.4"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -44,21 +44,21 @@
     "@react-native/eslint-config": "0.79.2",
     "@react-native/metro-config": "0.79.2",
     "@react-native/typescript-config": "0.79.2",
-    "@types/react": "^19.0.0",
-    "babel-plugin-module-resolver": "^5.0.2",
+    "@types/react": "^19.2.0",
+    "babel-plugin-module-resolver": "^5.0.3",
+    "depcheck": "^1.4.3",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-prettier": "^5.5.7",
+    "fast-glob": "^3.3.2",
     "husky": "^9.1.7",
-    "lint-staged": "^15.0.0",
-    "prettier": "^3.5.3",
-    "typescript": "5.0.4",
     "imagemin": "9.0.1",
     "imagemin-jpegtran": "^7.0.0",
     "imagemin-optipng": "^8.0.0",
-    "fast-glob": "^3.3.2",
     "imagemin-pngquant": "^9.0.0",
-    "depcheck": "^1.4.3"
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18"
