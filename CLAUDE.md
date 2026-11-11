@@ -4,8 +4,8 @@ Rhystic Buddy is a React Native life counter for Magic: The Gathering Commander.
 
 ## Environment
 
-- Node 22.11+ (`.nvmrc` pins 24; run `nvm use`). Yarn 1.x.
-- iOS: Xcode + CocoaPods via Bundler. `ios/.xcode.env.local` (gitignored) sets `NODE_BINARY` and must point at a Node ≥ 22.11.
+- Node 22.13+ or 24.3+ (`.nvmrc` pins 24; run `nvm use`). Yarn 1.x.
+- iOS: Xcode + CocoaPods via Bundler. `ios/.xcode.env.local` (gitignored) sets `NODE_BINARY` and must point at a Node 22.13+/24.3+.
 - Android: JDK 17, Android SDK 37.
 - RN 0.88, New Architecture + Hermes, Reanimated 4 + react-native-worklets, TypeScript 6.
 

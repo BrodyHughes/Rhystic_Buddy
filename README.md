@@ -58,7 +58,7 @@ src/
 
 ### Prerequisites
 
-- Node.js (>=22.11; `.nvmrc` pins 24, so `nvm use` picks it up)
+- Node.js (22.13+ or 24.3+; `.nvmrc` pins 24, so `nvm use` picks it up)
 - Yarn (v1.x)
 - Watchman (macOS)
 - Ruby & Bundler (iOS)

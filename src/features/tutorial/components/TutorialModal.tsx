@@ -88,7 +88,8 @@ const slides: Slide[] = [
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function TutorialModal() {
-  const { isTutorialVisible, setIsTutorialVisible } = useTutorialStore();
+  const isTutorialVisible = useTutorialStore((s) => s.isTutorialVisible);
+  const setIsTutorialVisible = useTutorialStore((s) => s.setIsTutorialVisible);
   const [initialised, setInitialised] = useState(false);
   const { width: W } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);

@@ -182,7 +182,7 @@ export const useLifeStore = create<LifeStore>()(
         totalPlayers: state.totalPlayers,
         startingLife2Players: state.startingLife2Players,
         startingLifeMultiPlayers: state.startingLifeMultiPlayers,
-        players: state.players,
+        players: state.players.map((p) => ({ ...p, delta: 0 })),
       }),
       version: 1,
       migrate: (persistedState, version) => {

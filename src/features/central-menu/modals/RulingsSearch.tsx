@@ -34,7 +34,8 @@ const RulingItem = React.memo(({ item }: { item: { published_at: string; comment
 RulingItem.displayName = 'RulingItem';
 
 const RulingsSearch: React.FC = () => {
-  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
+  const isRulingsSearchVisible = useRulingsStore((s) => s.isRulingsSearchVisible);
+  const setIsRulingsSearchVisible = useRulingsStore((s) => s.setIsRulingsSearchVisible);
   const [cardName, setCardName] = useState('');
   const [submittedCardName, setSubmittedCardName] = useState('');
 

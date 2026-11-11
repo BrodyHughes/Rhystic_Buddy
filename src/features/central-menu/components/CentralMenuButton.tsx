@@ -59,8 +59,9 @@ export default React.memo(function CentralMenuButton() {
   const [isAboutVisible, setAboutVisible] = useState(false);
   const [isStartingLifeVisible, setStartingLifeVisible] = useState(false);
   const [isMoreMenuVisible, setMoreMenuVisible] = useState(false);
-  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
-  const { setIsTutorialVisible } = useTutorialStore();
+  const isRulingsSearchVisible = useRulingsStore((s) => s.isRulingsSearchVisible);
+  const setIsRulingsSearchVisible = useRulingsStore((s) => s.setIsRulingsSearchVisible);
+  const setIsTutorialVisible = useTutorialStore((s) => s.setIsTutorialVisible);
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);

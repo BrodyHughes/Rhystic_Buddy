@@ -30,7 +30,7 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
     scale.value = withDelay(
       100,
       withSpring(1, {
-        ...Reanimated3DefaultSpringConfig,
+        mass: 1,
         damping: 12,
         stiffness: 100,
       }),

@@ -64,7 +64,7 @@ export const useCarousel = ({
       if (isCommander) {
         startReceiving(playerId);
       } else {
-        stopReceiving();
+        stopReceiving(playerId);
       }
     },
     [playerId, startReceiving, stopReceiving],
