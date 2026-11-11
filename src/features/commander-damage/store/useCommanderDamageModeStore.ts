@@ -6,12 +6,13 @@ export interface CommanderDamageModeState {
   isReceiving: boolean;
   defenderId: number | null;
   startReceiving: (defenderId: number) => void;
-  stopReceiving: () => void;
+  stopReceiving: (defenderId: number) => void;
 }
 
 export const useCommanderDamageModeStore = create<CommanderDamageModeState>((set) => ({
   isReceiving: false,
   defenderId: null,
   startReceiving: (defenderId: number) => set({ isReceiving: true, defenderId }),
-  stopReceiving: () => set({ isReceiving: false, defenderId: null }),
+  stopReceiving: (defenderId: number) =>
+    set((s) => (s.defenderId === defenderId ? { isReceiving: false, defenderId: null } : s)),
 }));

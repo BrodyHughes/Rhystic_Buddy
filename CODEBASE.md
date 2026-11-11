@@ -8,12 +8,12 @@ Rhystic Buddy is a React Native life counter app for Magic: The Gathering Comman
 
 ### Technology Stack
 
-- **Framework**: React Native 0.79.2
-- **Language**: TypeScript (strict mode enabled)
+- **Framework**: React Native 0.88 (New Architecture, Hermes)
+- **Language**: TypeScript 6 (strict mode enabled)
 - **State Management**: Zustand (persistent storage with AsyncStorage)
 - **Navigation**: Custom carousel-based navigation using React Native Reanimated
 - **UI Libraries**:
-  - React Native Reanimated for animations
+  - React Native Reanimated 4 + react-native-worklets for animations
   - React Native Gesture Handler for gestures
   - React Native SVG for icons (via Lucide)
   - Linear Gradient and Blur effects
@@ -23,6 +23,7 @@ Rhystic Buddy is a React Native life counter app for Magic: The Gathering Comman
 ```
 src/
 ├── App.tsx                    # Main app component with layout logic
+├── components/                # Shared presentational components (BlurBackdrop)
 ├── consts/                    # Application constants
 │   ├── consts.ts             # Colors, dimensions, and other constants
 │   ├── counters.ts           # Counter types and configurations
@@ -35,13 +36,14 @@ src/
 │   │   └── store/           # Zustand stores
 │   ├── commander-damage/     # Commander damage tracking
 │   ├── counters-menu/        # Counter management
-│   └── player-panel/         # Player life panels
+│   ├── player-panel/         # Player life panels
+│   └── tutorial/             # First-run tutorial modal
 ├── helpers/                  # Utility functions
 │   ├── api.ts               # HTTP request helpers
 │   └── scryfallFetch.ts     # Scryfall API integration
 ├── hooks/                    # Shared React hooks
 │   ├── useCarousel.ts       # Carousel gesture handling
-│   └── useResetAllCarousels.ts
+│   └── useStoresHydrated.ts # Waits for persisted stores before first render
 ├── lib/                      # Core libraries
 │   ├── PlayerCarouselManager.ts  # Carousel state management
 │   └── queryClient.ts       # React Query configuration
@@ -68,6 +70,7 @@ src/
   - Player life totals
   - Commander damage matrix
   - Player backgrounds
+  - Counters and the Monarch
 - Timer management for life change deltas
 
 ### 3. Gesture System
@@ -80,12 +83,14 @@ src/
 ### 4. Layout System
 
 - Dynamic grid layout based on player count:
-  - 2 players: 1x2 (side by side, rotated)
-  - 3 players: 2x2 with one full-width
-  - 4 players: 2x2 grid
-  - 5 players: 2x3 with one rotated
+  - 2 players: two stacked panels rotated 90° / 270°
+  - 3 players: 2x2 grid; the last player gets a full-width row rotated 270°
+  - 4 players: 2x2 grid (left column 0°, right column 180°)
+  - 5 players: 2x3 grid; the last player gets a full-width row rotated 270°
   - 6 players: 2x3 grid
 - Safe area handling for different devices
+- The exact rotation, sizing and swipe-direction rules are documented in
+  `CLAUDE.md` under "Layout & rotation invariants". Read that before changing layout code.
 
 ## Core Components
 
@@ -109,10 +114,24 @@ Floating action button that provides access to:
 
 ### Counter System
 
-- Default counters: Tax, Charge
-- Extra counters: Poison, Storm, Mana (5 colors)
-- Dynamic counter management with animations
-- Centralized configuration in `consts/counters.ts`
+- Catalog in `consts/counters.ts`: Commander Tax (always tracked, steps by 2) plus addable Poison, Energy and Experience
+- Non-zero counters show as display-only chips on the Life view (`CounterChips.tsx`); they fade when the player is dead
+- The Counters view holds Background/Monarch/Dead, one tile per tracked counter, and an Add list
+- A skull button appears next to the life total at lethal (0 life, 10 poison, 21 commander damage from one source) to mark the player Dead
+
+### Commander Damage Map
+
+- With 3+ players, once a player has taken commander damage, a small map of the table appears at the top of their Life view (`CommanderDamageMap.tsx`), showing damage from each opponent in that opponent's seat
+- The map is drawn in screen orientation from `getTableSeats` (`src/lib/tableSeats.ts`) and counter-rotated so it mirrors the real table; it is display-only (the Life view's touch area is reserved for life changes)
+
+### Settings
+
+- More → Settings toggles the commander damage map and the counter chips on the Life view (`useSettingsStore`, persisted; both default on)
+
+### Monarch
+
+- One player at a time can be Monarch (`useTableStatusStore`), toggled from that player's Counters view and shown as a crown chip on their Life view
+- Cleared by Reset and by changing the player count (as are counters)
 
 ## Data Flow
 
@@ -125,7 +144,7 @@ Floating action button that provides access to:
 
 1. **Memoization**: Heavy use of React.memo and useCallback
 2. **Animated Values**: Shared values for smooth animations
-3. **Lazy Loading**: Modals loaded on-demand
+3. **Selector subscriptions**: Components subscribe to individual store fields so turn-order spins and swipes don't re-render every panel
 4. **Efficient Renders**: Granular subscriptions to store slices
 
 ## API Integration
@@ -174,13 +193,15 @@ Each feature is self-contained with its own:
 1. Add enum value to `ViewMode` in `src/types/app.ts`
 2. Update carousel logic in `PlayerPanel`
 3. Add view component and conditional rendering
-4. Update `numRealViews` calculation
+4. Add the view to the carousel sequences in `useCarousel.ts`
 
 ### Modifying Player Layouts
 
 1. Update `layoutConfigurations` in `App.tsx`
-2. Adjust panel dimensions calculation
-3. Update rotation logic if needed
+2. Adjust panel dimensions and rotation in `PlayerPanel.tsx`
+3. Mirror the same geometry in `GlobalDamageOverlays.tsx`
+4. Check swipe directions in `useCarousel.ts` (`swapAxes`, `flipFactor`)
+5. Verify 2–6 players on a simulator (see `CLAUDE.md`)
 
 ## Debugging Tips
 

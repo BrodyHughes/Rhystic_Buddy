@@ -13,7 +13,7 @@ interface Props {
   active?: boolean;
 }
 
-export default function CountersView({
+function CountersView({
   menuVisible,
   menuType,
   index,
@@ -21,8 +21,6 @@ export default function CountersView({
   panelWidth,
   active = false,
 }: Props) {
-  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
-
   const [scrollKey, setScrollKey] = useState(0);
 
   useEffect(() => {
@@ -37,15 +35,7 @@ export default function CountersView({
   }
 
   return (
-    <View
-      style={styles.overlay}
-      onLayout={(e) => {
-        const { width, height } = e.nativeEvent.layout;
-        if (!dims || dims.w !== width || dims.h !== height) {
-          setDims({ w: width, h: height });
-        }
-      }}
-    >
+    <View style={styles.overlay}>
       {menuType === ViewMode.COUNTERS && (
         <View
           style={[
@@ -61,7 +51,6 @@ export default function CountersView({
             key={`${index}-${scrollKey}`}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentOffset={{ x: 0, y: 0 }}
             style={{ flex: 1 }}
             contentContainerStyle={styles.scrollContent}
             nestedScrollEnabled={true}
@@ -74,9 +63,11 @@ export default function CountersView({
   );
 }
 
+export default React.memo(CountersView);
+
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
   },

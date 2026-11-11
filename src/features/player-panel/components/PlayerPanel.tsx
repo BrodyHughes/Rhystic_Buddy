@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { LifeStore, useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
@@ -11,7 +11,6 @@ import LifeView from './LifeView';
 import BackgroundImage from './BackgroundImage';
 import PanelOverlays from './PanelOverlays';
 import { ViewMode } from '@/types/app';
-import { BORDER_COLOR, BORDER_WIDTH, LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -46,9 +45,18 @@ function PlayerPanelComponent({
   const { height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
-  const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isSpinning = useTurnStore((s) => s.isSpinning);
+  const isFinished = useTurnStore((s) => s.isFinished);
+  const isCurrentTurn = useTurnStore((s) => s.current === index);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
+  // CountersMenu is the heaviest part of a panel and sits off-screen until swiped to, so mount
+  // it after the panel's first paint (staggered per panel) to keep player-count changes snappy.
+  const [countersMounted, setCountersMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setCountersMounted(true), 300 + index * 50);
+    return () => clearTimeout(t);
+  }, [index]);
 
   // Clear any active continuous-life-change interval when the player count changes to
   // avoid timers running after panels are re-created/re-positioned.
@@ -139,7 +147,7 @@ function PlayerPanelComponent({
   const handleContinuousChange = useCallback(
     (direction: 'inc' | 'dec') => {
       const amount = direction === 'inc' ? 5 : -5;
-      runOnJS(changeLifeByAmount)(amount);
+      changeLifeByAmount(amount);
     },
     [changeLifeByAmount],
   );
@@ -196,7 +204,7 @@ function PlayerPanelComponent({
         <PanelOverlays
           isSpinning={isSpinning}
           isFinished={isFinished}
-          isCurrentTurn={currentTurn === index}
+          isCurrentTurn={isCurrentTurn}
           panelW={panelW}
           panelH={panelH}
         />
@@ -213,7 +221,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -224,7 +231,7 @@ function PlayerPanelComponent({
               ]}
             >
               <CountersView
-                menuVisible
+                menuVisible={countersMounted}
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}
@@ -237,7 +244,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -248,9 +254,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -262,7 +270,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -273,7 +280,7 @@ function PlayerPanelComponent({
               ]}
             >
               <CountersView
-                menuVisible
+                menuVisible={countersMounted}
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}
@@ -286,7 +293,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -297,9 +303,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -313,7 +321,6 @@ function PlayerPanelComponent({
               <View
                 style={[
                   styles.viewPanel,
-                  styles.panelBorder,
                   {
                     width: panelW,
                     height: panelH,
@@ -336,7 +343,6 @@ function PlayerPanelComponent({
               <View
                 style={[
                   styles.viewPanel,
-                  styles.panelBorder,
                   {
                     width: panelW,
                     height: panelH,
@@ -356,7 +362,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -367,9 +372,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -398,12 +405,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: 'hidden',
   },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   viewsContainer: {
     position: 'absolute',
     width: '200%',
@@ -414,60 +415,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  lifeBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '90deg' }],
-    zIndex: 1,
-    pointerEvents: 'none',
-  },
-  life: {
-    ...typography.heading1,
-    color: LIGHT_GREY,
-    marginRight: spacing.xs,
-    textShadowColor: TEXT_SHADOW_COLOR,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
-    paddingHorizontal: 20,
-  },
-  delta: {
-    ...typography.caption,
-    color: LIGHT_GREY,
-  },
-  button: {
-    position: 'absolute',
-    width: '50%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inc: { right: 0 },
-  dec: { left: 0 },
-  btnText: {
-    ...typography.heading2,
-    transform: [{ rotate: '90deg' }],
-  },
-  panelBorder: {
-    borderWidth: BORDER_WIDTH,
-    borderColor: BORDER_COLOR,
-  },
-  lifeTxt: {
-    ...typography.heading1,
-    color: LIGHT_GREY,
-  },
-  btnTxt: {
-    ...typography.body,
-    color: '#fff',
-  },
   panelText: {
     ...typography.heading2,
     textAlign: 'center',
     padding: spacing.md,
-  },
-  placeholderView: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
   },
 });

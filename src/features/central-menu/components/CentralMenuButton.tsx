@@ -2,18 +2,23 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View, Pressable } from 'react-native';
-import {
+import Animated, {
   useSharedValue,
   useAnimatedStyle,
   useAnimatedProps,
+  useDerivedValue,
   withSpring,
   cancelAnimation,
+  interpolate,
+  Extrapolation,
+  FadeIn,
+  FadeOut,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLifeStore, PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
-import { BACKGROUND, SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
+import { SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { Dice6, RotateCcw, Users, MoreHorizontal, Heart } from 'lucide-react-native';
 
@@ -21,13 +26,17 @@ import PlayerCountSelector from './PlayerCountSelector';
 import BackgroundSearch from '../modals/BackgroundSearch';
 import MoreMenu from '../modals/MoreMenu';
 import { useRulingsStore } from '../store/useRulingsStore';
+import { useTableStatusStore } from '../store/useTableStatusStore';
 import { useTurnOrder } from '../hooks/useTurnOrder';
 import { MenuLayout } from './MenuLayout';
 import { MenuItem } from './MenuItem';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 import AboutModal from '../modals/AboutModal';
+import SettingsModal from '../modals/SettingsModal';
 import StartingLifeSelector from './StartingLifeSelector';
 import { useTutorialStore } from '@/features/tutorial/store/useTutorialStore';
+import BlurBackdrop from '@/components/BlurBackdrop';
+import { icon, radius } from '@/styles/global';
 
 const FAB_SIZE = 90;
 const MENU_LAYOUT_RADIUS_FACTOR = 3.9;
@@ -35,22 +44,36 @@ const PENTAGON_SIDES = 5;
 const PENTAGON_RADIUS = 45;
 const PENTAGON_CENTER = 50;
 const PENTAGON_START_ANGLE = -90;
+const PENTAGON_CORNER_RADIUS = radius.md;
 
-function getRegularPolygonPath(
+// Each corner is cut `cornerRadius` along both edges and joined with a quadratic curve through the vertex.
+function getRoundedPolygonPath(
   sides = PENTAGON_SIDES,
   cx = PENTAGON_CENTER,
   cy = PENTAGON_CENTER,
   r = PENTAGON_RADIUS,
   startAngleDeg = PENTAGON_START_ANGLE,
+  cornerRadius = PENTAGON_CORNER_RADIUS,
 ) {
   const pts = Array.from({ length: sides }, (_, i) => {
     const a = ((startAngleDeg + (i * 360) / sides) * Math.PI) / 180;
     return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
   });
-  return `M${pts.map((p) => p.join(' ')).join(' L')} Z`;
+  const toward = ([x, y]: number[], [tx, ty]: number[]) => {
+    const len = Math.hypot(tx - x, ty - y);
+    return [x + ((tx - x) * cornerRadius) / len, y + ((ty - y) * cornerRadius) / len];
+  };
+  const segments = pts.map((p, i) => {
+    const prev = pts[(i + sides - 1) % sides];
+    const next = pts[(i + 1) % sides];
+    const [ax, ay] = toward(p, prev);
+    const [bx, by] = toward(p, next);
+    return `${i === 0 ? 'M' : 'L'}${ax} ${ay} Q${p[0]} ${p[1]} ${bx} ${by}`;
+  });
+  return `${segments.join(' ')} Z`;
 }
 
-const PENTAGON_PATH = getRegularPolygonPath();
+const PENTAGON_PATH = getRoundedPolygonPath();
 
 export default React.memo(function CentralMenuButton() {
   const [open, setOpen] = useState(false);
@@ -59,14 +82,17 @@ export default React.memo(function CentralMenuButton() {
   const [isAboutVisible, setAboutVisible] = useState(false);
   const [isStartingLifeVisible, setStartingLifeVisible] = useState(false);
   const [isMoreMenuVisible, setMoreMenuVisible] = useState(false);
-  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
-  const { setIsTutorialVisible } = useTutorialStore();
+  const [isSettingsVisible, setSettingsVisible] = useState(false);
+  const isRulingsSearchVisible = useRulingsStore((s) => s.isRulingsSearchVisible);
+  const setIsRulingsSearchVisible = useRulingsStore((s) => s.setIsRulingsSearchVisible);
+  const setIsTutorialVisible = useTutorialStore((s) => s.setIsTutorialVisible);
 
   const setTotalPlayers = useLifeStore((state) => state.setTotalPlayers);
   const resetLife = useLifeStore((state) => state.resetLife);
   // starting life setters now handled inside selector
   const resetCommanderDamage = useCommanderDamageStore((state) => state.resetAll);
   const resetCounters = useCounterStore((state) => state.resetAll);
+  const resetTableStatus = useTableStatusStore((state) => state.reset);
 
   const { width: W, height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
@@ -74,21 +100,17 @@ export default React.memo(function CentralMenuButton() {
   const menuItemRadius = W / MENU_LAYOUT_RADIUS_FACTOR;
   const finalFabDiameter = W + menuItemRadius / 2 - 30;
 
+  const closedScale = FAB_SIZE / finalFabDiameter;
+
   const progress = useSharedValue(0);
+  // The FAB is laid out once at its open size and scaled, so the animation never triggers layout.
+  const fabScale = useDerivedValue(() => closedScale + progress.value * (1 - closedScale));
 
-  const fabAnimatedStyle = useAnimatedStyle(() => {
-    const size = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
-    const rotation = progress.value * 180;
-    return {
-      width: size,
-      height: size,
-      marginLeft: -size / 2,
-      marginTop: -size / 2,
-      transform: [{ rotate: `${rotation}deg` }],
-    };
-  });
+  const fabAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }, { rotate: `${progress.value * 180}deg` }],
+  }));
 
-  const animatedStrokeProps = useAnimatedProps(() => {
+  const animatedPathProps = useAnimatedProps(() => {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
     const scaleFactor = currentSize / FAB_SIZE;
     const baseStrokeWidth = 10;
@@ -99,32 +121,38 @@ export default React.memo(function CentralMenuButton() {
         : minStrokeWidth;
     return {
       strokeWidth,
+      fillOpacity: interpolate(progress.value, [0, 1], [1, 0.7], Extrapolation.CLAMP),
     };
   });
 
+  // Icons are counter-scaled so they keep their size while the FAB scales.
   const hamburgerIconStyle = useAnimatedStyle(() => ({
     opacity: 1 - progress.value,
+    transform: [{ scale: 1 / fabScale.value }],
   }));
 
   const xIconStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
+    transform: [{ scale: 1 / fabScale.value }],
   }));
 
-  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openRef = useRef(false);
 
   const handlePress = useCallback(() => {
+    const next = !openRef.current;
+    openRef.current = next;
     cancelAnimation(progress);
-    const toValue = open ? 0 : 1;
-    progress.value = withSpring(toValue, {
+    progress.value = withSpring(next ? 1 : 0, {
       damping: 11,
       stiffness: 140,
       mass: 0.5,
     });
-    setOpen(!open);
+    setOpen(next);
     // Clear any existing queued reset
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     resetTimeoutRef.current = setTimeout(() => PlayerCarouselManager.resetAll(), 250);
-  }, [open, progress]);
+  }, [progress]);
 
   // Cleanup timeout on unmount
   useEffect(
@@ -136,32 +164,43 @@ export default React.memo(function CentralMenuButton() {
 
   const { start: startTurnOrder } = useTurnOrder();
 
-  const handleReset = useCallback(() => {
-    resetLife();
+  // Clears per-game state that isn't owned by the life store.
+  const resetGameState = useCallback(() => {
     resetCommanderDamage();
     resetCounters();
-    handlePress();
-  }, [resetLife, resetCommanderDamage, resetCounters, handlePress]);
+    resetTableStatus();
+  }, [resetCommanderDamage, resetCounters, resetTableStatus]);
 
-  const handleTurnOrder = useCallback(() => {
+  const handleReset = useCallback(() => {
+    resetLife();
+    resetGameState();
     handlePress();
-    setTimeout(startTurnOrder, 500);
-  }, [handlePress, startTurnOrder]);
+  }, [resetLife, resetGameState, handlePress]);
 
-  const handlePlayersPress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setPlayerCountSelectorVisible(true), 500);
-  }, [handlePress]);
+  const closeMenuThen = useCallback(
+    (action: () => void) => {
+      handlePress();
+      setTimeout(action, 500);
+    },
+    [handlePress],
+  );
 
-  const handleStartingLifePress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setStartingLifeVisible(true), 500);
-  }, [handlePress]);
-
-  const handleMorePress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setMoreMenuVisible(true), 500);
-  }, [handlePress]);
+  const handleTurnOrder = useCallback(
+    () => closeMenuThen(startTurnOrder),
+    [closeMenuThen, startTurnOrder],
+  );
+  const handlePlayersPress = useCallback(
+    () => closeMenuThen(() => setPlayerCountSelectorVisible(true)),
+    [closeMenuThen],
+  );
+  const handleStartingLifePress = useCallback(
+    () => closeMenuThen(() => setStartingLifeVisible(true)),
+    [closeMenuThen],
+  );
+  const handleMorePress = useCallback(
+    () => closeMenuThen(() => setMoreMenuVisible(true)),
+    [closeMenuThen],
+  );
 
   const handleTutorialPress = useCallback(() => {
     setIsTutorialVisible(true);
@@ -171,9 +210,10 @@ export default React.memo(function CentralMenuButton() {
   const handlePlayerCountSelect = useCallback(
     (count: PlayerCount) => {
       setTotalPlayers(count);
+      resetGameState();
       setPlayerCountSelectorVisible(false);
     },
-    [setTotalPlayers],
+    [setTotalPlayers, resetGameState],
   );
 
   const menuItems = useMemo(
@@ -184,7 +224,7 @@ export default React.memo(function CentralMenuButton() {
       {
         id: 'startingLife',
         Icon: Heart,
-        label: 'Starting Life',
+        label: 'Life',
         color: FOREST,
         action: handleStartingLifePress,
       },
@@ -193,8 +233,39 @@ export default React.memo(function CentralMenuButton() {
     [handlePlayersPress, handleTurnOrder, handleReset, handleStartingLifePress, handleMorePress],
   );
 
+  const fabStyle = useMemo(
+    () => [
+      styles.fab,
+      {
+        width: finalFabDiameter,
+        height: finalFabDiameter,
+        marginLeft: -finalFabDiameter / 2,
+        marginTop: -finalFabDiameter / 2,
+        top: H / 2 + (top - bottom) / 2,
+        left: W / 2,
+      },
+      fabAnimatedStyle,
+    ],
+    [finalFabDiameter, H, W, top, bottom, fabAnimatedStyle],
+  );
+
+  const hitAreaStyle = useMemo(
+    () => [styles.hitArea, { top: H / 2 + (top - bottom) / 2, left: W / 2 }],
+    [H, W, top, bottom],
+  );
+
   return (
     <View style={[styles.container, { width: W, height: H }]} pointerEvents="box-none">
+      {open && (
+        <Animated.View
+          style={StyleSheet.absoluteFill}
+          entering={FadeIn}
+          exiting={FadeOut}
+          pointerEvents="none"
+        >
+          <BlurBackdrop />
+        </Animated.View>
+      )}
       {/* Backdrop press when menu is open */}
       {open && (
         <Pressable
@@ -204,12 +275,9 @@ export default React.memo(function CentralMenuButton() {
         />
       )}
       <MenuLayout
-        fabAnimatedStyle={[
-          styles.fab,
-          { top: H / 2 + (top - bottom) / 2, left: W / 2 },
-          fabAnimatedStyle,
-        ]}
-        animatedStrokeProps={animatedStrokeProps}
+        fabAnimatedStyle={fabStyle}
+        hitAreaStyle={hitAreaStyle}
+        animatedPathProps={animatedPathProps}
         hamburgerIconStyle={hamburgerIconStyle}
         xIconStyle={xIconStyle}
         onPress={handlePress}
@@ -233,12 +301,13 @@ export default React.memo(function CentralMenuButton() {
                 key={item.id}
                 index={index}
                 progress={progress}
+                interactive={open}
                 onPress={item.action}
                 menuRadius={menuItemRadius}
                 label={item.label}
                 color={item.color}
               >
-                {item.Icon && <item.Icon color={BACKGROUND} size={35} />}
+                <item.Icon color={item.color} size={icon.size} strokeWidth={icon.strokeWidth} />
               </MenuItem>
             ))}
           </View>
@@ -255,11 +324,22 @@ export default React.memo(function CentralMenuButton() {
         <BackgroundSearch onClose={() => setBackgroundSearchVisible(false)} />
       )}
       {isAboutVisible && <AboutModal onClose={() => setAboutVisible(false)} />}
+      {isSettingsVisible && <SettingsModal onClose={() => setSettingsVisible(false)} />}
       {isMoreMenuVisible && (
         <MoreMenu
           onClose={() => setMoreMenuVisible(false)}
-          onRulingsPress={() => setIsRulingsSearchVisible(true)}
-          onAboutPress={() => setAboutVisible(true)}
+          onRulingsPress={() => {
+            setMoreMenuVisible(false);
+            setIsRulingsSearchVisible(true);
+          }}
+          onAboutPress={() => {
+            setMoreMenuVisible(false);
+            setAboutVisible(true);
+          }}
+          onSettingsPress={() => {
+            setMoreMenuVisible(false);
+            setSettingsVisible(true);
+          }}
           onTutorialPress={handleTutorialPress}
         />
       )}
@@ -276,12 +356,10 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   fab: {
     position: 'absolute',
-    width: FAB_SIZE,
-    height: FAB_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -295,10 +373,13 @@ const styles = StyleSheet.create({
     // shadowRadius: 10,
     // elevation: 8,
   },
-  iconContainer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+  hitArea: {
+    position: 'absolute',
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    marginLeft: -FAB_SIZE / 2,
+    marginTop: -FAB_SIZE / 2,
+    zIndex: 11,
   },
   menuItemsWrapper: {
     alignItems: 'center',

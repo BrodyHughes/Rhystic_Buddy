@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View, Platform } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withDelay,
   FadeOut,
+  Reanimated3DefaultSpringConfig,
 } from 'react-native-reanimated';
-import { BlurView } from '@react-native-community/blur';
-import { typography, radius, palette } from '@/styles/global';
+import BlurBackdrop from '@/components/BlurBackdrop';
+import { typography, radius } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
-import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
+import { TEXT_SHADOW_COLOR } from '@/consts/consts';
 
 const confettiCount = 50;
 
@@ -29,11 +30,12 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
     scale.value = withDelay(
       100,
       withSpring(1, {
+        mass: 1,
         damping: 12,
         stiffness: 100,
       }),
     );
-    opacity.value = withDelay(100, withSpring(1));
+    opacity.value = withDelay(100, withSpring(1, Reanimated3DefaultSpringConfig));
   }, [scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -49,11 +51,7 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
 
   return (
     <Animated.View style={styles.container} exiting={FadeOut.duration(150)}>
-      {Platform.OS === 'ios' ? (
-        <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
-      ) : (
-        <View style={[StyleSheet.absoluteFill, styles.androidBackground]} />
-      )}
+      <BlurBackdrop />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
         {confettiParticles}
         <View style={[styles.textWrapper, { width: panelH }]}>
@@ -66,17 +64,12 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 110,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: radius.md,
     overflow: 'hidden',
-    borderWidth: BORDER_WIDTH,
-    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
-  },
-  androidBackground: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   rotatedContainer: {
     flex: 1,
@@ -91,7 +84,6 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.heading2,
-    color: palette.textPrimary,
     textAlign: 'center',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },

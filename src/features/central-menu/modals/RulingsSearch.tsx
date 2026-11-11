@@ -15,13 +15,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRulingsStore } from '../store/useRulingsStore';
 import { useRulings } from '../hooks/useRulings';
-import { radius, typography } from '@/styles/global';
-import {
-  BACKGROUND_TRANSPARENT,
-  BUTTON_BACKGROUND,
-  PLAINS,
-  RULING_ITEM_BACKGROUND,
-} from '@/consts/consts';
+import { radius, typography, buttonColors } from '@/styles/global';
+import { PLAINS, BACKGROUND, MUTED_TEXT, MOUNTAIN } from '@/consts/consts';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -34,7 +31,8 @@ const RulingItem = React.memo(({ item }: { item: { published_at: string; comment
 RulingItem.displayName = 'RulingItem';
 
 const RulingsSearch: React.FC = () => {
-  const { isRulingsSearchVisible, setIsRulingsSearchVisible } = useRulingsStore();
+  const isRulingsSearchVisible = useRulingsStore((s) => s.isRulingsSearchVisible);
+  const setIsRulingsSearchVisible = useRulingsStore((s) => s.setIsRulingsSearchVisible);
   const [cardName, setCardName] = useState('');
   const [submittedCardName, setSubmittedCardName] = useState('');
 
@@ -76,18 +74,17 @@ const RulingsSearch: React.FC = () => {
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+      <BlurBackdrop />
       <SafeAreaView style={styles.flex}>
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>Card Rulings</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
+          <CloseButton onPress={handleClose} />
         </View>
 
         <View style={styles.searchRow}>
           <TextInput
             placeholder="Search Card Rulings"
-            placeholderTextColor="#999"
+            placeholderTextColor={MUTED_TEXT}
             value={cardName}
             onChangeText={setCardName}
             onSubmitEditing={handleSearch}
@@ -146,10 +143,9 @@ const RulingsSearch: React.FC = () => {
 const styles = StyleSheet.create({
   flex: { flex: 1, width: '100%', alignItems: 'center' },
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 50,
     paddingTop: 20,
   },
@@ -163,16 +159,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...typography.heading2,
-  },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45,
   },
   listContainer: {
     flex: 1,
@@ -188,17 +174,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    backgroundColor: BUTTON_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginRight: 10,
     ...typography.body,
     marginBottom: 0,
-    color: '#000', // Okay to use here bc input color should be different
   },
   searchButton: {
-    backgroundColor: BUTTON_BACKGROUND,
+    ...buttonColors.primary,
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: radius.md,
@@ -206,7 +191,7 @@ const styles = StyleSheet.create({
   searchButtonText: {
     ...typography.body,
     marginBottom: 0,
-    color: '#000',
+    ...buttonColors.onPrimary,
   },
   rulingsFoundTitle: {
     ...typography.heading2,
@@ -218,14 +203,14 @@ const styles = StyleSheet.create({
     fontWeight: 500, // to differentiate from the rest of the text
   },
   rulingItem: {
-    backgroundColor: RULING_ITEM_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     padding: 15,
     marginBottom: 10,
   },
   rulingDate: {
     ...typography.miniCaption,
-    color: '#aaa',
+    color: MUTED_TEXT,
     marginBottom: 5,
   },
   rulingText: {
@@ -234,13 +219,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     ...typography.body,
-    color: '#aaa',
+    color: MUTED_TEXT,
     textAlign: 'center',
     marginTop: 50,
   },
   errorText: {
     ...typography.body,
-    color: 'red',
+    color: MOUNTAIN,
     textAlign: 'center',
     marginTop: 20,
   },

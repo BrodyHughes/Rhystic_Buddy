@@ -22,8 +22,20 @@ import {
   usePlayerBackgroundStore,
 } from '@/features/central-menu/store/usePlayerBackgroundStore';
 import { useCardPrintings } from '../hooks/useCardPrintings';
-import { BACKGROUND_TRANSPARENT, BUTTON_BACKGROUND, LIGHT_GREY, PLAINS } from '@/consts/consts';
-import { radius, typography } from '@/styles/global';
+import {
+  BACKGROUND,
+  BORDER_COLOR,
+  FOREST,
+  ISLAND,
+  LIGHT_GREY,
+  MOUNTAIN,
+  PLAINS,
+  SWAMP,
+  MUTED_TEXT,
+} from '@/consts/consts';
+import { radius, typography, buttonColors } from '@/styles/global';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 interface BackgroundSearchProps {
   onClose: () => void;
@@ -31,6 +43,8 @@ interface BackgroundSearchProps {
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
+
+const PANEL_COLORS = [PLAINS, ISLAND, SWAMP, MOUNTAIN, FOREST, BACKGROUND]; // WUBRG, then plain
 
 const CardImage = React.memo(
   ({ item, onPress }: { item: { url: string; artist: string }; onPress: () => void }) => (
@@ -56,7 +70,10 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
 
   const players = useLifeStore((state) => state.players);
   const setPlayerBackground = usePlayerBackgroundStore((state) => state.setBackground);
-  // const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
+  const setPlayerColor = useLifeStore((state) => state.setPlayerColor);
+  const hasImage = usePlayerBackgroundStore(
+    (state) => selectedPlayerId !== null && !!state.backgrounds[selectedPlayerId],
+  );
   // const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
 
   const handleSearch = () => {
@@ -85,6 +102,14 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
     [selectedPlayerId, setPlayerBackground, onClose],
   );
 
+  const handleSetColor = (color: string) => {
+    if (selectedPlayerId === null) return;
+    setPlayerBackground(selectedPlayerId, null);
+    setPlayerColor(selectedPlayerId, color);
+    setSelectedPlayerId(null);
+    onClose();
+  };
+
   const handleClosePress = () => {
     setSelectedPlayerId(null);
     setSubmittedCardName('');
@@ -98,6 +123,8 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
   // Determine the number of columns for the grid layout.
   // This logic mirrors the main app layout for consistency.
   const numColumns = players.length > 2 ? 2 : players.length;
+  const selectedPlayerIndex = players.findIndex((p) => p.id === selectedPlayerId);
+  const selectedPlayer = players[selectedPlayerIndex];
   // const hasBackground = selectedPlayerId !== null && backgrounds[selectedPlayerId];
 
   const keyExtractor = useCallback((item: { url: string }) => String(item.url), []);
@@ -112,6 +139,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+        <BlurBackdrop />
         <View
           style={[styles.modalContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
         >
@@ -119,9 +147,7 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
             <Text style={styles.title}>
               {selectedPlayerId === null ? 'Select a Player' : 'Background Search'}
             </Text>
-            <TouchableOpacity style={styles.closeButton} onPress={handleClosePress}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
+            <CloseButton onPress={handleClosePress} />
           </View>
 
           {selectedPlayerId === null ? (
@@ -144,10 +170,8 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
             <View style={styles.searchContainer}>
               <View style={styles.searchRow}>
                 <TextInput
-                  placeholder={`Card name for Player ${
-                    players.findIndex((p) => p.id === selectedPlayerId) + 1
-                  }`}
-                  placeholderTextColor="#999"
+                  placeholder={`Card name for Player ${selectedPlayerIndex + 1}`}
+                  placeholderTextColor={MUTED_TEXT}
                   value={cardName}
                   onChangeText={setCardName}
                   onSubmitEditing={handleSearch}
@@ -159,6 +183,25 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
                   <Text style={styles.searchButtonText}>Search</Text>
                 </TouchableOpacity>
               </View>
+
+              {!submittedCardName && (
+                <View style={styles.colorRow}>
+                  {PANEL_COLORS.map((color) => {
+                    const selected = !hasImage && selectedPlayer?.backgroundColor === color;
+                    return (
+                      <TouchableOpacity
+                        key={color}
+                        style={[
+                          styles.colorSwatch,
+                          { backgroundColor: color },
+                          selected && styles.colorSwatchSelected,
+                        ]}
+                        onPress={() => handleSetColor(color)}
+                      />
+                    );
+                  })}
+                </View>
+              )}
 
               {/* {hasBackground && (
               <TouchableOpacity style={styles.actionButton} onPress={handleRemoveBackground}>
@@ -207,10 +250,9 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 30,
   },
   modalContainer: {
@@ -244,7 +286,6 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.heading2,
-    color: '#fff',
   },
   gridContainer: {
     flexDirection: 'row',
@@ -252,7 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectItem: {
-    backgroundColor: BUTTON_BACKGROUND,
+    backgroundColor: BACKGROUND,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: radius.md,
@@ -264,7 +305,6 @@ const styles = StyleSheet.create({
   },
   selectItemText: {
     ...typography.body,
-    color: '#000',
   },
   searchRow: {
     flexDirection: 'row',
@@ -275,17 +315,32 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    backgroundColor: BUTTON_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginRight: 10,
     ...typography.body,
     marginBottom: 0,
-    color: '#000', // Okay to use here bc input color should be different
+  },
+  colorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '90%',
+  },
+  colorSwatch: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: BORDER_COLOR,
+  },
+  colorSwatchSelected: {
+    borderColor: LIGHT_GREY,
+    borderWidth: 3,
   },
   searchButton: {
-    backgroundColor: BUTTON_BACKGROUND,
+    ...buttonColors.primary,
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: radius.md,
@@ -293,20 +348,9 @@ const styles = StyleSheet.create({
   searchButtonText: {
     ...typography.body,
     marginBottom: 0,
-    color: '#000',
-  },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45, // okay to use here bc its a different sized 'x' for close
+    ...buttonColors.onPrimary,
   },
   confirmText: {
-    color: LIGHT_GREY,
     ...typography.body,
     textAlign: 'center',
     marginBottom: 10,
@@ -328,7 +372,7 @@ const styles = StyleSheet.create({
     height: '120%',
   },
   artistText: {
-    color: '#ccc',
+    color: MUTED_TEXT,
     ...typography.miniCaption,
     textAlign: 'center',
     marginTop: 4,
@@ -339,7 +383,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scryfallCreditText: {
-    color: LIGHT_GREY,
     ...typography.miniCaption,
   },
   scryfallCreditTextLink: {
@@ -349,13 +392,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     ...typography.body,
-    color: '#aaa',
+    color: MUTED_TEXT,
     textAlign: 'center',
     marginTop: 50,
   },
   errorText: {
     ...typography.body,
-    color: 'red',
+    color: MOUNTAIN,
     textAlign: 'center',
     marginTop: 20,
   },

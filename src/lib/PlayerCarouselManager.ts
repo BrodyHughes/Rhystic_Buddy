@@ -10,10 +10,5 @@ export const PlayerCarouselManager = {
   resetAll: () => {
     resetFunctions.forEach((resetFn) => resetFn());
   },
-  resetPlayer: (id: number) => {
-    const resetFn = resetFunctions.get(id);
-    if (resetFn) {
-      resetFn();
-    }
-  },
+  resetPlayer: (id: number) => resetFunctions.get(id)?.(),
 };

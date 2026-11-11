@@ -1,57 +1,36 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Minus, Plus } from 'lucide-react-native';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
-import { CARD_BACKGROUND_TRANSPARENT, LIGHT_GREY, PRESSED_BUTTON_COLOR } from '@/consts/consts';
+import { CHIP_BACKGROUND, LIGHT_GREY, PRESSED_BUTTON_COLOR } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
-
-type CounterKey = string;
+import type { CounterType } from '@/consts/counters';
 
 interface Props {
   defenderId: number;
-  counter: CounterKey;
-  cellW: number;
-  cellH: number;
-  backgroundColor?: string;
+  counter: CounterType;
+  step: number;
+  size: number;
 }
 
-export default function CountersMenuButtons({
-  defenderId,
-  counter,
-  cellW,
-  cellH,
-  backgroundColor,
-}: Props) {
+export default function CountersMenuButtons({ defenderId, counter, step, size }: Props) {
   const value = useCounterStore((s) => s.counters[defenderId]?.[counter] ?? 0);
   const changeCounter = useCounterStore((s) => s.changeCounter);
 
   return (
-    <View
-      style={[
-        styles.square,
-        {
-          width: cellW,
-          height: cellH,
-          backgroundColor: backgroundColor ?? CARD_BACKGROUND_TRANSPARENT,
-        },
-      ]}
-    >
-      <Text pointerEvents="none" style={styles.total}>
-        {value}
-      </Text>
-
-      <View style={styles.btnRow}>
-        <Pressable
-          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
-          onPress={() => changeCounter(defenderId, counter, 1)}
-        >
-          <Text style={[styles.btnTxt, { marginBottom: 9 }]}>+</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
-          onPress={() => changeCounter(defenderId, counter, -1)}
-        >
-          <Text style={[styles.btnTxt, { marginTop: 9 }]}>‑</Text>
-        </Pressable>
+    <View style={[styles.square, { width: size, height: size }]}>
+      <Pressable
+        style={({ pressed }) => [styles.half, pressed && styles.pressed]}
+        onPress={() => changeCounter(defenderId, counter, step)}
+      />
+      <Pressable
+        style={({ pressed }) => [styles.half, pressed && styles.pressed]}
+        onPress={() => changeCounter(defenderId, counter, -step)}
+      />
+      <View style={styles.content} pointerEvents="none">
+        <Plus color={LIGHT_GREY} size={14} strokeWidth={3} />
+        <Text style={styles.total}>{value}</Text>
+        <Minus color={LIGHT_GREY} size={14} strokeWidth={3} />
       </View>
     </View>
   );
@@ -59,36 +38,26 @@ export default function CountersMenuButtons({
 
 const styles = StyleSheet.create({
   square: {
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: radius.md,
-    margin: 6,
     overflow: 'hidden',
-    aspectRatio: 1,
+    backgroundColor: CHIP_BACKGROUND,
   },
-  total: {
-    ...typography.heading2,
-    fontFamily: 'Comfortaa',
-    fontSize: 34,
-    fontWeight: '700',
-    marginTop: 9,
-    zIndex: 1,
-  },
-  btnRow: {
-    position: 'absolute',
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-  },
-  btn: {
-    width: '100%',
-    height: '50%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  half: {
+    flex: 1,
   },
   pressed: {
     backgroundColor: PRESSED_BUTTON_COLOR,
   },
-  btnTxt: { ...typography.button, color: LIGHT_GREY, fontSize: 22 },
+  content: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  total: {
+    ...typography.heading2,
+    fontSize: 26,
+    lineHeight: 28,
+    letterSpacing: 0,
+    textAlign: 'center',
+  },
 });

@@ -5,14 +5,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import { radius, typography } from '@/styles/global';
-import {
-  BACKGROUND_TRANSPARENT,
-  BUTTON_BACKGROUND,
-  LIGHT_GREY,
-  BORDER_COLOR,
-  BACKGROUND,
-} from '@/consts/consts';
+import { typography, pickerStyles } from '@/styles/global';
+import {} from '@/consts/consts';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 interface StartingLifeSelectorProps {
   onClose: () => void;
@@ -23,12 +19,10 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 const PRESET_VALUES = [20, 25, 30, 40];
 
 const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) => {
-  const {
-    startingLife2Players,
-    startingLifeMultiPlayers,
-    setStartingLifeTwoPlayers,
-    setStartingLifeMultiPlayers,
-  } = useLifeStore();
+  const startingLife2Players = useLifeStore((s) => s.startingLife2Players);
+  const startingLifeMultiPlayers = useLifeStore((s) => s.startingLifeMultiPlayers);
+  const setStartingLifeTwoPlayers = useLifeStore((s) => s.setStartingLifeTwoPlayers);
+  const setStartingLifeMultiPlayers = useLifeStore((s) => s.setStartingLifeMultiPlayers);
 
   const handleSelect2 = (life: number) => {
     setStartingLifeTwoPlayers(life);
@@ -42,14 +36,13 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+      <BlurBackdrop />
       {/* Backdrop press */}
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.modalContainer} pointerEvents="box-none">
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Starting Life</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
+          <CloseButton onPress={onClose} />
         </View>
         <View style={styles.contentContainer}>
           <Text style={styles.sectionHeader}>Two-Player Games</Text>
@@ -57,13 +50,16 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
             {PRESET_VALUES.map((value) => (
               <TouchableOpacity
                 key={`2p-${value}`}
-                style={[styles.selectItem, value === startingLife2Players && styles.selectedItem]}
+                style={[
+                  pickerStyles.selectItem,
+                  value === startingLife2Players && pickerStyles.selectedItem,
+                ]}
                 onPress={() => handleSelect2(value)}
               >
                 <Text
                   style={[
-                    styles.selectItemText,
-                    value === startingLife2Players && styles.selectedText,
+                    pickerStyles.selectItemText,
+                    value === startingLife2Players && pickerStyles.selectedText,
                   ]}
                 >
                   {value} Life
@@ -78,15 +74,15 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
               <TouchableOpacity
                 key={`mp-${value}`}
                 style={[
-                  styles.selectItem,
-                  value === startingLifeMultiPlayers && styles.selectedItem,
+                  pickerStyles.selectItem,
+                  value === startingLifeMultiPlayers && pickerStyles.selectedItem,
                 ]}
                 onPress={() => handleSelectMulti(value)}
               >
                 <Text
                   style={[
-                    styles.selectItemText,
-                    value === startingLifeMultiPlayers && styles.selectedText,
+                    pickerStyles.selectItemText,
+                    value === startingLifeMultiPlayers && pickerStyles.selectedText,
                   ]}
                 >
                   {value} Life
@@ -102,8 +98,7 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: BACKGROUND_TRANSPARENT,
+    ...StyleSheet.absoluteFill,
     zIndex: 50,
   },
   modalContainer: {
@@ -117,16 +112,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45, // okay to use here bc its a different sized 'x' for close
-  },
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -139,37 +124,12 @@ const styles = StyleSheet.create({
   sectionHeader: {
     ...typography.body,
     marginVertical: 10,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   title: {
     ...typography.heading2,
     textAlign: 'left',
     flex: 1,
-  },
-  selectItem: {
-    backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.md,
-    marginVertical: 5,
-    width: '100%',
-    alignItems: 'center',
-  },
-  selectItemText: {
-    ...typography.body,
-    color: '#000',
-    marginBottom: 0,
-    fontWeight: '600',
-    fontSize: 20,
-  },
-  selectedText: {
-    color: LIGHT_GREY,
-    fontWeight: '900',
-  },
-  selectedItem: {
-    backgroundColor: BACKGROUND,
-    borderWidth: 2,
-    borderColor: BORDER_COLOR,
   },
 });
 

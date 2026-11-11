@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { radius, typography } from '@/styles/global';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -25,7 +25,8 @@ const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 
 interface MenuItemProps {
   index: number;
-  progress: Animated.SharedValue<number>;
+  progress: SharedValue<number>;
+  interactive: boolean;
   children: React.ReactNode;
   onPress: () => void;
   menuRadius: number;
@@ -35,7 +36,16 @@ interface MenuItemProps {
 
 // Circular menu item
 export const MenuItem = React.memo(
-  ({ index, progress, children, onPress, menuRadius, label, color }: MenuItemProps) => {
+  ({
+    index,
+    progress,
+    interactive,
+    children,
+    onPress,
+    menuRadius,
+    label,
+    color,
+  }: MenuItemProps) => {
     const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
     const angle = itemAngles[index];
 
@@ -46,16 +56,25 @@ export const MenuItem = React.memo(
 
       return {
         opacity: progress.value,
-        transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
-        display: progress.value === 0 ? 'none' : 'flex',
-        pointerEvents: progress.value === 1 ? 'auto' : 'none',
+        transform: [
+          { translateX },
+          { translateY },
+          { rotate: `${rotation}deg` },
+          { scale: 0.9 + 0.1 * progress.value },
+        ],
       };
     });
 
     return (
-      <AnimatedView style={[styles.menuItemContainer, animatedStyle]}>
+      <AnimatedView
+        style={[styles.menuItemContainer, animatedStyle]}
+        pointerEvents={interactive ? 'auto' : 'none'}
+      >
         <TouchableOpacity onPress={onPress} style={styles.menuItem}>
-          <View style={[styles.iconCircle, { backgroundColor: color }]}>{children}</View>
+          <View style={styles.iconCircle}>
+            <View style={[styles.tint, { backgroundColor: color }]} />
+            {children}
+          </View>
           <Text style={styles.menuItemText}>{label}</Text>
         </TouchableOpacity>
       </AnimatedView>
@@ -74,17 +93,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    width: 45,
-    height: 45,
+    width: 52,
+    height: 52,
     borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  menuItemText: {
-    ...typography.body,
-    paddingTop: 5,
-    fontSize: 20,
-    fontWeight: 600,
+  tint: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: radius.md,
+    opacity: 0.2,
   },
+  menuItemText: typography.label,
 });

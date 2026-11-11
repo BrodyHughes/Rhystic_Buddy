@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   grayscaleOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
 });

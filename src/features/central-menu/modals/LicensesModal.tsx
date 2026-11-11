@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { radius, spacing, typography } from '@/styles/global';
-import {
-  BACKGROUND_TRANSPARENT,
-  MODAL_BACKGROUND,
-  LIGHT_GREY,
-  TRANSPARENT_OFF_WHITE,
-} from '@/consts/consts';
+import { BACKGROUND, MUTED_TEXT } from '@/consts/consts';
 import { licenses } from '@/consts/licenses';
+import CloseButton from '@/components/CloseButton';
 
 interface LicensesModalProps {
   onClose: () => void;
@@ -26,9 +22,7 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
         <View style={styles.panel}>
           <View style={styles.header}>
             <Text style={styles.title}>Open Source Licenses</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
+            <CloseButton onPress={onClose} />
           </View>
           <ScrollView style={styles.content} nestedScrollEnabled={true}>
             {licenses.map((lib) => (
@@ -47,22 +41,16 @@ const LicensesModal: React.FC<LicensesModalProps> = ({ onClose }) => {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: BACKGROUND_TRANSPARENT,
+    ...StyleSheet.absoluteFill,
     zIndex: 50,
   },
   safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   panel: {
     width: '100%',
     maxHeight: '100%',
-    backgroundColor: MODAL_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -76,16 +64,6 @@ const styles = StyleSheet.create({
     ...typography.heading2,
     fontSize: 20,
   },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45,
-  },
   content: {
     paddingHorizontal: 20,
   },
@@ -94,7 +72,6 @@ const styles = StyleSheet.create({
   },
   libName: {
     ...typography.body,
-    color: LIGHT_GREY,
     marginBottom: spacing.xs,
     marginTop: spacing.xs,
   },
@@ -103,7 +80,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: spacing.xs,
     fontSize: 14,
-    color: TRANSPARENT_OFF_WHITE,
+    color: MUTED_TEXT,
   },
 });
 

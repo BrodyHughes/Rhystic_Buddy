@@ -1,24 +1,5 @@
-import { BACKGROUND, LIGHT_GREY } from '@/consts/consts';
-import { StyleSheet, Platform, TextStyle } from 'react-native';
-
-/**
- * Design tokens
- * ------------------------------------------------------------------
- */
-export const palette = {
-  primary: '#5E60CE',
-  primaryDark: LIGHT_GREY,
-  secondary: LIGHT_GREY,
-  accent: LIGHT_GREY,
-  background: BACKGROUND,
-  surface: LIGHT_GREY,
-  textPrimary: LIGHT_GREY,
-  textSecondary: LIGHT_GREY,
-  textTertiary: '#fff',
-  border: '#E0E6ED',
-  danger: '#EF476F',
-  success: '#06D6A0',
-};
+import { BACKGROUND, LIGHT_GREY, OFF_WHITE } from '@/consts/consts';
+import { StyleSheet, TextStyle } from 'react-native';
 
 export const spacing = {
   xs: 4,
@@ -36,13 +17,8 @@ export const radius = {
   full: '100%',
 };
 
-export type TypographyVariant =
-  | 'heading1'
-  | 'heading2'
-  | 'body'
-  | 'caption'
-  | 'button'
-  | 'miniCaption';
+type TypographyVariant =
+  'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption' | 'label';
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
@@ -50,19 +26,19 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 95,
-    color: palette.textPrimary,
+    color: LIGHT_GREY,
   },
   heading2: {
     // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 28,
-    color: palette.textPrimary,
+    color: LIGHT_GREY,
     letterSpacing: 1.5,
   },
   body: {
     // fontFamily: 'Asap',
     letterSpacing: 1,
-    color: palette.textTertiary,
+    color: LIGHT_GREY,
     textAlign: 'left',
     fontSize: 18,
     fontWeight: 400,
@@ -72,87 +48,58 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 30,
-    color: palette.textSecondary,
+    color: LIGHT_GREY,
   },
   miniCaption: {
     // fontFamily: 'Asap',
     fontWeight: 500,
     fontSize: 16,
-    color: palette.textSecondary,
+    color: LIGHT_GREY,
   },
   button: {
     // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 16,
   },
+  label: {
+    fontWeight: 600,
+    fontSize: 14,
+    letterSpacing: 0.5,
+    color: LIGHT_GREY,
+  },
 };
 
-export const shadows = Platform.select({
-  ios: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  android: {
-    elevation: 3,
-  },
-  default: {},
-});
+export const icon = {
+  size: 26,
+  closeSize: 28,
+  strokeWidth: 2.25,
+};
 
-/**
- * Global styles
- * ------------------------------------------------------------------
- */
-export const globalStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    padding: spacing.md,
-    backgroundColor: palette.background,
-  },
+// OFF_WHITE marks a selected or primary control; text on it uses BACKGROUND.
+export const buttonColors = {
+  primary: { backgroundColor: OFF_WHITE },
+  onPrimary: { color: BACKGROUND },
+};
 
-  card: {
-    backgroundColor: palette.surface,
+export const pickerStyles = StyleSheet.create({
+  selectItem: {
+    backgroundColor: BACKGROUND,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: radius.md,
-    padding: spacing.md,
-    marginVertical: spacing.sm,
-    ...shadows,
-  },
-
-  title: {
-    ...typography.heading2,
-    marginBottom: spacing.sm,
-  },
-
-  text: {
-    ...typography.body,
-  },
-
-  button: {
-    backgroundColor: LIGHT_GREY,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
+    marginVertical: 5,
+    width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows,
   },
-
-  buttonText: {
-    ...typography.button,
-    color: palette.surface,
+  selectedItem: buttonColors.primary,
+  selectItemText: {
+    ...typography.body,
+    marginBottom: 0,
+    fontWeight: 600,
+    fontSize: 20,
   },
-
-  input: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.sm,
-    fontSize: typography.body.fontSize,
-    color: palette.textPrimary,
-    ...shadows,
+  selectedText: {
+    ...buttonColors.onPrimary,
+    fontWeight: 900,
   },
 });
-
-export type GlobalStyles = typeof globalStyles;

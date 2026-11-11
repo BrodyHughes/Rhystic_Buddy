@@ -132,7 +132,7 @@ export default React.memo(GlobalDamageOverlays);
 
 const styles = StyleSheet.create({
   overlayManagerContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 5,
     pointerEvents: 'box-none',
   },

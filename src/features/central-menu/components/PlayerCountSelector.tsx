@@ -7,15 +7,11 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { PlayerCount } from '@/features/player-panel/store/useLifeStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
-import { radius, typography } from '@/styles/global';
-import {
-  BACKGROUND_TRANSPARENT,
-  BUTTON_BACKGROUND,
-  LIGHT_GREY,
-  BACKGROUND,
-  BORDER_COLOR,
-} from '@/consts/consts';
-import { useResetAllCarousels } from '@/hooks/useResetAllCarousels';
+import { typography, pickerStyles } from '@/styles/global';
+import {} from '@/consts/consts';
+import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
@@ -26,23 +22,21 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
   const currentTotal = useLifeStore((s) => s.totalPlayers);
-  const { resetAll } = useResetAllCarousels();
 
   const handleSelect = (count: PlayerCount) => {
     onSelect(count);
-    setTimeout(() => resetAll(), 500);
+    setTimeout(PlayerCarouselManager.resetAll, 500);
   };
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+      <BlurBackdrop />
       {/* Backdrop press */}
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.modalContainer} pointerEvents="box-none">
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Select Player Count</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
+          <CloseButton onPress={onClose} />
         </View>
         <View style={styles.contentContainer}>
           <View style={styles.pickerContainer}>
@@ -51,10 +45,12 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
               return (
                 <TouchableOpacity
                   key={count}
-                  style={[styles.selectItem, selected && styles.selectedItem]}
+                  style={[pickerStyles.selectItem, selected && pickerStyles.selectedItem]}
                   onPress={() => handleSelect(count as PlayerCount)}
                 >
-                  <Text style={[styles.selectItemText, selected && styles.selectedText]}>
+                  <Text
+                    style={[pickerStyles.selectItemText, selected && pickerStyles.selectedText]}
+                  >
                     {count} Players
                   </Text>
                 </TouchableOpacity>
@@ -69,8 +65,7 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: BACKGROUND_TRANSPARENT,
+    ...StyleSheet.absoluteFill,
     zIndex: 50,
   },
   modalContainer: {
@@ -98,41 +93,6 @@ const styles = StyleSheet.create({
     ...typography.heading2,
     textAlign: 'left',
     flex: 1,
-  },
-  selectItem: {
-    backgroundColor: BUTTON_BACKGROUND,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.md,
-    marginVertical: 5,
-    width: '100%',
-    alignItems: 'center',
-  },
-  selectedItem: {
-    backgroundColor: BACKGROUND,
-    borderWidth: 2,
-    borderColor: BORDER_COLOR,
-  },
-  selectItemText: {
-    ...typography.body,
-    color: '#000',
-    marginBottom: 0,
-    fontWeight: '600',
-    fontSize: 20,
-  },
-  selectedText: {
-    color: LIGHT_GREY,
-    fontWeight: '900',
-  },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45, // okay to use here bc its a different sized 'x' for close
   },
 });
 

@@ -1,5 +1,6 @@
 import { Gesture } from 'react-native-gesture-handler';
-import { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { ViewMode } from '@/types/app';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -51,7 +52,8 @@ export const useCarousel = ({
 
   const isAnimating = useSharedValue(false);
 
-  const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
+  const startReceiving = useCommanderDamageModeStore((s) => s.startReceiving);
+  const stopReceiving = useCommanderDamageModeStore((s) => s.stopReceiving);
   const hasCommanderView = totalPlayers > 2;
 
   const flipFactor = isEvenPlayerIndexNumber ? 1 : -1;
@@ -62,7 +64,7 @@ export const useCarousel = ({
       if (isCommander) {
         startReceiving(playerId);
       } else {
-        stopReceiving();
+        stopReceiving(playerId);
       }
     },
     [playerId, startReceiving, stopReceiving],
@@ -74,8 +76,8 @@ export const useCarousel = ({
     vIndex.value = 1;
     translateX.value = withSpring(-panelW, resetSpringConfig);
     translateY.value = withSpring(-panelH, resetSpringConfig);
-    runOnJS(updateOverlay)(false);
-    if (onViewChange) runOnJS(onViewChange)(ViewMode.LIFE);
+    scheduleOnRN(updateOverlay, false);
+    if (onViewChange) scheduleOnRN(onViewChange, ViewMode.LIFE);
   }, [hIndex, vIndex, panelW, panelH, translateX, translateY, updateOverlay, onViewChange]);
 
   useEffect(() => {
@@ -110,8 +112,8 @@ export const useCarousel = ({
             horizontalSequence[
               (nextHIndex - 1 + horizontalSequence.length) % horizontalSequence.length
             ];
-          runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
-          if (onViewChange) runOnJS(onViewChange)(nextView);
+          scheduleOnRN(updateOverlay, nextView === ViewMode.COMMANDER);
+          if (onViewChange) scheduleOnRN(onViewChange, nextView);
 
           isAnimating.value = true;
           translateX.value = withSpring(-nextHIndex * panelW, slideSpringConfig, (isFinished) => {
@@ -144,8 +146,8 @@ export const useCarousel = ({
           // --- Trigger overlay update immediately based on destination ---
           const nextView =
             verticalSequence[(nextVIndex - 1 + verticalSequence.length) % verticalSequence.length];
-          runOnJS(updateOverlay)(nextView === ViewMode.COMMANDER);
-          if (onViewChange) runOnJS(onViewChange)(nextView);
+          scheduleOnRN(updateOverlay, nextView === ViewMode.COMMANDER);
+          if (onViewChange) scheduleOnRN(onViewChange, nextView);
 
           isAnimating.value = true;
           translateY.value = withSpring(-nextVIndex * panelH, slideSpringConfig, (isFinished) => {
