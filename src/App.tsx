@@ -16,7 +16,7 @@ import CentralMenuButton from '@/features/central-menu/components/CentralMenuBut
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { APP_BACKGROUND, GAP } from '@/consts/consts';
+import { APP_BACKGROUND, GAP, LIGHT_GREY } from '@/consts/consts';
 import RulingsSearch from '@/features/central-menu/modals/RulingsSearch';
 import TutorialModal from '@/features/tutorial/components/TutorialModal';
 import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalDamageOverlays';
@@ -211,7 +211,7 @@ export default function App() {
             </>
           ) : (
             <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#ffffff" />
+              <ActivityIndicator size="large" color={LIGHT_GREY} />
             </View>
           )}
         </SafeAreaView>

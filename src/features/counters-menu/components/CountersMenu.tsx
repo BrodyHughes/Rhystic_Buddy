@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Text, ViewStyle } from 'react-native';
+import { View, StyleSheet, Pressable, Text, ViewStyle, Alert } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
 import { Check, Crown, Image as ImageIcon, LucideIcon, Plus, Skull, X } from 'lucide-react-native';
@@ -16,6 +16,7 @@ import {
   PLAINS,
   COUNTERS_DIVIDER_COLOR,
   BORDER_COLOR,
+  MOUNTAIN,
 } from '@/consts/consts';
 import { radius, spacing, typography } from '@/styles/global';
 import {
@@ -23,6 +24,7 @@ import {
   CHIP_ICON_SIZE,
   COUNTER_ORDER,
   COUNTERS,
+  CounterType,
   DEFAULT_COUNTERS,
   TILE_ICON_SIZE,
 } from '@/consts/counters';
@@ -55,6 +57,18 @@ export default function CountersMenu({ defenderId }: Props) {
 
   const allAdded = ADDABLE_COUNTERS.every((k) => tracked.includes(k));
 
+  const confirmRemove = (key: CounterType) => {
+    const value = useCounterStore.getState().counters[defenderId]?.[key] ?? 0;
+    if (value === 0) {
+      removeCounter(defenderId, key);
+      return;
+    }
+    Alert.alert(`Remove ${COUNTERS[key].label}?`, `This clears its value of ${value}.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => removeCounter(defenderId, key) },
+    ]);
+  };
+
   return (
     <>
       <View style={styles.container}>
@@ -73,7 +87,7 @@ export default function CountersMenu({ defenderId }: Props) {
           <SettingCard
             Icon={Skull}
             label="Dead"
-            iconColor={isDead ? 'red' : LIGHT_GREY}
+            iconColor={isDead ? MOUNTAIN : LIGHT_GREY}
             activeStyle={isDead && styles.deadCardActive}
             onPress={() => {
               toggleDead(defenderId);
@@ -101,9 +115,7 @@ export default function CountersMenu({ defenderId }: Props) {
                   <View style={styles.listDivider} />
                   <Pressable
                     style={({ pressed }) => [styles.listRow, pressed && styles.pressed]}
-                    onPress={() =>
-                      added ? removeCounter(defenderId, key) : addCounter(defenderId, key)
-                    }
+                    onPress={() => (added ? confirmRemove(key) : addCounter(defenderId, key))}
                   >
                     <Icon color={LIGHT_GREY} size={20} />
                     <Text style={styles.listLabel}>{label}</Text>
@@ -235,7 +247,7 @@ const styles = StyleSheet.create({
     ...typography.button,
     color: LIGHT_GREY,
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: 900,
     textAlign: 'center',
   },
   addTile: {

@@ -8,6 +8,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { radius, spacing, typography, buttonColors } from '@/styles/global';
 import { BACKGROUND, GITHUB_URL, PLAINS } from '@/consts/consts';
 import LicensesModal from './LicensesModal';
+import { version } from '../../../../package.json';
 import CloseButton from '@/components/CloseButton';
 import BlurBackdrop from '@/components/BlurBackdrop';
 
@@ -49,10 +50,10 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
               very welcome! Feel free to open issues or submit pull requests on GitHub.
             </Text>
             <Text style={styles.sectionTitle}>App Version</Text>
-            <Text style={styles.sectionText}>0.0.1</Text>
+            <Text style={styles.sectionText}>{version}</Text>
 
             <Text style={styles.sectionTitle}>Copyright</Text>
-            <Text style={styles.sectionText}>Copyright 2025 Brody Hughes</Text>
+            <Text style={styles.sectionText}>Copyright 2025–2026 Brody Hughes</Text>
 
             <TouchableOpacity
               style={styles.licensesButton}

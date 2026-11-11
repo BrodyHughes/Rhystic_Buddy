@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { typography, pickerStyles } from '@/styles/global';
-import {} from '@/consts/consts';
 import CloseButton from '@/components/CloseButton';
 import BlurBackdrop from '@/components/BlurBackdrop';
 
@@ -24,21 +23,9 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
   const setStartingLifeTwoPlayers = useLifeStore((s) => s.setStartingLifeTwoPlayers);
   const setStartingLifeMultiPlayers = useLifeStore((s) => s.setStartingLifeMultiPlayers);
 
-  const handleSelect2 = (life: number) => {
-    setStartingLifeTwoPlayers(life);
-    onClose();
-  };
-
-  const handleSelectMulti = (life: number) => {
-    setStartingLifeMultiPlayers(life);
-    onClose();
-  };
-
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
       <BlurBackdrop />
-      {/* Backdrop press */}
-      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.modalContainer} pointerEvents="box-none">
         <View style={styles.modalHeader}>
           <Text style={styles.title}>Starting Life</Text>
@@ -54,7 +41,7 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
                   pickerStyles.selectItem,
                   value === startingLife2Players && pickerStyles.selectedItem,
                 ]}
-                onPress={() => handleSelect2(value)}
+                onPress={() => setStartingLifeTwoPlayers(value)}
               >
                 <Text
                   style={[
@@ -77,7 +64,7 @@ const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) 
                   pickerStyles.selectItem,
                   value === startingLifeMultiPlayers && pickerStyles.selectedItem,
                 ]}
-                onPress={() => handleSelectMulti(value)}
+                onPress={() => setStartingLifeMultiPlayers(value)}
               >
                 <Text
                   style={[
