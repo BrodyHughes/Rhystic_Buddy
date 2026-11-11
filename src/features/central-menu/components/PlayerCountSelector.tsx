@@ -24,6 +24,10 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
   const currentTotal = useLifeStore((s) => s.totalPlayers);
 
   const handleSelect = (count: PlayerCount) => {
+    if (count === currentTotal) {
+      onClose();
+      return;
+    }
     onSelect(count);
     setTimeout(PlayerCarouselManager.resetAll, 500);
   };

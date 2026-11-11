@@ -28,7 +28,7 @@ function CommanderDamageMap({ playerId }: Props) {
   const enabled = useSettingsStore((s) => s.showCommanderDamageMap);
   const seats = useMemo(() => getTableSeats(totalPlayers), [totalPlayers]);
   const hasDamage = Object.values(damage).some((d) => d > 0);
-  if (!enabled || seats.length < 3 || !hasDamage) return null;
+  if (!enabled || seats.length < 3 || !hasDamage || !seats[playerId]) return null;
 
   const rows = Math.ceil(seats.length / 2);
   const mapW = 2 * CELL_W + CELL_GAP;

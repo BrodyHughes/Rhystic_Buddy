@@ -2,33 +2,38 @@
 
 export const licenses = [
   {
+    name: '@react-native-async-storage/async-storage',
+    version: '2.2.0',
+    license: 'MIT',
+  },
+  {
     name: '@react-native-community/blur',
     version: '4.4.1',
     license: 'MIT',
   },
   {
     name: '@tanstack/react-query',
-    version: '5.81.5',
+    version: '5.107.1',
     license: 'MIT',
   },
   {
     name: 'lucide-react-native',
-    version: '0.525.0',
+    version: '1.71.0',
     license: 'ISC',
   },
   {
     name: 'react',
-    version: '19.0.0',
+    version: '19.3.0',
     license: 'MIT',
   },
   {
     name: 'react-native',
-    version: '0.79.2',
+    version: '0.88.1',
     license: 'MIT',
   },
   {
     name: 'react-native-gesture-handler',
-    version: '2.25.0',
+    version: '2.33.1',
     license: 'MIT',
   },
   {
@@ -38,22 +43,27 @@ export const licenses = [
   },
   {
     name: 'react-native-reanimated',
-    version: '3.17.5',
+    version: '4.7.1',
     license: 'MIT',
   },
   {
     name: 'react-native-safe-area-context',
-    version: '5.4.0',
+    version: '5.11.1',
     license: 'MIT',
   },
   {
     name: 'react-native-svg',
-    version: '15.12.0',
+    version: '15.16.1',
+    license: 'MIT',
+  },
+  {
+    name: 'react-native-worklets',
+    version: '0.13.1',
     license: 'MIT',
   },
   {
     name: 'zustand',
-    version: '5.0.4',
+    version: '5.1.0',
     license: 'MIT',
   },
 ];

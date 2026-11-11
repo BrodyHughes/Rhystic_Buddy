@@ -80,7 +80,7 @@ function CounterChips({ playerId, isDead, isLifeLethal }: Props) {
         {showLethal && <Chip Icon={Skull} onPress={() => toggleDead(playerId)} />}
       </View>
       <View style={styles.row} pointerEvents="box-none">
-        {isMonarch && <Chip Icon={Crown} />}
+        {showCounterChips && isMonarch && <Chip Icon={Crown} />}
         {showCounterChips &&
           activeCounters.map((k) => <CounterChip key={k} playerId={playerId} counter={k} />)}
       </View>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   value: {
     ...typography.button,
     color: LIGHT_GREY,
-    fontWeight: '900',
+    fontWeight: 900,
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,

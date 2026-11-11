@@ -57,19 +57,19 @@ const slides: Slide[] = [
   {
     title: 'Commander Damage',
     description:
-      'Swipe horizontally on a player panel to enter commander damage mode. Track damage from each commander separately.',
+      "In 3+ player games, swipe horizontally on a player panel to enter commander damage mode. \n\nA mini map of damage taken then appears on that player's panel. Toggle it off in More → Settings.",
     images: [IMG_SWIPE_H],
   },
   {
     title: 'Counters & Backgrounds',
     description:
-      'Swipe vertically on a player panel to open the Counters & Background menu where you can add poison, mana & more.',
+      'Swipe vertically on a player panel to open the Counters & Background menu where you can add poison, mana & more. \n\nAdded counters also show on the life view. Toggle them off in More → Settings.',
     images: [IMG_SWIPE_V],
   },
   {
     title: 'Central Menu',
     description:
-      'Press the pentagon button in the centre to reset, set player count, open the More menu and other quick actions.',
+      'Press the pentagon button in the centre to reset, roll turn order, set player count and starting life, or open the More menu for settings, rulings and more.',
     images: [IMG_MENU],
   },
   {
