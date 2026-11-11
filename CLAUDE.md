@@ -28,6 +28,7 @@ The pre-commit hook runs eslint, prettier and `yarn typecheck` on staged files. 
 - Zustand stores live in `src/features/*/store`. Subscribe with selectors (`useStore((s) => s.x)`), never by destructuring the whole store; whole-store subscriptions re-render every player panel.
 - Inside gesture/animation worklets, call JS functions with `scheduleOnRN(fn, ...args)` from `react-native-worklets` (not `runOnJS`).
 - Reanimated 4 changed `withSpring` defaults. Pass `Reanimated3DefaultSpringConfig` (or a full mass/stiffness/damping config) to keep the existing feel.
+- Don't gate interactivity on an animated value reaching an exact target (e.g. `progress.value === 1`). Reanimated 4 springs only snap to the target after settling (~1s), so drive `pointerEvents` etc. from React state instead.
 - Colors and shared tokens: `src/consts/consts.ts`, `src/consts/counters.ts`, `src/styles/global.tsx`.
 
 ## Layout & rotation invariants (fragile — read before touching)
