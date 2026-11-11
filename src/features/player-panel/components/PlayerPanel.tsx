@@ -11,7 +11,7 @@ import LifeView from './LifeView';
 import BackgroundImage from './BackgroundImage';
 import PanelOverlays from './PanelOverlays';
 import { ViewMode } from '@/types/app';
-import { BORDER_COLOR, BORDER_WIDTH, LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { BORDER_COLOR, BORDER_WIDTH } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -398,12 +398,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: 'hidden',
   },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   viewsContainer: {
     position: 'absolute',
     width: '200%',
@@ -414,60 +408,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  lifeBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '90deg' }],
-    zIndex: 1,
-    pointerEvents: 'none',
-  },
-  life: {
-    ...typography.heading1,
-    color: LIGHT_GREY,
-    marginRight: spacing.xs,
-    textShadowColor: TEXT_SHADOW_COLOR,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
-    paddingHorizontal: 20,
-  },
-  delta: {
-    ...typography.caption,
-    color: LIGHT_GREY,
-  },
-  button: {
-    position: 'absolute',
-    width: '50%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inc: { right: 0 },
-  dec: { left: 0 },
-  btnText: {
-    ...typography.heading2,
-    transform: [{ rotate: '90deg' }],
-  },
   panelBorder: {
     borderWidth: BORDER_WIDTH,
     borderColor: BORDER_COLOR,
-  },
-  lifeTxt: {
-    ...typography.heading1,
-    color: LIGHT_GREY,
-  },
-  btnTxt: {
-    ...typography.body,
-    color: '#fff',
   },
   panelText: {
     ...typography.heading2,
     textAlign: 'center',
     padding: spacing.md,
-  },
-  placeholderView: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
   },
 });

@@ -1,6 +1,3 @@
-// https://api.scryfall.com
-// import { ScryfallApiResponse } from '@/types/scryfall';
-
 import { ScryfallCard, ScryfallRuling, ScryfallApiList } from '@/types/scryfall';
 import { apiFetch } from './api';
 
@@ -24,18 +21,6 @@ export async function fetchCardPrintings(
       .filter((item): item is { url: string; artist: string } => item !== null);
   } catch (err) {
     console.error('fetchCardPrintings failed:', err);
-    return undefined;
-  }
-}
-
-export async function fetchCardByName(
-  cardName: string,
-): Promise<{ url: string; artist: string } | undefined> {
-  try {
-    const printings = await fetchCardPrintings(cardName);
-    return printings?.[0];
-  } catch (err) {
-    console.error('fetchCardByName failed:', err);
     return undefined;
   }
 }

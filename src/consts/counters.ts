@@ -19,6 +19,12 @@ import {
   TRANSPARENT_MOUNTAIN,
   TRANSPARENT_FOREST,
   CARD_BACKGROUND_TRANSPARENT,
+  LIGHT_GREY,
+  PLAINS,
+  ISLAND,
+  SWAMP,
+  MOUNTAIN,
+  FOREST,
 } from './consts';
 
 export type CounterType =
@@ -69,4 +75,16 @@ export const COUNTER_COLORS: Record<CounterType, string> = {
   manaBlack: TRANSPARENT_SWAMP,
   manaRed: TRANSPARENT_MOUNTAIN,
   manaGreen: TRANSPARENT_FOREST,
+};
+
+export const COUNTER_SOLID_COLORS: Record<CounterType, string> = {
+  tax: LIGHT_GREY,
+  charge: LIGHT_GREY,
+  poison: LIGHT_GREY,
+  storm: LIGHT_GREY,
+  manaWhite: PLAINS,
+  manaBlue: ISLAND,
+  manaBlack: SWAMP,
+  manaRed: MOUNTAIN,
+  manaGreen: FOREST,
 };

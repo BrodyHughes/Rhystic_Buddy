@@ -23,12 +23,10 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 const PRESET_VALUES = [20, 25, 30, 40];
 
 const StartingLifeSelector: React.FC<StartingLifeSelectorProps> = ({ onClose }) => {
-  const {
-    startingLife2Players,
-    startingLifeMultiPlayers,
-    setStartingLifeTwoPlayers,
-    setStartingLifeMultiPlayers,
-  } = useLifeStore();
+  const startingLife2Players = useLifeStore((s) => s.startingLife2Players);
+  const startingLifeMultiPlayers = useLifeStore((s) => s.startingLifeMultiPlayers);
+  const setStartingLifeTwoPlayers = useLifeStore((s) => s.setStartingLifeTwoPlayers);
+  const setStartingLifeMultiPlayers = useLifeStore((s) => s.setStartingLifeMultiPlayers);
 
   const handleSelect2 = (life: number) => {
     setStartingLifeTwoPlayers(life);

@@ -15,7 +15,7 @@ import {
   BACKGROUND,
   BORDER_COLOR,
 } from '@/consts/consts';
-import { useResetAllCarousels } from '@/hooks/useResetAllCarousels';
+import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
 interface PlayerCountSelectorProps {
   onSelect: (count: PlayerCount) => void;
@@ -26,11 +26,10 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onClose }) => {
   const currentTotal = useLifeStore((s) => s.totalPlayers);
-  const { resetAll } = useResetAllCarousels();
 
   const handleSelect = (count: PlayerCount) => {
     onSelect(count);
-    setTimeout(() => resetAll(), 500);
+    setTimeout(PlayerCarouselManager.resetAll, 500);
   };
 
   return (

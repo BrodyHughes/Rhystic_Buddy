@@ -9,11 +9,6 @@ import { useCounterStore } from '@/features/counters-menu/store/useCounterStore'
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import {
   LIGHT_GREY,
-  SWAMP,
-  ISLAND,
-  MOUNTAIN,
-  PLAINS,
-  FOREST,
   CARD_BACKGROUND_TRANSPARENT,
   DEAD_CARD_BACKGROUND,
   COUNTERS_DIVIDER_COLOR,
@@ -22,6 +17,7 @@ import { radius, typography } from '@/styles/global';
 import {
   COUNTER_ICONS,
   COUNTER_COLORS,
+  COUNTER_SOLID_COLORS,
   DEFAULT_COUNTERS,
   EXTRA_COUNTERS,
   ALL_COUNTER_TYPES,
@@ -38,7 +34,6 @@ interface Props {
 
 export default function CountersMenu({ defenderId }: Props) {
   const [bgSearchVisible, setBgSearchVisible] = useState(false);
-  // Extra add menu state removed; icons are always visible
 
   const counters = useCounterStore((s) => s.counters[defenderId] || EMPTY_COUNTERS);
   const addCounter = useCounterStore((s) => s.addCounter);
@@ -92,18 +87,7 @@ export default function CountersMenu({ defenderId }: Props) {
         {EXTRA_COUNTERS.map((key) => {
           const added = existingKeys.includes(key);
           const IconComponent = COUNTER_ICONS[key];
-          const SOLID_COLOR_MAP: Record<CounterType, string> = {
-            tax: LIGHT_GREY,
-            charge: LIGHT_GREY,
-            manaWhite: PLAINS,
-            manaBlue: ISLAND,
-            manaBlack: SWAMP,
-            manaRed: MOUNTAIN,
-            manaGreen: FOREST,
-            poison: LIGHT_GREY,
-            storm: LIGHT_GREY,
-          };
-          const baseColor = SOLID_COLOR_MAP[key];
+          const baseColor = COUNTER_SOLID_COLORS[key];
           const transparentColor = COUNTER_COLORS[key];
           return (
             <Pressable
@@ -236,11 +220,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     overflow: 'hidden',
-  },
-  counterWrapper: {
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    alignItems: 'center',
   },
   iconWrap: {
     height: 28,

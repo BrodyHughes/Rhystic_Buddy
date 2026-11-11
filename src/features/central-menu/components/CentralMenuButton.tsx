@@ -143,25 +143,30 @@ export default React.memo(function CentralMenuButton() {
     handlePress();
   }, [resetLife, resetCommanderDamage, resetCounters, handlePress]);
 
-  const handleTurnOrder = useCallback(() => {
-    handlePress();
-    setTimeout(startTurnOrder, 500);
-  }, [handlePress, startTurnOrder]);
+  const closeMenuThen = useCallback(
+    (action: () => void) => {
+      handlePress();
+      setTimeout(action, 500);
+    },
+    [handlePress],
+  );
 
-  const handlePlayersPress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setPlayerCountSelectorVisible(true), 500);
-  }, [handlePress]);
-
-  const handleStartingLifePress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setStartingLifeVisible(true), 500);
-  }, [handlePress]);
-
-  const handleMorePress = useCallback(() => {
-    handlePress();
-    setTimeout(() => setMoreMenuVisible(true), 500);
-  }, [handlePress]);
+  const handleTurnOrder = useCallback(
+    () => closeMenuThen(startTurnOrder),
+    [closeMenuThen, startTurnOrder],
+  );
+  const handlePlayersPress = useCallback(
+    () => closeMenuThen(() => setPlayerCountSelectorVisible(true)),
+    [closeMenuThen],
+  );
+  const handleStartingLifePress = useCallback(
+    () => closeMenuThen(() => setStartingLifeVisible(true)),
+    [closeMenuThen],
+  );
+  const handleMorePress = useCallback(
+    () => closeMenuThen(() => setMoreMenuVisible(true)),
+    [closeMenuThen],
+  );
 
   const handleTutorialPress = useCallback(() => {
     setIsTutorialVisible(true);
@@ -294,11 +299,6 @@ const styles = StyleSheet.create({
     // shadowOpacity: 0.3,
     // shadowRadius: 10,
     // elevation: 8,
-  },
-  iconContainer: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   menuItemsWrapper: {
     alignItems: 'center',

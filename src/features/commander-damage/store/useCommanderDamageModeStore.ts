@@ -13,5 +13,5 @@ export const useCommanderDamageModeStore = create<CommanderDamageModeState>((set
   isReceiving: false,
   defenderId: null,
   startReceiving: (defenderId: number) => set({ isReceiving: true, defenderId }),
-  stopReceiving: () => set({ isReceiving: false, defenderId: null }),
+  stopReceiving: () => set((s) => (s.isReceiving ? { isReceiving: false, defenderId: null } : s)),
 }));

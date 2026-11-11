@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import { DEFAULT_COUNTERS } from '@/consts/counters';
 
 type CounterValueMap = Record<string, number>;
 type CounterMatrix = Record<number, CounterValueMap>;
@@ -9,21 +10,17 @@ interface CounterStore {
   changeCounter: (defender: number, counter: string, amount?: number) => void;
   addCounter: (defender: number, counter: string) => void;
   removeCounter: (defender: number, counter: string) => void;
-  get: (defender: number) => CounterValueMap;
-  resetPlayer: (defender: number) => void;
   resetAll: () => void;
 }
 
-const emptyRow = (): CounterValueMap => ({});
-
-export const useCounterStore = create<CounterStore>()((set, get) => ({
+export const useCounterStore = create<CounterStore>()((set) => ({
   counters: {},
 
   changeCounter: (defender, counter, amount = 1) =>
     set((state) => {
-      if (amount > 100) return { counters: state.counters };
+      if (amount > 100) return state;
       const newCounters = { ...state.counters };
-      const currentCounters = newCounters[defender] ?? emptyRow();
+      const currentCounters = newCounters[defender] ?? {};
       const updated = (currentCounters[counter] ?? 0) + amount;
       newCounters[defender] = {
         ...currentCounters,
@@ -35,8 +32,8 @@ export const useCounterStore = create<CounterStore>()((set, get) => ({
   addCounter: (defender, counter) =>
     set((state) => {
       const newCounters = { ...state.counters };
-      const currentCounters = newCounters[defender] ?? emptyRow();
-      if (currentCounters[counter] !== undefined) return { counters: state.counters };
+      const currentCounters = newCounters[defender] ?? {};
+      if (currentCounters[counter] !== undefined) return state;
       newCounters[defender] = { ...currentCounters, [counter]: 0 };
       return { counters: newCounters };
     }),
@@ -44,19 +41,10 @@ export const useCounterStore = create<CounterStore>()((set, get) => ({
   removeCounter: (defender, counter) =>
     set((state) => {
       const newCounters = { ...state.counters };
-      const currentCounters = { ...(newCounters[defender] ?? emptyRow()) };
-      if (currentCounters[counter] === undefined) return { counters: state.counters };
+      const currentCounters = { ...(newCounters[defender] ?? {}) };
+      if (currentCounters[counter] === undefined) return state;
       delete currentCounters[counter];
       newCounters[defender] = currentCounters;
-      return { counters: newCounters };
-    }),
-
-  get: (defender) => get().counters[defender] ?? emptyRow(),
-
-  resetPlayer: (defender) =>
-    set((state) => {
-      const newCounters = { ...state.counters };
-      delete newCounters[defender];
       return { counters: newCounters };
     }),
 
@@ -64,7 +52,7 @@ export const useCounterStore = create<CounterStore>()((set, get) => ({
     set(() => {
       const players = useLifeStore.getState().players;
       const newCounters = players.reduce<CounterMatrix>((acc, player) => {
-        acc[player.id] = { tax: 0, charge: 0 };
+        acc[player.id] = Object.fromEntries(DEFAULT_COUNTERS.map((c) => [c, 0]));
         return acc;
       }, {});
       return { counters: newCounters };

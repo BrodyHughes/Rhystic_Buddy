@@ -3,18 +3,18 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SWAMP, ISLAND, MOUNTAIN, PLAINS, FOREST } from '@/consts/consts';
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
+import type { PlayerCount } from '@/types/app';
+
+export type { PlayerCount };
 
 /* ── Types ───────────────────────────────────────── */
 export interface PlayerState {
   id: number;
   life: number;
   delta: number;
-  timer?: ReturnType<typeof setTimeout>;
   backgroundColor: string;
   isDead?: boolean;
 }
-
-export type PlayerCount = 2 | 3 | 4 | 5 | 6;
 
 export interface LifeStore {
   totalPlayers: PlayerCount;
@@ -53,11 +53,12 @@ const createPlayers = (
   }));
 };
 
-/* ── Storage Backend (AsyncStorage) ───────────────── */
-const storageBackend = {
-  setItem: AsyncStorage.setItem,
-  getItem: AsyncStorage.getItem,
-  removeItem: AsyncStorage.removeItem,
+// Delta-reset timers live outside the store: they are not state and must not be persisted.
+const deltaTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+const clearDeltaTimers = () => {
+  deltaTimers.forEach(clearTimeout);
+  deltaTimers.clear();
 };
 
 /* ── Store ───────────────────────────────────────── */
@@ -72,31 +73,28 @@ export const useLifeStore = create<LifeStore>()(
       changeLife: (index, amount) => {
         set((state) => {
           const player = state.players[index];
-          // Clear existing timer if any
-          if (player.timer) {
-            clearTimeout(player.timer);
-          }
-
-          // Create new timer for delta reset
-          const timer = setTimeout(() => {
-            set((s) => {
-              const newPlayers = [...s.players];
-              newPlayers[index] = { ...newPlayers[index], delta: 0, timer: undefined };
-              return { players: newPlayers };
-            });
-          }, 3000);
-
-          // Update player with new life, delta, and timer
           const newPlayers = [...state.players];
           newPlayers[index] = {
             ...player,
             life: player.life + amount,
             delta: player.delta + amount,
-            timer,
           };
-
           return { players: newPlayers };
         });
+
+        const existing = deltaTimers.get(index);
+        if (existing) clearTimeout(existing);
+        deltaTimers.set(
+          index,
+          setTimeout(() => {
+            deltaTimers.delete(index);
+            set((s) => {
+              const newPlayers = [...s.players];
+              newPlayers[index] = { ...newPlayers[index], delta: 0 };
+              return { players: newPlayers };
+            });
+          }, 3000),
+        );
       },
 
       toggleDead: (index) => {
@@ -124,12 +122,7 @@ export const useLifeStore = create<LifeStore>()(
 
       setTotalPlayers: (total) =>
         set((state) => {
-          // Clear all existing timers
-          state.players.forEach((p) => {
-            if (p.timer) {
-              clearTimeout(p.timer);
-            }
-          });
+          clearDeltaTimers();
 
           return {
             totalPlayers: total,
@@ -167,12 +160,7 @@ export const useLifeStore = create<LifeStore>()(
 
       resetLife: () =>
         set((state) => {
-          // Clear all timers before resetting
-          state.players.forEach((p) => {
-            if (p.timer) {
-              clearTimeout(p.timer);
-            }
-          });
+          clearDeltaTimers();
 
           return {
             players: state.players.map((p) => ({
@@ -182,7 +170,6 @@ export const useLifeStore = create<LifeStore>()(
                   ? state.startingLife2Players
                   : state.startingLifeMultiPlayers,
               delta: 0,
-              timer: undefined,
               isDead: false,
             })),
           };
@@ -190,12 +177,12 @@ export const useLifeStore = create<LifeStore>()(
     }),
     {
       name: 'rb_life_store',
-      storage: createJSONStorage(() => storageBackend),
+      storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         totalPlayers: state.totalPlayers,
         startingLife2Players: state.startingLife2Players,
         startingLifeMultiPlayers: state.startingLifeMultiPlayers,
-        players: state.players.map(({ timer: _t, ...rest }) => rest),
+        players: state.players,
       }),
       version: 1,
       migrate: (persistedState, version) => {

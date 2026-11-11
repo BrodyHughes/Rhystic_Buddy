@@ -192,9 +192,6 @@ const styles = StyleSheet.create({
   },
   inc: { right: 0 },
   dec: { left: 0 },
-  btnText: {
-    ...typography.caption,
-  },
   feedbackTextBase: {
     ...typography.caption,
     fontSize: 40,
@@ -207,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LifeView;
+export default React.memo(LifeView);

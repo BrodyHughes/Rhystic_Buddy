@@ -11,7 +11,6 @@ export interface PlayerBackground {
 export interface PlayerBackgroundState {
   backgrounds: Record<number, PlayerBackground | null>;
   setBackground: (playerId: number, background: PlayerBackground | null) => void;
-  removeBackground: (playerId: number) => void;
 }
 
 const artChicago = require('@/../assets/art-institute-of-chicago-wPoRl5TbjZ4-unsplash.jpg');
@@ -45,7 +44,7 @@ const stockImages = [
 
 export const usePlayerBackgroundStore = create<PlayerBackgroundState>()(
   persist(
-    (set, _get) => {
+    (set) => {
       const shuffledImages = [...stockImages].sort(() => Math.random() - 0.5);
       const initialBackgrounds: Record<number, PlayerBackground> = {};
       for (let i = 0; i < 6; i++) {
@@ -59,14 +58,6 @@ export const usePlayerBackgroundStore = create<PlayerBackgroundState>()(
             backgrounds: {
               ...state.backgrounds,
               [playerId]: background,
-            },
-          }));
-        },
-        removeBackground: (playerId) => {
-          set((state) => ({
-            backgrounds: {
-              ...state.backgrounds,
-              [playerId]: null,
             },
           }));
         },

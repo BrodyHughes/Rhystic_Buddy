@@ -8,9 +8,9 @@ import {
   Pressable,
   ActivityIndicator,
   Platform,
-  Text,
+  useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import PlayerPanel from '@/features/player-panel/components/PlayerPanel';
 import CentralMenuButton from '@/features/central-menu/components/CentralMenuButton';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
@@ -23,8 +23,6 @@ import GlobalDamageOverlays from '@/features/commander-damage/components/GlobalD
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useStoresHydrated from '@/hooks/useStoresHydrated';
 
 export default function App() {
@@ -48,12 +46,6 @@ export default function App() {
 
   const usableH = H - top - bottom - (rows + 1) * currentGap;
   const panelRowHeight = usableH / rows;
-
-  // DEBUG: Calculate what the panel dimensions would be
-  const debugPanelW = W - (columns + 1) * currentGap;
-  const debugPanelH = usableH / rows;
-  const debugTotalHeight = debugPanelH * rows + currentGap * (rows + 1); // panels + gaps + padding
-  const debugExpectedHeight = H - top - bottom;
 
   const twoPlayerStyle = {
     flexDirection: 'column' as const,
@@ -214,27 +206,6 @@ export default function App() {
                 />
               )}
               <TutorialModal />
-              {/* DEBUG OVERLAY - REMOVE BEFORE RELEASE */}
-              {__DEV__ && totalPlayersCount === 2 && (
-                <View style={styles.debugOverlay}>
-                  <Text style={styles.debugText}>Platform: {Platform.OS}</Text>
-                  <Text style={styles.debugText}>
-                    Window: {W.toFixed(0)} x {H.toFixed(0)}
-                  </Text>
-                  <Text style={styles.debugText}>
-                    Insets: top={top.toFixed(0)}, bottom={bottom.toFixed(0)}
-                  </Text>
-                  <Text style={styles.debugText}>Gap: {currentGap}</Text>
-                  <Text style={styles.debugText}>UsableH: {usableH.toFixed(0)}</Text>
-                  <Text style={styles.debugText}>PanelH: {debugPanelH.toFixed(0)}</Text>
-                  <Text style={styles.debugText}>PanelW: {debugPanelW.toFixed(0)}</Text>
-                  <Text style={styles.debugText}>Total calc: {debugTotalHeight.toFixed(0)}</Text>
-                  <Text style={styles.debugText}>Expected: {debugExpectedHeight.toFixed(0)}</Text>
-                  <Text style={styles.debugText}>
-                    Diff: {(debugExpectedHeight - debugTotalHeight).toFixed(0)}
-                  </Text>
-                </View>
-              )}
             </>
           ) : (
             <View style={styles.loaderContainer}>
@@ -277,19 +248,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  debugOverlay: {
-    position: 'absolute',
-    top: 50,
-    left: 10,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    padding: 10,
-    borderRadius: 8,
-    zIndex: 9999,
-  },
-  debugText: {
-    color: '#0f0',
-    fontSize: 11,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
 });

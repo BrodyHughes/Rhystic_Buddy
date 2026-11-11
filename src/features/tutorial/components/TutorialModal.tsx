@@ -316,9 +316,6 @@ const styles = StyleSheet.create({
   navBtn: {
     padding: 10,
   },
-  navBtnDisabled: {
-    opacity: 0.4,
-  },
   dotsRow: {
     flexDirection: 'row',
     gap: 8,

@@ -56,7 +56,6 @@ const BackgroundSearch: React.FC<BackgroundSearchProps> = ({ onClose, playerId }
 
   const players = useLifeStore((state) => state.players);
   const setPlayerBackground = usePlayerBackgroundStore((state) => state.setBackground);
-  // const removePlayerBackground = usePlayerBackgroundStore((state) => state.removeBackground);
   // const backgrounds = usePlayerBackgroundStore((state) => state.backgrounds);
 
   const handleSearch = () => {

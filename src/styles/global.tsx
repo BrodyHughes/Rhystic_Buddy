@@ -1,5 +1,5 @@
 import { BACKGROUND, LIGHT_GREY } from '@/consts/consts';
-import { StyleSheet, Platform, TextStyle } from 'react-native';
+import { TextStyle } from 'react-native';
 
 /**
  * Design tokens
@@ -36,8 +36,7 @@ export const radius = {
   full: '100%',
 };
 
-export type TypographyVariant =
-  'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption';
+type TypographyVariant = 'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption';
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
@@ -81,73 +80,3 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     fontSize: 16,
   },
 };
-
-export const shadows = Platform.select({
-  ios: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  android: {
-    elevation: 3,
-  },
-  default: {},
-});
-
-/**
- * Global styles
- * ------------------------------------------------------------------
- */
-export const globalStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    padding: spacing.md,
-    backgroundColor: palette.background,
-  },
-
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginVertical: spacing.sm,
-    ...shadows,
-  },
-
-  title: {
-    ...typography.heading2,
-    marginBottom: spacing.sm,
-  },
-
-  text: {
-    ...typography.body,
-  },
-
-  button: {
-    backgroundColor: LIGHT_GREY,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows,
-  },
-
-  buttonText: {
-    ...typography.button,
-    color: palette.surface,
-  },
-
-  input: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: palette.border,
-    padding: spacing.sm,
-    fontSize: typography.body.fontSize,
-    color: palette.textPrimary,
-    ...shadows,
-  },
-});
-
-export type GlobalStyles = typeof globalStyles;

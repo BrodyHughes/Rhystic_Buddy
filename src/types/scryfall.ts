@@ -108,8 +108,6 @@ export interface ScryfallCard {
   }[];
 }
 
-export type ScryfallCardList = ScryfallApiList<ScryfallCard>;
-
 export interface ScryfallApiList<T> {
   object: 'list';
   total_cards?: number;

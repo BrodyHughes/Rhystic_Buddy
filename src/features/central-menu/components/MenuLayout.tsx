@@ -5,7 +5,7 @@ import { StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native
 import Animated, { AnimatedStyle } from 'react-native-reanimated';
 import Svg, { Path, Defs, Stop, RadialGradient, PathProps } from 'react-native-svg';
 import { Menu, X } from 'lucide-react-native';
-import { APP_BACKGROUND } from '@/consts/consts';
+import { APP_BACKGROUND, LIGHT_GREY } from '@/consts/consts';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -57,10 +57,10 @@ export const MenuLayout = React.memo(
           />
         </Svg>
         <Animated.View style={[styles.iconContainer, hamburgerIconStyle]}>
-          <Menu color={'rgb(211, 211, 216)'} size={40} strokeWidth={3} />
+          <Menu color={LIGHT_GREY} size={40} strokeWidth={3} />
         </Animated.View>
         <Animated.View style={[styles.iconContainer, xIconStyle]}>
-          <X color={'rgb(211, 211, 216)'} size={50} strokeWidth={3} />
+          <X color={LIGHT_GREY} size={50} strokeWidth={3} />
         </Animated.View>
       </AnimatedTouchable>
     );

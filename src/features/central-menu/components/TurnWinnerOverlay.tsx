@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View, Platform } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
   FadeOut,
   Reanimated3DefaultSpringConfig,
 } from 'react-native-reanimated';
-import { BlurView } from '@react-native-community/blur';
+import BlurBackdrop from '@/components/BlurBackdrop';
 import { typography, radius, palette } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
 import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
@@ -51,11 +51,7 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
 
   return (
     <Animated.View style={styles.container} exiting={FadeOut.duration(150)}>
-      {Platform.OS === 'ios' ? (
-        <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
-      ) : (
-        <View style={[StyleSheet.absoluteFill, styles.androidBackground]} />
-      )}
+      <BlurBackdrop />
       <Animated.View style={[styles.rotatedContainer, animatedStyle]}>
         {confettiParticles}
         <View style={[styles.textWrapper, { width: panelH }]}>
@@ -76,9 +72,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
-  },
-  androidBackground: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   rotatedContainer: {
     flex: 1,

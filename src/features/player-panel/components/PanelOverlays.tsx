@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import { View, StyleSheet } from 'react-native';
+import BlurBackdrop from '@/components/BlurBackdrop';
 import LinearGradient from 'react-native-linear-gradient';
 import { radius } from '@/styles/global';
 import { BORDER_WIDTH, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
@@ -31,11 +31,7 @@ export default function PanelOverlays({
       />
       {isSpinning && isCurrentTurn && (
         <View style={styles.turnOrderOverlay}>
-          {Platform.OS === 'ios' ? (
-            <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={10} />
-          ) : (
-            <View style={[StyleSheet.absoluteFill, styles.androidBackground]} />
-          )}
+          <BlurBackdrop />
         </View>
       )}
       {isFinished && isCurrentTurn && <TurnWinnerOverlay panelW={panelW} panelH={panelH} />}
@@ -68,8 +64,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: BORDER_WIDTH,
     borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
-  },
-  androidBackground: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
 });
