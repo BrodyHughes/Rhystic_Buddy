@@ -46,7 +46,9 @@ function PlayerPanelComponent({
   const { height: H } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const changeLife = useLifeStore((s) => s.changeLife);
-  const { current: currentTurn, isSpinning, isFinished } = useTurnStore();
+  const isSpinning = useTurnStore((s) => s.isSpinning);
+  const isFinished = useTurnStore((s) => s.isFinished);
+  const isCurrentTurn = useTurnStore((s) => s.current === index);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
 
@@ -196,7 +198,7 @@ function PlayerPanelComponent({
         <PanelOverlays
           isSpinning={isSpinning}
           isFinished={isFinished}
-          isCurrentTurn={currentTurn === index}
+          isCurrentTurn={isCurrentTurn}
           panelW={panelW}
           panelH={panelH}
         />

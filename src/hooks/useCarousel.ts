@@ -52,7 +52,8 @@ export const useCarousel = ({
 
   const isAnimating = useSharedValue(false);
 
-  const { startReceiving, stopReceiving } = useCommanderDamageModeStore();
+  const startReceiving = useCommanderDamageModeStore((s) => s.startReceiving);
+  const stopReceiving = useCommanderDamageModeStore((s) => s.stopReceiving);
   const hasCommanderView = totalPlayers > 2;
 
   const flipFactor = isEvenPlayerIndexNumber ? 1 : -1;

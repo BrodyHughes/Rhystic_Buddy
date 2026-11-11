@@ -27,8 +27,10 @@ import useStoresHydrated from '@/hooks/useStoresHydrated';
 
 export default function App() {
   const totalPlayersCount = useLifeStore((s) => s.players.length);
-  const { isReceiving, defenderId } = useCommanderDamageModeStore();
-  const { isFinished, reset } = useTurnStore();
+  const isReceiving = useCommanderDamageModeStore((s) => s.isReceiving);
+  const defenderId = useCommanderDamageModeStore((s) => s.defenderId);
+  const isFinished = useTurnStore((s) => s.isFinished);
+  const resetTurn = useTurnStore((s) => s.reset);
   const currentGap = totalPlayersCount === 2 ? (Platform.OS === 'android' ? GAP : GAP * 1.1) : GAP;
 
   const layoutConfigurations: { [count: number]: { columns: number; rows: number } } = {
@@ -200,7 +202,7 @@ export default function App() {
               )}
               {isFinished && (
                 <Pressable
-                  onPress={reset}
+                  onPress={resetTurn}
                   style={styles.fullscreenPressable}
                   testID="winner-dismiss"
                 />
