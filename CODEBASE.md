@@ -70,6 +70,7 @@ src/
   - Player life totals
   - Commander damage matrix
   - Player backgrounds
+  - Counters and the Monarch
 - Timer management for life change deltas
 
 ### 3. Gesture System
@@ -113,10 +114,24 @@ Floating action button that provides access to:
 
 ### Counter System
 
-- Default counters: Tax, Charge
-- Extra counters: Poison, Storm, Mana (5 colors)
-- Dynamic counter management with animations
-- Centralized configuration in `consts/counters.ts`
+- Catalog in `consts/counters.ts`: Commander Tax (always tracked, steps by 2) plus addable Poison, Energy and Experience
+- Non-zero counters show as display-only chips on the Life view (`CounterChips.tsx`); they fade when the player is dead
+- The Counters view holds Background/Monarch/Dead, one tile per tracked counter, and an Add list
+- A skull button appears next to the life total at lethal (0 life, 10 poison, 21 commander damage from one source) to mark the player Dead
+
+### Commander Damage Map
+
+- With 3+ players, once a player has taken commander damage, a small map of the table appears at the top of their Life view (`CommanderDamageMap.tsx`), showing damage from each opponent in that opponent's seat
+- The map is drawn in screen orientation from `getTableSeats` (`src/lib/tableSeats.ts`) and counter-rotated so it mirrors the real table; it is display-only (the Life view's touch area is reserved for life changes)
+
+### Settings
+
+- More → Settings toggles the commander damage map and the counter chips on the Life view (`useSettingsStore`, persisted; both default on)
+
+### Monarch
+
+- One player at a time can be Monarch (`useTableStatusStore`), toggled from that player's Counters view and shown as a crown chip on their Life view
+- Cleared by Reset and by changing the player count (as are counters)
 
 ## Data Flow
 

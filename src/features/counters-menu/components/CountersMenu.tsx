@@ -1,32 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { Skull } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Pressable, Text, ViewStyle } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useShallow } from 'zustand/react/shallow';
+import { Check, Crown, Image as ImageIcon, LucideIcon, Plus, Skull, X } from 'lucide-react-native';
 
 import CountersMenuButtons from './CountersMenuButtons';
 import BackgroundSearch from '@/features/central-menu/modals/BackgroundSearch';
 import { useCounterStore } from '@/features/counters-menu/store/useCounterStore';
 import { useLifeStore } from '@/features/player-panel/store/useLifeStore';
+import { useTableStatusStore } from '@/features/central-menu/store/useTableStatusStore';
 import {
   LIGHT_GREY,
-  CARD_BACKGROUND_TRANSPARENT,
+  CHIP_BACKGROUND,
   DEAD_CARD_BACKGROUND,
+  PLAINS,
   COUNTERS_DIVIDER_COLOR,
+  BORDER_COLOR,
 } from '@/consts/consts';
-import { radius, typography } from '@/styles/global';
+import { radius, spacing, typography } from '@/styles/global';
 import {
-  COUNTER_ICONS,
-  COUNTER_COLORS,
-  COUNTER_SOLID_COLORS,
+  ADDABLE_COUNTERS,
+  CHIP_ICON_SIZE,
+  COUNTER_ORDER,
+  COUNTERS,
   DEFAULT_COUNTERS,
-  EXTRA_COUNTERS,
-  ALL_COUNTER_TYPES,
-  CounterType,
+  TILE_ICON_SIZE,
 } from '@/consts/counters';
 import { PlayerCarouselManager } from '@/lib/PlayerCarouselManager';
 
-// Stable fallback object for empty counters to keep React's useSyncExternalStore happy
-const EMPTY_COUNTERS: Record<string, number> = Object.freeze({});
+const TILE_SIZE = 64;
+const SETTING_ICON_SIZE = 20;
 
 interface Props {
   defenderId: number;
@@ -34,100 +37,114 @@ interface Props {
 
 export default function CountersMenu({ defenderId }: Props) {
   const [bgSearchVisible, setBgSearchVisible] = useState(false);
+  const [adding, setAdding] = useState(false);
 
-  const counters = useCounterStore((s) => s.counters[defenderId] || EMPTY_COUNTERS);
+  const tracked = useCounterStore(
+    useShallow((s) =>
+      COUNTER_ORDER.filter(
+        (k) => DEFAULT_COUNTERS.includes(k) || s.counters[defenderId]?.[k] !== undefined,
+      ),
+    ),
+  );
   const addCounter = useCounterStore((s) => s.addCounter);
   const removeCounter = useCounterStore((s) => s.removeCounter);
   const toggleDead = useLifeStore((s) => s.toggleDead);
   const isDead = useLifeStore((s) => s.players[defenderId]?.isDead ?? false);
+  const isMonarch = useTableStatusStore((s) => s.monarch === defenderId);
+  const toggleMonarch = useTableStatusStore((s) => s.toggleMonarch);
 
-  // Ensure default counters exist
-  useEffect(() => {
-    DEFAULT_COUNTERS.forEach((k) => {
-      if (counters[k] === undefined) addCounter(defenderId, k);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defenderId]);
-
-  const existingKeys = Object.keys(counters);
-
-  const renderBackgroundColumn = () => {
-    const Icon = COUNTER_ICONS.background;
-    return (
-      <View style={styles.backgroundSection}>
-        <Pressable
-          style={({ pressed }) => [styles.backgroundCard, pressed && styles.backgroundCardPressed]}
-          onPress={() => setBgSearchVisible(true)}
-        >
-          <Icon color={LIGHT_GREY} size={40} />
-          <Text style={styles.backgroundLabel}>Background</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [
-            styles.backgroundCard,
-            isDead && styles.deadCardActive,
-            pressed && styles.backgroundCardPressed,
-          ]}
-          onPress={() => {
-            toggleDead(defenderId);
-            setTimeout(() => PlayerCarouselManager.resetPlayer(defenderId), 250);
-          }}
-        >
-          <Skull color={isDead ? 'red' : LIGHT_GREY} size={40} />
-          <Text style={styles.backgroundLabel}>Dead</Text>
-        </Pressable>
-      </View>
-    );
-  };
-
-  const renderExtraIcons = () => (
-    <View style={styles.extraSection}>
-      <Text style={styles.extraSectionTitle}>Add Counters</Text>
-      <View style={styles.extraIconsContainer}>
-        {EXTRA_COUNTERS.map((key) => {
-          const added = existingKeys.includes(key);
-          const IconComponent = COUNTER_ICONS[key];
-          const baseColor = COUNTER_SOLID_COLORS[key];
-          const transparentColor = COUNTER_COLORS[key];
-          return (
-            <Pressable
-              key={key}
-              style={[styles.iconCircle, { backgroundColor: added ? baseColor : transparentColor }]}
-              onPress={() => {
-                if (added) {
-                  removeCounter(defenderId, key);
-                } else {
-                  addCounter(defenderId, key);
-                }
-              }}
-            >
-              <IconComponent color={added ? 'rgba(0, 0, 0, 0.7)' : LIGHT_GREY} size={24} />
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
+  const allAdded = ADDABLE_COUNTERS.every((k) => tracked.includes(k));
 
   return (
     <>
       <View style={styles.container}>
-        {renderBackgroundColumn()}
+        <View style={styles.settingsColumn}>
+          <SettingCard
+            Icon={ImageIcon}
+            label="Background"
+            onPress={() => setBgSearchVisible(true)}
+          />
+          <SettingCard
+            Icon={Crown}
+            label="Monarch"
+            activeStyle={isMonarch && styles.monarchActive}
+            onPress={() => toggleMonarch(defenderId)}
+          />
+          <SettingCard
+            Icon={Skull}
+            label="Dead"
+            iconColor={isDead ? 'red' : LIGHT_GREY}
+            activeStyle={isDead && styles.deadCardActive}
+            onPress={() => {
+              toggleDead(defenderId);
+              setTimeout(() => PlayerCarouselManager.resetPlayer(defenderId), 250);
+            }}
+          />
+        </View>
 
         <View style={styles.divider} />
-        <View style={styles.counterContainer}>
-          {ALL_COUNTER_TYPES.map((key) => {
-            return (
-              <CounterColumn
-                key={key}
-                counterKey={key}
-                defenderId={defenderId}
-                existingKeys={existingKeys}
-              />
-            );
-          })}
-        </View>
-        {renderExtraIcons()}
+
+        {adding ? (
+          <Animated.View entering={FadeIn} style={styles.addList}>
+            <Pressable
+              style={styles.listClose}
+              onPress={() => setAdding(false)}
+              hitSlop={spacing.sm}
+            >
+              <X color={LIGHT_GREY} size={20} />
+            </Pressable>
+            {ADDABLE_COUNTERS.map((key) => {
+              const { Icon, label } = COUNTERS[key];
+              const added = tracked.includes(key);
+              return (
+                <React.Fragment key={key}>
+                  <View style={styles.listDivider} />
+                  <Pressable
+                    style={({ pressed }) => [styles.listRow, pressed && styles.pressed]}
+                    onPress={() =>
+                      added ? removeCounter(defenderId, key) : addCounter(defenderId, key)
+                    }
+                  >
+                    <Icon color={LIGHT_GREY} size={20} />
+                    <Text style={styles.listLabel}>{label}</Text>
+                    {added && <Check color={LIGHT_GREY} size={20} />}
+                  </Pressable>
+                </React.Fragment>
+              );
+            })}
+          </Animated.View>
+        ) : (
+          <View style={styles.tiles}>
+            {tracked.map((key) => {
+              const { Icon, label, step } = COUNTERS[key];
+              return (
+                <Animated.View key={key} entering={FadeIn} exiting={FadeOut} style={styles.tile}>
+                  <Icon color={LIGHT_GREY} size={CHIP_ICON_SIZE} />
+                  <Text style={styles.tileLabel} numberOfLines={1} adjustsFontSizeToFit>
+                    {label}
+                  </Text>
+                  <CountersMenuButtons
+                    defenderId={defenderId}
+                    counter={key}
+                    step={step}
+                    size={TILE_SIZE}
+                  />
+                </Animated.View>
+              );
+            })}
+            {!allAdded && (
+              <Pressable
+                style={({ pressed }) => [styles.addTile, pressed && styles.pressed]}
+                onPress={() => setAdding(true)}
+              >
+                <Plus color={LIGHT_GREY} size={TILE_ICON_SIZE} />
+                <Text style={styles.settingLabel} numberOfLines={1} adjustsFontSizeToFit>
+                  Add
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        )}
       </View>
 
       {bgSearchVisible && (
@@ -137,44 +154,31 @@ export default function CountersMenu({ defenderId }: Props) {
   );
 }
 
-// Individual counter component with its own animation
-const CounterColumn: React.FC<{
-  counterKey: string;
-  defenderId: number;
-  existingKeys: string[];
-}> = ({ counterKey, defenderId, existingKeys }) => {
-  const isActive = existingKeys.includes(counterKey);
-  const counterColor = COUNTER_COLORS[counterKey as CounterType] || 'rgba(255, 255, 255, 0.15)';
-  const IconComponent = counterKey === 'tax' ? null : COUNTER_ICONS[counterKey as CounterType];
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      width: withTiming(isActive ? 110 : 0, { duration: 400 }),
-      opacity: withTiming(isActive ? 1 : 0, { duration: 400 }),
-      marginLeft: withTiming(isActive ? 4 : 0, { duration: 400 }),
-      marginRight: withTiming(isActive ? 4 : 0, { duration: 400 }),
-    };
-  });
-
+function SettingCard({
+  Icon,
+  label,
+  onPress,
+  iconColor = LIGHT_GREY,
+  activeStyle,
+}: {
+  Icon: LucideIcon;
+  label: string;
+  onPress: () => void;
+  iconColor?: string;
+  activeStyle?: false | ViewStyle;
+}) {
   return (
-    <Animated.View style={[styles.columnBase, animatedStyle]}>
-      <View style={styles.iconWrap}>
-        {counterKey === 'tax' ? (
-          <Text style={styles.taxLabel}>Tax</Text>
-        ) : (
-          IconComponent && <IconComponent color={LIGHT_GREY} size={32} />
-        )}
-      </View>
-      <CountersMenuButtons
-        defenderId={defenderId}
-        counter={counterKey}
-        cellW={95}
-        cellH={95}
-        backgroundColor={counterColor}
-      />
-    </Animated.View>
+    <Pressable
+      style={({ pressed }) => [styles.settingCard, activeStyle, pressed && styles.pressed]}
+      onPress={onPress}
+    >
+      <Icon color={iconColor} size={SETTING_ICON_SIZE} />
+      <Text style={styles.settingLabel} numberOfLines={1} adjustsFontSizeToFit>
+        {label}
+      </Text>
+    </Pressable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -182,87 +186,92 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
   },
-  backgroundLabel: {
+  settingsColumn: {
+    gap: spacing.xs + 2,
+  },
+  settingCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.md,
+    backgroundColor: CHIP_BACKGROUND,
+    width: TILE_SIZE,
+  },
+  settingLabel: {
     ...typography.button,
     color: LIGHT_GREY,
-    fontSize: 10,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: spacing.xs,
   },
-  backgroundSection: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginLeft: 15,
-    gap: 6,
-  },
-  backgroundCard: {
-    alignItems: 'center',
-    padding: 6,
-    borderRadius: radius.md,
-    backgroundColor: CARD_BACKGROUND_TRANSPARENT,
-    minWidth: 80,
-    width: 80,
-  },
-  backgroundCardPressed: {
-    backgroundColor: CARD_BACKGROUND_TRANSPARENT,
-    transform: [{ scale: 0.95 }],
+  pressed: {
+    opacity: 0.6,
   },
   deadCardActive: {
     backgroundColor: DEAD_CARD_BACKGROUND,
   },
-  counterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  columnBase: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  iconWrap: {
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  taxLabel: {
-    ...typography.button,
-    color: LIGHT_GREY,
-    fontSize: 25,
-    fontWeight: 900,
-  },
-  extraSection: {
-    alignItems: 'center',
-    marginHorizontal: 30,
-  },
-  extraSectionTitle: {
-    ...typography.button,
-    fontSize: 24,
-    fontWeight: 900,
-    color: LIGHT_GREY,
-    marginBottom: 8,
-    opacity: 0.8,
-  },
-  extraIconsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 250,
-  },
-  iconCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: radius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
+  monarchActive: {
+    backgroundColor: PLAINS,
   },
   divider: {
     width: 2,
-    height: '70%',
+    height: '60%',
     backgroundColor: COUNTERS_DIVIDER_COLOR,
-    marginHorizontal: 35,
+    marginHorizontal: spacing.sm + 4,
+  },
+  tiles: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.xs + 2,
+  },
+  tile: {
+    width: TILE_SIZE,
+    alignItems: 'center',
+    gap: 2,
+  },
+  tileLabel: {
+    ...typography.button,
+    color: LIGHT_GREY,
+    fontSize: 12,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+  addTile: {
+    width: TILE_SIZE * 0.6,
+    height: TILE_SIZE,
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: BORDER_COLOR,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addList: {
+    width: 200,
+    borderRadius: radius.md,
+    backgroundColor: CHIP_BACKGROUND,
+    overflow: 'hidden',
+  },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm + 4,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+  },
+  listLabel: {
+    ...typography.button,
+    color: LIGHT_GREY,
+    flex: 1,
+  },
+  listDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: BORDER_COLOR,
+  },
+  listClose: {
+    alignSelf: 'flex-end',
+    padding: spacing.sm,
   },
 });

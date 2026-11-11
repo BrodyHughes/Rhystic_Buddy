@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import BlurBackdrop from '@/components/BlurBackdrop';
 import LinearGradient from 'react-native-linear-gradient';
 import { radius } from '@/styles/global';
-import { BORDER_WIDTH, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
 import TurnWinnerOverlay from '../../central-menu/components/TurnWinnerOverlay';
 
 interface Props {
@@ -62,7 +61,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: BORDER_WIDTH,
-    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
 });

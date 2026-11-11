@@ -5,12 +5,15 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { Skull } from 'lucide-react-native';
 
 import { typography } from '@/styles/global';
-import { LIGHT_GREY, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import { LIGHT_GREY, PRESSED_BUTTON_COLOR, TEXT_SHADOW_COLOR } from '@/consts/consts';
+import CounterChips from './CounterChips';
 
 interface LifeViewProps {
+  playerId: number;
   life: number;
   delta: number;
   panelWidth: number; // width of panel for responsive font sizing
+  panelHeight: number;
   isDead?: boolean;
   changeLifeByAmount: (amount: number) => void;
   handleLongPressStart: (direction: 'inc' | 'dec') => void;
@@ -18,9 +21,11 @@ interface LifeViewProps {
 }
 
 const LifeView: React.FC<LifeViewProps> = ({
+  playerId,
   life,
   delta,
   panelWidth,
+  panelHeight,
   isDead,
   changeLifeByAmount,
   handleLongPressStart,
@@ -129,6 +134,7 @@ const LifeView: React.FC<LifeViewProps> = ({
       {/* Increment half */}
       <GestureDetector gesture={incGesture}>
         <View style={[styles.button, styles.inc]}>
+          <Animated.View pointerEvents="none" style={[styles.flash, { opacity: incOpacity }]} />
           <Animated.View style={[{ marginLeft: 30 }, rotateStyle, { opacity: incOpacity }]}>
             <Text style={styles.feedbackTextBase}>+</Text>
           </Animated.View>
@@ -138,11 +144,24 @@ const LifeView: React.FC<LifeViewProps> = ({
       {/* Decrement half */}
       <GestureDetector gesture={decGesture}>
         <View style={[styles.button, styles.dec]}>
+          <Animated.View pointerEvents="none" style={[styles.flash, { opacity: decOpacity }]} />
           <Animated.View style={[{ marginRight: 30 }, rotateStyle, { opacity: decOpacity }]}>
             <Text style={styles.feedbackTextBase}>-</Text>
           </Animated.View>
         </View>
       </GestureDetector>
+
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.chipsFrame,
+          { width: panelWidth, height: panelHeight },
+          rotateStyle,
+          isDead && styles.dimmed,
+        ]}
+      >
+        <CounterChips playerId={playerId} isDead={isDead} isLifeLethal={life <= 0} />
+      </View>
     </>
   );
 };
@@ -189,6 +208,17 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chipsFrame: {
+    position: 'absolute',
+    justifyContent: 'flex-end',
+  },
+  dimmed: {
+    opacity: 0.4,
+  },
+  flash: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: PRESSED_BUTTON_COLOR,
   },
   inc: { right: 0 },
   dec: { left: 0 },

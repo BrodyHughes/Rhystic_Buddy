@@ -5,15 +5,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Pressable, Linking } from 're
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { radius, spacing, typography } from '@/styles/global';
-import {
-  BACKGROUND_TRANSPARENT,
-  MODAL_BACKGROUND,
-  LIGHT_GREY,
-  GITHUB_URL,
-  PLAINS,
-} from '@/consts/consts';
+import { radius, spacing, typography, buttonColors } from '@/styles/global';
+import { BACKGROUND, GITHUB_URL, PLAINS } from '@/consts/consts';
 import LicensesModal from './LicensesModal';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 const APP_DESCRIPTION =
   'Rhystic Buddy is a simple yet feature-rich companion for MTG games.\n\nKey highlights:\n\n\u2022   Multi-player life & commander-damage tracking\n\u2022   Board-state utilities (counters, turn order, backgrounds)\n\u2022   Smooth, gesture-driven interface designed for the tabletop.';
@@ -31,15 +27,14 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
 
   return (
     <Animated.View style={styles.container} entering={FadeIn} exiting={FadeOut}>
+      <BlurBackdrop />
       {/* backdrop press */}
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
         <View style={styles.panel}>
           <View style={styles.header}>
             <Text style={styles.title}>About</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
+            <CloseButton onPress={onClose} />
           </View>
           <ScrollView style={styles.content} nestedScrollEnabled={true}>
             <Text style={styles.sectionText}>{APP_DESCRIPTION}</Text>
@@ -76,21 +71,15 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 50,
   },
   safeArea: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   panel: {
     width: '100%',
     maxHeight: '100%',
-    backgroundColor: MODAL_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -103,23 +92,12 @@ const styles = StyleSheet.create({
   title: {
     ...typography.heading2,
   },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45,
-  },
   content: {
     paddingHorizontal: 20,
   },
   sectionTitle: {
     ...typography.heading2,
     marginTop: spacing.md,
-    color: LIGHT_GREY,
   },
   sectionText: {
     ...typography.body,
@@ -130,14 +108,14 @@ const styles = StyleSheet.create({
   licensesButton: {
     marginTop: spacing.lg,
     padding: spacing.md,
-    backgroundColor: LIGHT_GREY,
+    ...buttonColors.primary,
     borderRadius: radius.md,
     alignItems: 'center',
     marginBottom: 20,
   },
   licensesButtonText: {
     ...typography.button,
-    color: MODAL_BACKGROUND,
+    ...buttonColors.onPrimary,
   },
   linkText: {
     ...typography.body,

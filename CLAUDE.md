@@ -33,7 +33,7 @@ The pre-commit hook runs eslint, prettier and `tsc --noEmit` (via npx, so it wor
 
 ## Layout & rotation invariants (fragile — read before touching)
 
-Players sit around a table. Each panel is rotated so its owner reads it from their seat. This logic is spread across `src/App.tsx`, `PlayerPanel.tsx`, `src/hooks/useCarousel.ts` and `GlobalDamageOverlays.tsx`, and the four must agree.
+Players sit around a table. Each panel is rotated so its owner reads it from their seat. This logic is spread across `src/App.tsx`, `PlayerPanel.tsx`, `src/hooks/useCarousel.ts`, `GlobalDamageOverlays.tsx` and `src/lib/tableSeats.ts` (grid position + rotation per seat, used by the commander damage mini-map), and they must agree.
 
 **Grid** (`layoutConfigurations` in `App.tsx`): 2p = 1×2 (stacked), 3p/4p = 2 cols × 2 rows, 5p/6p = 2 cols × 3 rows. In 3p and 5p the last player (index 2 or 4) gets a full-width row of their own (`isLastPlayerOddLayout`).
 

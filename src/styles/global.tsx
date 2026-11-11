@@ -1,24 +1,5 @@
-import { BACKGROUND, LIGHT_GREY } from '@/consts/consts';
-import { TextStyle } from 'react-native';
-
-/**
- * Design tokens
- * ------------------------------------------------------------------
- */
-export const palette = {
-  primary: '#5E60CE',
-  primaryDark: LIGHT_GREY,
-  secondary: LIGHT_GREY,
-  accent: LIGHT_GREY,
-  background: BACKGROUND,
-  surface: LIGHT_GREY,
-  textPrimary: LIGHT_GREY,
-  textSecondary: LIGHT_GREY,
-  textTertiary: '#fff',
-  border: '#E0E6ED',
-  danger: '#EF476F',
-  success: '#06D6A0',
-};
+import { BACKGROUND, LIGHT_GREY, OFF_WHITE } from '@/consts/consts';
+import { StyleSheet, TextStyle } from 'react-native';
 
 export const spacing = {
   xs: 4,
@@ -36,7 +17,8 @@ export const radius = {
   full: '100%',
 };
 
-type TypographyVariant = 'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption';
+type TypographyVariant =
+  'heading1' | 'heading2' | 'body' | 'caption' | 'button' | 'miniCaption' | 'label';
 
 export const typography: Record<TypographyVariant, TextStyle> = {
   heading1: {
@@ -44,19 +26,19 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 95,
-    color: palette.textPrimary,
+    color: LIGHT_GREY,
   },
   heading2: {
     // fontFamily: 'Asap',
     fontWeight: 900,
     fontSize: 28,
-    color: palette.textPrimary,
+    color: LIGHT_GREY,
     letterSpacing: 1.5,
   },
   body: {
     // fontFamily: 'Asap',
     letterSpacing: 1,
-    color: palette.textTertiary,
+    color: LIGHT_GREY,
     textAlign: 'left',
     fontSize: 18,
     fontWeight: 400,
@@ -66,17 +48,58 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 30,
-    color: palette.textSecondary,
+    color: LIGHT_GREY,
   },
   miniCaption: {
     // fontFamily: 'Asap',
     fontWeight: 500,
     fontSize: 16,
-    color: palette.textSecondary,
+    color: LIGHT_GREY,
   },
   button: {
     // fontFamily: 'Asap',
     fontWeight: 600,
     fontSize: 16,
   },
+  label: {
+    fontWeight: 600,
+    fontSize: 14,
+    letterSpacing: 0.5,
+    color: LIGHT_GREY,
+  },
 };
+
+export const icon = {
+  size: 26,
+  closeSize: 28,
+  strokeWidth: 2.25,
+};
+
+// OFF_WHITE marks a selected or primary control; text on it uses BACKGROUND.
+export const buttonColors = {
+  primary: { backgroundColor: OFF_WHITE },
+  onPrimary: { color: BACKGROUND },
+};
+
+export const pickerStyles = StyleSheet.create({
+  selectItem: {
+    backgroundColor: BACKGROUND,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: radius.md,
+    marginVertical: 5,
+    width: '100%',
+    alignItems: 'center',
+  },
+  selectedItem: buttonColors.primary,
+  selectItemText: {
+    ...typography.body,
+    marginBottom: 0,
+    fontWeight: 600,
+    fontSize: 20,
+  },
+  selectedText: {
+    ...buttonColors.onPrimary,
+    fontWeight: 900,
+  },
+});

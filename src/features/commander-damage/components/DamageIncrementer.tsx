@@ -4,12 +4,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useCommanderDamageStore } from '@/features/commander-damage/store/useCommanderDamageStore';
 import { useCommanderDamageModeStore } from '@/features/commander-damage/store/useCommanderDamageModeStore';
-import {
-  BORDER_WIDTH,
-  DAMAGE_INCREMENTER_BUTTON_COLOR,
-  LIGHT_GREY,
-  TURN_WINNER_OVERLAY_BORDER_COLOR,
-} from '@/consts/consts';
+import { DAMAGE_INCREMENTER_BUTTON_COLOR, LIGHT_GREY } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
 import BlurBackdrop from '@/components/BlurBackdrop';
 
@@ -45,7 +40,7 @@ export default function DamageIncrementer({
 
   return (
     <View style={styles.container}>
-      <BlurBackdrop androidColor={'rgba(24, 24, 29, 0.95)'} />
+      <BlurBackdrop />
       <View style={[styles.damageBlock, { transform: [{ rotate: counterRotation }] }]}>
         <Text style={styles.damageText}>{damage}</Text>
       </View>
@@ -62,8 +57,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.md,
     overflow: 'hidden',
-    borderWidth: BORDER_WIDTH,
-    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   damageBlock: {
     flexDirection: 'row',

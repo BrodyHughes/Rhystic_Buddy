@@ -11,7 +11,6 @@ import LifeView from './LifeView';
 import BackgroundImage from './BackgroundImage';
 import PanelOverlays from './PanelOverlays';
 import { ViewMode } from '@/types/app';
-import { BORDER_COLOR, BORDER_WIDTH } from '@/consts/consts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PlayerBackgroundState,
@@ -222,7 +221,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -246,7 +244,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -257,9 +254,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -271,7 +270,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -295,7 +293,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -306,9 +303,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -322,7 +321,6 @@ function PlayerPanelComponent({
               <View
                 style={[
                   styles.viewPanel,
-                  styles.panelBorder,
                   {
                     width: panelW,
                     height: panelH,
@@ -345,7 +343,6 @@ function PlayerPanelComponent({
               <View
                 style={[
                   styles.viewPanel,
-                  styles.panelBorder,
                   {
                     width: panelW,
                     height: panelH,
@@ -365,7 +362,6 @@ function PlayerPanelComponent({
             <View
               style={[
                 styles.viewPanel,
-                styles.panelBorder,
                 {
                   width: panelW,
                   height: panelH,
@@ -376,9 +372,11 @@ function PlayerPanelComponent({
               ]}
             >
               <LifeView
+                playerId={index}
                 life={player.life}
                 delta={player.delta}
                 panelWidth={panelH}
+                panelHeight={panelW}
                 isDead={player.isDead}
                 changeLifeByAmount={changeLifeByAmount}
                 handleLongPressStart={handleLongPressStart}
@@ -416,10 +414,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  panelBorder: {
-    borderWidth: BORDER_WIDTH,
-    borderColor: BORDER_COLOR,
   },
   panelText: {
     ...typography.heading2,

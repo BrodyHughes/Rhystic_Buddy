@@ -24,6 +24,7 @@ export interface LifeStore {
 
   changeLife: (index: number, amount: number) => void;
   toggleDead: (index: number) => void;
+  setPlayerColor: (index: number, color: string) => void;
   setTotalPlayers: (total: PlayerCount) => void;
   setStartingLifeTwoPlayers: (life: number) => void;
   setStartingLifeMultiPlayers: (life: number) => void;
@@ -119,6 +120,13 @@ export const useLifeStore = create<LifeStore>()(
           }
         }, 300);
       },
+
+      setPlayerColor: (index, color) =>
+        set((state) => {
+          const newPlayers = [...state.players];
+          newPlayers[index] = { ...newPlayers[index], backgroundColor: color };
+          return { players: newPlayers };
+        }),
 
       setTotalPlayers: (total) =>
         set((state) => {

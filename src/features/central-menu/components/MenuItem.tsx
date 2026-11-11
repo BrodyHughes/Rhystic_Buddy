@@ -56,7 +56,12 @@ export const MenuItem = React.memo(
 
       return {
         opacity: progress.value,
-        transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
+        transform: [
+          { translateX },
+          { translateY },
+          { rotate: `${rotation}deg` },
+          { scale: 0.9 + 0.1 * progress.value },
+        ],
       };
     });
 
@@ -66,7 +71,10 @@ export const MenuItem = React.memo(
         pointerEvents={interactive ? 'auto' : 'none'}
       >
         <TouchableOpacity onPress={onPress} style={styles.menuItem}>
-          <View style={[styles.iconCircle, { backgroundColor: color }]}>{children}</View>
+          <View style={styles.iconCircle}>
+            <View style={[styles.tint, { backgroundColor: color }]} />
+            {children}
+          </View>
           <Text style={styles.menuItemText}>{label}</Text>
         </TouchableOpacity>
       </AnimatedView>
@@ -85,17 +93,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    width: 45,
-    height: 45,
+    width: 52,
+    height: 52,
     borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  menuItemText: {
-    ...typography.body,
-    paddingTop: 5,
-    fontSize: 20,
-    fontWeight: 600,
+  tint: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: radius.md,
+    opacity: 0.2,
   },
+  menuItemText: typography.label,
 });

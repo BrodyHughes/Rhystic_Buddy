@@ -3,16 +3,17 @@
 import React from 'react';
 import { StyleSheet, Pressable, StyleProp, ViewStyle } from 'react-native';
 import Animated, { AnimatedStyle } from 'react-native-reanimated';
-import Svg, { Path, Defs, Stop, RadialGradient, PathProps } from 'react-native-svg';
+import Svg, { Path, PathProps } from 'react-native-svg';
 import { Menu, X } from 'lucide-react-native';
-import { APP_BACKGROUND, LIGHT_GREY } from '@/consts/consts';
+import { APP_BACKGROUND, BACKGROUND, LIGHT_GREY } from '@/consts/consts';
+import { icon } from '@/styles/global';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface MenuLayoutProps {
   fabAnimatedStyle: StyleProp<AnimatedStyle<ViewStyle>>;
   hitAreaStyle: StyleProp<ViewStyle>;
-  animatedStrokeProps: Partial<PathProps>;
+  animatedPathProps: Partial<PathProps>;
   hamburgerIconStyle: StyleProp<AnimatedStyle<ViewStyle>>;
   xIconStyle: StyleProp<AnimatedStyle<ViewStyle>>;
   onPress: () => void;
@@ -23,7 +24,7 @@ export const MenuLayout = React.memo(
   ({
     fabAnimatedStyle,
     hitAreaStyle,
-    animatedStrokeProps,
+    animatedPathProps,
     hamburgerIconStyle,
     xIconStyle,
     onPress,
@@ -35,25 +36,18 @@ export const MenuLayout = React.memo(
       <>
         <Animated.View style={fabAnimatedStyle} pointerEvents="none">
           <Svg height="100%" width="100%" viewBox="0 0 100 100">
-            <Defs>
-              <RadialGradient id="grad" cx="50%" cy="50%" r="50%">
-                <Stop offset="1" stopColor="rgb(20, 20, 20)" stopOpacity="1" />
-                <Stop offset="0" stopColor="rgb(35, 35, 36)" stopOpacity="1" />
-              </RadialGradient>
-            </Defs>
             <AnimatedPath
               d={pentagonPath}
-              fill="url(#grad)"
+              fill={BACKGROUND}
               stroke={APP_BACKGROUND}
-              strokeLinejoin="bevel"
-              animatedProps={animatedStrokeProps}
+              animatedProps={animatedPathProps}
             />
           </Svg>
           <Animated.View style={[styles.iconContainer, hamburgerIconStyle]}>
             <Menu color={LIGHT_GREY} size={40} strokeWidth={3} />
           </Animated.View>
           <Animated.View style={[styles.iconContainer, xIconStyle]}>
-            <X color={LIGHT_GREY} size={50} strokeWidth={3} />
+            <X color={LIGHT_GREY} size={icon.closeSize} strokeWidth={icon.strokeWidth} />
           </Animated.View>
         </Animated.View>
         <Pressable

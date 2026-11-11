@@ -17,15 +17,11 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
-import {
-  BACKGROUND_TRANSPARENT,
-  LIGHT_GREY,
-  MODAL_BACKGROUND,
-  GITHUB_URL,
-  PLAINS,
-} from '@/consts/consts';
-import { radius, typography } from '@/styles/global';
+import { LIGHT_GREY, BACKGROUND, GITHUB_URL, PLAINS, BORDER_COLOR } from '@/consts/consts';
+import { radius, typography, buttonColors } from '@/styles/global';
 import { useTutorialStore } from '../store/useTutorialStore';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 const STORAGE_KEY = 'rb_seen_tutorial';
 
@@ -160,19 +156,14 @@ export default function TutorialModal() {
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut} testID="tutorial">
+      <BlurBackdrop />
       {/* Backdrop press */}
       <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
       <SafeAreaView style={styles.flex} pointerEvents="box-none">
         {/* Header */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>Tutorial</Text>
-          <TouchableOpacity
-            onPress={handleClose}
-            style={styles.closeButton}
-            testID="tutorial-close"
-          >
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
+          <CloseButton onPress={handleClose} testID="tutorial-close" />
         </View>
 
         {/* Slides */}
@@ -217,10 +208,7 @@ export default function TutorialModal() {
             onPress={handlePrev}
             style={styles.navBtn}
           >
-            <ChevronLeft
-              color={currentIndex === 0 ? 'transparent' : BACKGROUND_TRANSPARENT}
-              size={24}
-            />
+            <ChevronLeft color={currentIndex === 0 ? 'transparent' : LIGHT_GREY} size={24} />
           </TouchableOpacity>
           <View style={styles.dotsRow}>
             {slides.map((_, index) => (
@@ -231,7 +219,7 @@ export default function TutorialModal() {
             ))}
           </View>
           <TouchableOpacity onPress={handleNext} style={styles.navBtn} testID="tutorial-next">
-            <ChevronRight color={BACKGROUND_TRANSPARENT} size={24} />
+            <ChevronRight color={LIGHT_GREY} size={24} />
           </TouchableOpacity>
         </View>
 
@@ -252,7 +240,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 60,
     paddingTop: 20,
   },
@@ -267,18 +254,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...typography.heading2,
   },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45,
-  },
   slide: {
-    backgroundColor: MODAL_BACKGROUND,
+    backgroundColor: BACKGROUND,
     borderRadius: radius.md,
     padding: 20,
     marginHorizontal: 20,
@@ -286,7 +263,6 @@ const styles = StyleSheet.create({
   },
   slideTitle: {
     ...typography.heading2,
-    color: LIGHT_GREY,
     textAlign: 'center',
     marginTop: 15,
     fontSize: 24,
@@ -325,13 +301,13 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: BORDER_COLOR,
   },
   dotActive: {
     backgroundColor: LIGHT_GREY,
   },
   primaryBtn: {
-    backgroundColor: LIGHT_GREY,
+    ...buttonColors.primary,
     paddingVertical: 12,
     paddingHorizontal: 35,
     borderRadius: radius.md,
@@ -340,7 +316,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     ...typography.button,
-    color: BACKGROUND_TRANSPARENT,
+    ...buttonColors.onPrimary,
   },
   link: {
     ...typography.body,

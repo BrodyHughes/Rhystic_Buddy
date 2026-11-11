@@ -11,9 +11,9 @@ import Animated, {
   Reanimated3DefaultSpringConfig,
 } from 'react-native-reanimated';
 import BlurBackdrop from '@/components/BlurBackdrop';
-import { typography, radius, palette } from '@/styles/global';
+import { typography, radius } from '@/styles/global';
 import ConfettiParticle from '@/features/central-menu/components/ConfettiParticle';
-import { BORDER_WIDTH, TEXT_SHADOW_COLOR, TURN_WINNER_OVERLAY_BORDER_COLOR } from '@/consts/consts';
+import { TEXT_SHADOW_COLOR } from '@/consts/consts';
 
 const confettiCount = 50;
 
@@ -70,8 +70,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.md,
     overflow: 'hidden',
-    borderWidth: BORDER_WIDTH,
-    borderColor: TURN_WINNER_OVERLAY_BORDER_COLOR,
   },
   rotatedContainer: {
     flex: 1,
@@ -86,7 +84,6 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.heading2,
-    color: palette.textPrimary,
     textAlign: 'center',
     textShadowColor: TEXT_SHADOW_COLOR,
     textShadowOffset: { width: 0, height: 0 },

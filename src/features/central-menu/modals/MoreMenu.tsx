@@ -4,23 +4,26 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ChevronRight, BookOpen, Info, GraduationCap } from 'lucide-react-native';
+import { ChevronRight, BookOpen, Info, GraduationCap, Settings } from 'lucide-react-native';
 import {
   BORDER_COLOR,
+  SWAMP,
   PLAINS,
   ISLAND,
   FOREST,
   LIGHT_GREY,
-  BACKGROUND_TRANSPARENT,
-  MODAL_BACKGROUND,
+  BACKGROUND,
 } from '@/consts/consts';
 import { radius, typography } from '@/styles/global';
+import CloseButton from '@/components/CloseButton';
+import BlurBackdrop from '@/components/BlurBackdrop';
 
 interface MoreMenuProps {
   onClose: () => void;
   onRulingsPress: () => void;
   onAboutPress: () => void;
   onTutorialPress: () => void;
+  onSettingsPress: () => void;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -30,8 +33,16 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
   onRulingsPress,
   onAboutPress,
   onTutorialPress,
+  onSettingsPress,
 }) => {
   const menuItems = [
+    {
+      id: 'settings',
+      label: 'Settings',
+      Icon: Settings,
+      color: SWAMP,
+      action: onSettingsPress,
+    },
     {
       id: 'rulings',
       label: 'Rulings Search',
@@ -58,15 +69,14 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
 
   return (
     <AnimatedView style={styles.container} entering={FadeIn} exiting={FadeOut}>
+      <BlurBackdrop />
       {/* Backdrop press */}
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       <SafeAreaView style={styles.flex} pointerEvents="box-none">
         {/* Header */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>More</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="more-close-btn">
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
+          <CloseButton onPress={onClose} testID="more-close-btn" />
         </View>
 
         {/* Card */}
@@ -95,7 +105,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 40,
     paddingTop: 20,
   },
@@ -110,27 +119,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...typography.heading2,
   },
-  closeButton: {
-    paddingHorizontal: 5,
-  },
-  closeButtonText: {
-    color: LIGHT_GREY,
-    fontFamily: 'Dosis',
-    ...typography.heading2,
-    lineHeight: 45,
-    fontSize: 45, // okay to use here bc its a different sized 'x' for close
-  },
   card: {
-    backgroundColor: MODAL_BACKGROUND,
+    backgroundColor: BACKGROUND,
     width: '90%',
     borderRadius: radius.md,
     overflow: 'hidden',
     alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
   },
   itemRow: {
     flexDirection: 'row',
