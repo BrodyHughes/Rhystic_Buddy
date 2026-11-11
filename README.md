@@ -2,7 +2,7 @@
   <img src="assets/ICON_NO_BCKGRND.png" alt="Rhystic Buddy Logo" width="150" />
   <h1>Rhystic Buddy</h1>
   <p>A life counter & game utility app for Magic: The Gathering's Commander (EDH) format, built with React Native.</p>
-  
+
   <!-- Badges -->
   <p>
     <img src="https://img.shields.io/github/package-json/v/BrodyHughes/commander-counter?style=flat-square" alt="Version" />
@@ -27,10 +27,10 @@
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [React Native](https://reactnative.dev/)
+- **Framework**: [React Native](https://reactnative.dev/) 0.88 (New Architecture, Hermes)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand) & [TanStack Query](https://tanstack.com/query/latest)
-- **Animation & Gestures**: [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) & [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/)
+- **Animation & Gestures**: [React Native Reanimated 4](https://docs.swmansion.com/react-native-reanimated/) (with react-native-worklets) & [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/)
 - **UI**: [React Native SVG](https://github.com/react-native-svg/react-native-svg) for custom components & [Lucide](https://lucide.dev/) for icons.
 
 ## 📂 Project Structure
@@ -39,12 +39,14 @@ The project uses a feature-sliced architecture to keep the codebase modular, sca
 
 ```
 src/
+├── components/     # Shared presentational components
 ├── consts/         # Application-wide constants (colors, layout values)
 ├── features/       # Self-contained feature modules
 │   ├── central-menu/
 │   ├── commander-damage/
 │   ├── counters-menu/
-│   └── player-panel/
+│   ├── player-panel/
+│   └── tutorial/
 ├── helpers/        # Utility functions (e.g., API helpers)
 ├── hooks/          # Shared custom React Hooks
 ├── lib/            # Core libraries & managers (e.g., queryClient)
@@ -56,11 +58,12 @@ src/
 
 ### Prerequisites
 
-- Node.js (>=18)
+- Node.js (>=22.11; `.nvmrc` pins 24, so `nvm use` picks it up)
 - Yarn (v1.x)
 - Watchman (macOS)
 - Ruby & Bundler (iOS)
-- JDK (Android)
+- JDK 17 (Android)
+- Xcode with an iOS simulator (iOS)
 - [React Native Environment Setup](https://reactnative.dev/docs/set-up-your-environment) completed for your OS.
 
 ### Installation & Running
