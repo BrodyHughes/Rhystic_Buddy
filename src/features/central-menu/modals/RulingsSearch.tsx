@@ -146,7 +146,7 @@ const RulingsSearch: React.FC = () => {
 const styles = StyleSheet.create({
   flex: { flex: 1, width: '100%', alignItems: 'center' },
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: BACKGROUND_TRANSPARENT,

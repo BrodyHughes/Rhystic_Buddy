@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { radius, typography } from '@/styles/global';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -25,7 +25,7 @@ const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 
 interface MenuItemProps {
   index: number;
-  progress: Animated.SharedValue<number>;
+  progress: SharedValue<number>;
   children: React.ReactNode;
   onPress: () => void;
   menuRadius: number;

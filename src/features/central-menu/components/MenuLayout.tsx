@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { AnimatedStyle } from 'react-native-reanimated';
 import Svg, { Path, Defs, Stop, RadialGradient, PathProps } from 'react-native-svg';
 import { Menu, X } from 'lucide-react-native';
 import { APP_BACKGROUND } from '@/consts/consts';
@@ -11,10 +11,10 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface MenuLayoutProps {
-  fabAnimatedStyle: StyleProp<ViewStyle>;
+  fabAnimatedStyle: StyleProp<AnimatedStyle<ViewStyle>>;
   animatedStrokeProps: Partial<PathProps>;
-  hamburgerIconStyle: StyleProp<ViewStyle>;
-  xIconStyle: StyleProp<ViewStyle>;
+  hamburgerIconStyle: StyleProp<AnimatedStyle<ViewStyle>>;
+  xIconStyle: StyleProp<AnimatedStyle<ViewStyle>>;
   onPress: () => void;
   pentagonPath: string;
 }
@@ -69,7 +69,7 @@ export const MenuLayout = React.memo(
 
 const styles = StyleSheet.create({
   iconContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
   },

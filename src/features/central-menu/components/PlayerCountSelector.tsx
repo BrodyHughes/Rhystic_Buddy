@@ -69,7 +69,7 @@ const PlayerCountSelector: React.FC<PlayerCountSelectorProps> = ({ onSelect, onC
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 50,
   },

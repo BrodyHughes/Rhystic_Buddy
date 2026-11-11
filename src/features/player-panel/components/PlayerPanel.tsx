@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { LifeStore, useLifeStore } from '@/features/player-panel/store/useLifeStore';
 import { useTurnStore } from '@/features/central-menu/store/useTurnStore';
@@ -139,7 +139,7 @@ function PlayerPanelComponent({
   const handleContinuousChange = useCallback(
     (direction: 'inc' | 'dec') => {
       const amount = direction === 'inc' ? 5 : -5;
-      runOnJS(changeLifeByAmount)(amount);
+      changeLifeByAmount(amount);
     },
     [changeLifeByAmount],
   );

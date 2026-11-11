@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Skull } from 'lucide-react-native';
 
 import { typography } from '@/styles/global';
@@ -55,8 +55,8 @@ const LifeView: React.FC<LifeViewProps> = ({
       const tap = Gesture.Tap().onEnd((_e, success) => {
         'worklet';
         if (success && !isDead) {
-          runOnJS(changeLifeByAmount)(amount);
-          runOnJS(feedback)();
+          scheduleOnRN(changeLifeByAmount, amount);
+          scheduleOnRN(feedback);
         }
       });
 
@@ -65,14 +65,14 @@ const LifeView: React.FC<LifeViewProps> = ({
         .onStart(() => {
           'worklet';
           if (!isDead) {
-            runOnJS(handleLongPressStart)(direction);
-            runOnJS(feedback)();
+            scheduleOnRN(handleLongPressStart, direction);
+            scheduleOnRN(feedback);
           }
         })
         .onEnd(() => {
           'worklet';
           if (!isDead) {
-            runOnJS(handlePressOut)();
+            scheduleOnRN(handlePressOut);
           }
         });
 

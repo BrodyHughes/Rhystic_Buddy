@@ -192,7 +192,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaView style={styles.screen}>
-          <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+          <StatusBar barStyle="light-content" />
           {storesHydrated ? (
             <>
               <View style={[styles.grid, { gap: currentGap, padding: currentGap }]}>
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fullscreenPressable: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 100,
   },
   flex: {

@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
   withDelay,
   FadeOut,
+  Reanimated3DefaultSpringConfig,
 } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
 import { typography, radius, palette } from '@/styles/global';
@@ -29,11 +30,12 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
     scale.value = withDelay(
       100,
       withSpring(1, {
+        ...Reanimated3DefaultSpringConfig,
         damping: 12,
         stiffness: 100,
       }),
     );
-    opacity.value = withDelay(100, withSpring(1));
+    opacity.value = withDelay(100, withSpring(1, Reanimated3DefaultSpringConfig));
   }, [scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -66,7 +68,7 @@ export default function TurnWinnerOverlay({ panelW, panelH }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 110,
     justifyContent: 'center',
     alignItems: 'center',

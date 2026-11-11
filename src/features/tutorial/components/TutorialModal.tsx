@@ -248,7 +248,7 @@ export default function TutorialModal() {
 const styles = StyleSheet.create({
   flex: { flex: 1, width: '100%' },
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: BACKGROUND_TRANSPARENT,

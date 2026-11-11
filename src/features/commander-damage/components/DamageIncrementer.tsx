@@ -61,7 +61,7 @@ export default function DamageIncrementer({
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: radius.md,

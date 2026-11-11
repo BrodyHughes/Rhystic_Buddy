@@ -75,7 +75,7 @@ const AboutModal: React.FC<AboutProps> = ({ onClose }) => {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: BACKGROUND_TRANSPARENT,
     zIndex: 50,
   },

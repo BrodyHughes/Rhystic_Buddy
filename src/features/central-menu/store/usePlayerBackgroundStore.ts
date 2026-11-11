@@ -22,23 +22,23 @@ const cleveland = require('@/../assets/the-cleveland-museum-of-art-ruUOEdmS1Mw-u
 
 const stockImages = [
   {
-    url: Image.resolveAssetSource(artChicago).uri,
+    url: Image.resolveAssetSource(artChicago)!.uri,
     artist: 'Art Institute of Chicago',
   },
   {
-    url: Image.resolveAssetSource(birmingham1).uri,
+    url: Image.resolveAssetSource(birmingham1)!.uri,
     artist: 'Birmingham Museums Trust',
   },
   {
-    url: Image.resolveAssetSource(birmingham2).uri,
+    url: Image.resolveAssetSource(birmingham2)!.uri,
     artist: 'Birmingham Museums Trust',
   },
   {
-    url: Image.resolveAssetSource(catherine).uri,
+    url: Image.resolveAssetSource(catherine)!.uri,
     artist: 'Catherine Kay Greenup',
   },
   {
-    url: Image.resolveAssetSource(cleveland).uri,
+    url: Image.resolveAssetSource(cleveland)!.uri,
     artist: 'The Cleveland Museum of Art',
   },
 ];
