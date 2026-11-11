@@ -239,6 +239,7 @@ export default React.memo(function CentralMenuButton() {
                 key={item.id}
                 index={index}
                 progress={progress}
+                interactive={open}
                 onPress={item.action}
                 menuRadius={menuItemRadius}
                 label={item.label}

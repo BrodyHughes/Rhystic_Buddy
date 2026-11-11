@@ -26,6 +26,7 @@ const MENU_ITEM_ANGLES_DEG = getMenuItemAngles();
 interface MenuItemProps {
   index: number;
   progress: SharedValue<number>;
+  interactive: boolean;
   children: React.ReactNode;
   onPress: () => void;
   menuRadius: number;
@@ -35,7 +36,16 @@ interface MenuItemProps {
 
 // Circular menu item
 export const MenuItem = React.memo(
-  ({ index, progress, children, onPress, menuRadius, label, color }: MenuItemProps) => {
+  ({
+    index,
+    progress,
+    interactive,
+    children,
+    onPress,
+    menuRadius,
+    label,
+    color,
+  }: MenuItemProps) => {
     const itemAngles = MENU_ITEM_ANGLES_DEG.map((angle) => (angle * Math.PI) / 180);
     const angle = itemAngles[index];
 
@@ -48,12 +58,14 @@ export const MenuItem = React.memo(
         opacity: progress.value,
         transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
         display: progress.value === 0 ? 'none' : 'flex',
-        pointerEvents: progress.value === 1 ? 'auto' : 'none',
       };
     });
 
     return (
-      <AnimatedView style={[styles.menuItemContainer, animatedStyle]}>
+      <AnimatedView
+        style={[styles.menuItemContainer, animatedStyle]}
+        pointerEvents={interactive ? 'auto' : 'none'}
+      >
         <TouchableOpacity onPress={onPress} style={styles.menuItem}>
           <View style={[styles.iconCircle, { backgroundColor: color }]}>{children}</View>
           <Text style={styles.menuItemText}>{label}</Text>
