@@ -6,6 +6,7 @@ import {
   useSharedValue,
   useAnimatedStyle,
   useAnimatedProps,
+  useDerivedValue,
   withSpring,
   cancelAnimation,
 } from 'react-native-reanimated';
@@ -75,19 +76,15 @@ export default React.memo(function CentralMenuButton() {
   const menuItemRadius = W / MENU_LAYOUT_RADIUS_FACTOR;
   const finalFabDiameter = W + menuItemRadius / 2 - 30;
 
-  const progress = useSharedValue(0);
+  const closedScale = FAB_SIZE / finalFabDiameter;
 
-  const fabAnimatedStyle = useAnimatedStyle(() => {
-    const size = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
-    const rotation = progress.value * 180;
-    return {
-      width: size,
-      height: size,
-      marginLeft: -size / 2,
-      marginTop: -size / 2,
-      transform: [{ rotate: `${rotation}deg` }],
-    };
-  });
+  const progress = useSharedValue(0);
+  // The FAB is laid out once at its open size and scaled, so the animation never triggers layout.
+  const fabScale = useDerivedValue(() => closedScale + progress.value * (1 - closedScale));
+
+  const fabAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }, { rotate: `${progress.value * 180}deg` }],
+  }));
 
   const animatedStrokeProps = useAnimatedProps(() => {
     const currentSize = FAB_SIZE + progress.value * (finalFabDiameter - FAB_SIZE);
@@ -103,29 +100,34 @@ export default React.memo(function CentralMenuButton() {
     };
   });
 
+  // Icons are counter-scaled so they keep their size while the FAB scales.
   const hamburgerIconStyle = useAnimatedStyle(() => ({
     opacity: 1 - progress.value,
+    transform: [{ scale: 1 / fabScale.value }],
   }));
 
   const xIconStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
+    transform: [{ scale: 1 / fabScale.value }],
   }));
 
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openRef = useRef(false);
 
   const handlePress = useCallback(() => {
+    const next = !openRef.current;
+    openRef.current = next;
     cancelAnimation(progress);
-    const toValue = open ? 0 : 1;
-    progress.value = withSpring(toValue, {
+    progress.value = withSpring(next ? 1 : 0, {
       damping: 11,
       stiffness: 140,
       mass: 0.5,
     });
-    setOpen(!open);
+    setOpen(next);
     // Clear any existing queued reset
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     resetTimeoutRef.current = setTimeout(() => PlayerCarouselManager.resetAll(), 250);
-  }, [open, progress]);
+  }, [progress]);
 
   // Cleanup timeout on unmount
   useEffect(
@@ -199,6 +201,27 @@ export default React.memo(function CentralMenuButton() {
     [handlePlayersPress, handleTurnOrder, handleReset, handleStartingLifePress, handleMorePress],
   );
 
+  const fabStyle = useMemo(
+    () => [
+      styles.fab,
+      {
+        width: finalFabDiameter,
+        height: finalFabDiameter,
+        marginLeft: -finalFabDiameter / 2,
+        marginTop: -finalFabDiameter / 2,
+        top: H / 2 + (top - bottom) / 2,
+        left: W / 2,
+      },
+      fabAnimatedStyle,
+    ],
+    [finalFabDiameter, H, W, top, bottom, fabAnimatedStyle],
+  );
+
+  const hitAreaStyle = useMemo(
+    () => [styles.hitArea, { top: H / 2 + (top - bottom) / 2, left: W / 2 }],
+    [H, W, top, bottom],
+  );
+
   return (
     <View style={[styles.container, { width: W, height: H }]} pointerEvents="box-none">
       {/* Backdrop press when menu is open */}
@@ -210,11 +233,8 @@ export default React.memo(function CentralMenuButton() {
         />
       )}
       <MenuLayout
-        fabAnimatedStyle={[
-          styles.fab,
-          { top: H / 2 + (top - bottom) / 2, left: W / 2 },
-          fabAnimatedStyle,
-        ]}
+        fabAnimatedStyle={fabStyle}
+        hitAreaStyle={hitAreaStyle}
         animatedStrokeProps={animatedStrokeProps}
         hamburgerIconStyle={hamburgerIconStyle}
         xIconStyle={xIconStyle}
@@ -287,8 +307,6 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    width: FAB_SIZE,
-    height: FAB_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -301,6 +319,14 @@ const styles = StyleSheet.create({
     // shadowOpacity: 0.3,
     // shadowRadius: 10,
     // elevation: 8,
+  },
+  hitArea: {
+    position: 'absolute',
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    marginLeft: -FAB_SIZE / 2,
+    marginTop: -FAB_SIZE / 2,
+    zIndex: 11,
   },
   menuItemsWrapper: {
     alignItems: 'center',

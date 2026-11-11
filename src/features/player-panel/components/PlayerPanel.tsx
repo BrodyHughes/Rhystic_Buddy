@@ -51,6 +51,13 @@ function PlayerPanelComponent({
   const isCurrentTurn = useTurnStore((s) => s.current === index);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.LIFE);
+  // CountersMenu is the heaviest part of a panel and sits off-screen until swiped to, so mount
+  // it after the panel's first paint (staggered per panel) to keep player-count changes snappy.
+  const [countersMounted, setCountersMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setCountersMounted(true), 300 + index * 50);
+    return () => clearTimeout(t);
+  }, [index]);
 
   // Clear any active continuous-life-change interval when the player count changes to
   // avoid timers running after panels are re-created/re-positioned.
@@ -226,7 +233,7 @@ function PlayerPanelComponent({
               ]}
             >
               <CountersView
-                menuVisible
+                menuVisible={countersMounted}
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}
@@ -275,7 +282,7 @@ function PlayerPanelComponent({
               ]}
             >
               <CountersView
-                menuVisible
+                menuVisible={countersMounted}
                 menuType={ViewMode.COUNTERS}
                 index={index}
                 panelHeight={panelH}

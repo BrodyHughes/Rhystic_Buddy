@@ -57,7 +57,6 @@ export const MenuItem = React.memo(
       return {
         opacity: progress.value,
         transform: [{ translateX }, { translateY }, { rotate: `${rotation}deg` }],
-        display: progress.value === 0 ? 'none' : 'flex',
       };
     });
 

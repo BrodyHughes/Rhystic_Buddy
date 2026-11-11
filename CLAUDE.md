@@ -20,7 +20,7 @@ yarn lint            # eslint
 cd android && ./gradlew assembleDebug
 ```
 
-The pre-commit hook runs eslint, prettier and `yarn typecheck` on staged files. Typecheck covers every `.ts/.tsx` in the repo, so stray files (even outside `src/`) will fail commits.
+The pre-commit hook runs eslint, prettier and `tsc --noEmit` (via npx, so it works without yarn on the active Node) on staged files. Typecheck covers every `.ts/.tsx` in the repo, so stray files (even outside `src/`) will fail commits.
 
 ## Conventions
 
