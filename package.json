@@ -24,7 +24,7 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/blur": "^4.4.1",
     "@tanstack/react-query": "^5.107.1",
-    "lucide-react-native": "^0.525.0",
+    "lucide-react-native": "^1.71.0",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-gesture-handler": "^2.33.1",
